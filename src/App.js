@@ -13,9 +13,11 @@ import Products from './components/Products';
 import SelectDatesButton from './components/SelectDatesButton';
 import BlueLabel from './components/StatusLabels/BlueLabel';
 import GreenLabel from './components/StatusLabels/GreenLabel';
+import GreyLabel from './components/StatusLabels/GreyLabel';
 import OrangeLabel from './components/StatusLabels/OrangeLabel';
 import RedLabel from './components/StatusLabels/RedLabel';
 import TopBar from './components/TopBar';
+import ProductListing from './components/dashboard_components/ProductListing';
 import TotalCustomers from './components/dashboard_components/TotalCustomers';
 import TotalOrder from './components/dashboard_components/TotalOrder';
 import TotalProducts from './components/dashboard_components/TotalProducts';
@@ -55,6 +57,9 @@ function App() {
         <BlueLabel>Shipped</BlueLabel>
       </div>
       <div className='p-4'>
+        <GreyLabel>Draft</GreyLabel>
+      </div>
+      <div className='p-4'>
         <GreenPercentLabel>10</GreenPercentLabel>
       </div>
       <div className='p-4'>
@@ -63,6 +68,7 @@ function App() {
       <div className='p-4'>
         <GreyPercentLabel>0</GreyPercentLabel>
       </div>
+      <ProductListing/>
     </div>
   );
 }
