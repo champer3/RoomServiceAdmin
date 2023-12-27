@@ -5,8 +5,8 @@ export default function ContentContainer({ label, subheading, children }) {
         <div className="w-full ml-auto px-8 py-8 flex mr-auto bg-[#ffffff] rounded-xl">
             <div className="w-full">
                 <h1 className="px-4 font-semibold text-[20px] leading-[30px] tracking-[0.01em] text-[#333333]">{label}</h1>
-                <p className="px-4 font-extrabold text-[14px] text-[#777980] leading-[20px] tracking-[0.005em]">{subheading}</p>
-                <div className="px-4">
+                <p className="px-4 pb-2 font-extrabold text-[14px] text-[#777980] leading-[20px] tracking-[0.005em]">{subheading}</p>
+                <div className="pl-4">
                     {children}
                 </div>
 

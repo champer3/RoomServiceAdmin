@@ -1,12 +1,8 @@
-import { useState } from "react";
-export default function Dashboard() {
-    const [isClicked, setIsClicked] = useState(false)
-    const handleClick = () => {
-        setIsClicked(true)
-    }
 
+export default function Dashboard({handleClick}) {
+    
     return (
-        <button onClick={handleClick} class={`${isClicked ? 'text-stone-100 bg-rs-green' : 'text-rs-green'} flex items-center space-x-2 justify-left hover:text-stone-100 hover:bg-rs-green w-[264px] h-[48] px-[24px] py-[12px] leading-[20px] font-semibold text-14px tracking-[0.005em]`}>
+        <button onClick={handleClick} className='text-rs-green flex items-center space-x-2 justify-left hover:text-stone-100 hover:bg-rs-green w-[264px] h-[48] px-[24px] py-[12px] leading-[20px] font-semibold text-14px tracking-[0.005em]'>
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_1178_528)">
                     <path d="M8.25 3H6C4.34315 3 3 4.34315 3 6V8.25C3 9.90685 4.34315 11.25 6 11.25H8.25C9.90685 11.25 11.25 9.90685 11.25 8.25V6C11.25 4.34315 9.90685 3 8.25 3Z" fill="currentColor" />
