@@ -1,6 +1,6 @@
 export default function TableActionListing() {
     return (
-        <div className="flex space-x-3 justify-center items-center px[22px] py-[18px] border-b-[1px] bg-[#F9F9FC] text-customGrey font-bold text-[14px] h-[80px] leading-[20px] tracking[0.005em]">
+        <div className="flex space-x-3 items-center px[22px] py-[18px] text-customGrey font-bold text-[14px] h-[80px] leading-[20px] tracking[0.005em]">
             <button>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M7.99995 10.6656C9.47216 10.6656 10.6656 9.47216 10.6656 7.99995C10.6656 6.52775 9.47216 5.33429 7.99995 5.33429C6.52775 5.33429 5.33429 6.52775 5.33429 7.99995C5.33429 9.47216 6.52775 10.6656 7.99995 10.6656Z" fill="#A3A9B6" />

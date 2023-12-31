@@ -9,6 +9,7 @@ module.exports = {
         customWhite: 'rgba(255, 255, 255, 0.75)',
         transparent: 'rgba(255, 255, 255, 0.15)',
         customGrey: 'rgba(51, 51, 51, 0.6)',
+        customAsh: 'rgba(51, 51, 51, 0.7)',
       },
       fontSize: {
         '14px': '14px',
@@ -36,8 +37,11 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/forms')({
-    focus: false,
-  }),],
+  plugins: [
+    require('@tailwindcss/forms')({
+      focus: false,
+    }),
+    require('tailwind-scrollbar')({ nocompatible: true }),
+  ],
 }
 

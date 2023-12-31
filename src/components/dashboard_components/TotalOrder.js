@@ -1,7 +1,7 @@
 export default function TotalOrder({ label, amount, percent }) {
     const finalNumber = amount.toLocaleString()
     return (
-        <section className="flex-col bg-order-bg bg-no-repeat bg-[#BC6C25] w-[264px] h-[166px] bg-cover rounded-xl">
+        <section className="py-4 space-y-2 flex-col bg-order-bg bg-no-repeat bg-[#BC6C25] w-[25%] bg-cover rounded-xl">
             <div className="px-6 pt-6">
                 <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="36" height="36" rx="8" fill="white" fill-opacity="0.2" />
@@ -17,7 +17,7 @@ export default function TotalOrder({ label, amount, percent }) {
                 </svg>
 
             </div>
-            <p className="pt-3 px-6 leading-[24px] text-[16px] font-bold text-customWhite tracking-[0.005em]">{label}</p>
+            <p className="pt-3 px-6 leading-[24px] text-[18px] font-bold text-customWhite tracking-[0.005em]">{label}</p>
             <div className="flex items-center">
                 <p className="pl-5 pr-2 leading-[42px] text-[28px] font-semibold text-[#ffffff] tracking-[0.01em]">{finalNumber}</p>
                 <div className="text-[12px] text-center font-semibold text-[#ffffff] bg-transparent py-[2px] px-[6px] w-[43px] h-[22px] rounded-md">

@@ -8,9 +8,9 @@ export default function TableHead({canOrder, heading}) {
         })
     }
     return (
-        <div className="border-t-[1px] border-b-[1px] w-full flex py-[18px] items-center px-[22px] bg-[#F9F9FC]">
+        <div className=" w-full flex py-[18px] items-center px-[22px] bg-[#F9F9FC]">
             {canOrder && <p className="text-[14px] font-bold leading-[20px] mr-auto tracking-[0.005em] text-[#333333]">{heading}</p>}
-            {!canOrder && <p className="text-[14px] font-bold leading-[20px] ml-auto mr-auto tracking-[0.005em] text-[#333333]">{heading}</p>}
+            {!canOrder && <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333]">{heading}</p>}
             {canOrder && <button onClick={handleClick} className="ml-auto">
                 {isClicked && <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g transform="rotate(180 8 8)">
