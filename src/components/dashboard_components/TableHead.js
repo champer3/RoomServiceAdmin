@@ -8,7 +8,7 @@ export default function TableHead({canOrder, heading}) {
         })
     }
     return (
-        <div className=" w-full flex py-[18px] items-center px-[22px] bg-[#F9F9FC]">
+        <div className=" w-full flex py-[18px] items-center px-[22px]">
             {canOrder && <p className="text-[14px] font-bold leading-[20px] mr-auto tracking-[0.005em] text-[#333333]">{heading}</p>}
             {!canOrder && <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333]">{heading}</p>}
             {canOrder && <button onClick={handleClick} className="ml-auto">

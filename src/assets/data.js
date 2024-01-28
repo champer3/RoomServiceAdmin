@@ -117,3 +117,31 @@ export const STATES_DATA = [
     }
 ]
 
+const randomIntegers = Array.from({ length: 363  }, () => Math.floor(100 + Math.random() * 101))
+randomIntegers.push(10, 500)
+const start = new Date(2023, 0, 1)
+const end = new Date(2024, 0, 1)
+const dateRange = []
+let currentDate = start
+while (currentDate <= end){
+    dateRange.push(new Date(currentDate))
+    currentDate.setDate(currentDate.getDate() + 1)
+}
+
+export const graphData = [] 
+
+for (let i = 0; i < dateRange.length; i++) {
+    graphData.push({
+        date: dateRange[i].toISOString().slice(0, 10),
+        value: randomIntegers[i]
+    })
+}
+graphData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+
+export const numbers = [];
+let i = 1;
+while (i <= 100) {
+  numbers.push(i);
+  i++;
+}

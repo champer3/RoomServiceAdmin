@@ -30,7 +30,7 @@ export default function SidePanel() {
                 <Customers />
             </div>
             <div className="px-8 w-full bg-[#F9F9FC]">
-                <TopBar />
+                <TopBar messages={11} notifications={11} />
                 <Outlet />
             </div>
 
