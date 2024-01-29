@@ -49,8 +49,43 @@ export default function ProductsPage() {
     }
     return (
         <div className='ml-4'>
-            <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Product</p>
-            <Path pages={['Dashboard', 'Product List']} />
+            <div className='flex items-center'>
+                <div>
+                    <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Product</p>
+                    <Path pages={['Dashboard', 'Product List']} />
+                </div>
+                <div className='flex ml-auto'>
+                    <button className='flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
+                        <svg className='mr-2' width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g clip-path="url(#clip0_499_3317)">
+                                <path d="M6.5854 12.0813C7.36621 12.8627 8.63253 12.8631 9.41384 12.0822C9.41415 12.0819 9.41443 12.0817 9.41474 12.0813L11.5554 9.94069C11.8023 9.66759 11.7811 9.246 11.508 8.99906C11.2537 8.76916 10.8666 8.76956 10.6127 9L8.66209 10.9513L8.66674 0.666687C8.66671 0.298469 8.36824 0 8.00006 0C7.63187 0 7.3334 0.298469 7.3334 0.666656L7.3274 10.9387L5.3874 9C5.1269 8.73969 4.70471 8.73984 4.4444 9.00034C4.18409 9.26084 4.18424 9.68303 4.44474 9.94334L6.5854 12.0813Z" fill="#283618" />
+                                <path d="M15.3333 10.6666C14.9652 10.6666 14.6667 10.9651 14.6667 11.3333V14C14.6667 14.3682 14.3682 14.6666 14 14.6666H2C1.63181 14.6666 1.33334 14.3682 1.33334 14V11.3333C1.33334 10.9651 1.03487 10.6667 0.666687 10.6667C0.298469 10.6666 0 10.9651 0 11.3333V14C0 15.1045 0.895437 16 2 16H14C15.1046 16 16 15.1045 16 14V11.3333C16 10.9651 15.7015 10.6666 15.3333 10.6666Z" fill="#283618" />
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_499_3317">
+                                    <rect width="16" height="16" fill="white" />
+                                </clipPath>
+                            </defs>
+                        </svg>
+                        Export
+                    </button>
+                    <Link to={'/add-products'}>
+                        <button className='flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_499_3320)">
+                                    <path d="M17.3333 9.33333H10.6667V2.66667C10.6667 2.48986 10.5964 2.32029 10.4714 2.19526C10.3464 2.07024 10.1768 2 10 2V2C9.82319 2 9.65362 2.07024 9.5286 2.19526C9.40357 2.32029 9.33333 2.48986 9.33333 2.66667V9.33333H2.66667C2.48986 9.33333 2.32029 9.40357 2.19526 9.5286C2.07024 9.65362 2 9.82319 2 10V10C2 10.1768 2.07024 10.3464 2.19526 10.4714C2.32029 10.5964 2.48986 10.6667 2.66667 10.6667H9.33333V17.3333C9.33333 17.5101 9.40357 17.6797 9.5286 17.8047C9.65362 17.9298 9.82319 18 10 18C10.1768 18 10.3464 17.9298 10.4714 17.8047C10.5964 17.6797 10.6667 17.5101 10.6667 17.3333V10.6667H17.3333C17.5101 10.6667 17.6797 10.5964 17.8047 10.4714C17.9298 10.3464 18 10.1768 18 10C18 9.82319 17.9298 9.65362 17.8047 9.5286C17.6797 9.40357 17.5101 9.33333 17.3333 9.33333Z" fill="white" />
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_499_3320">
+                                        <rect width="16" height="16" fill="white" transform="translate(2 2)" />
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                            <p className='ml-2'>Add Product</p>
+                        </button>
+                    </Link>
+                </div>
+            </div>
             <div className='flex items-center'>
                 <div className='mt-8 flex border border-[#E0E2E7] bg-white rounded-lg p-[2px] w-[255px]'>
                     <TabButton handleSelect={() => handleSelectTabButton('all')} isSelected={activePage === 'all'} >All Products</TabButton>
@@ -60,7 +95,7 @@ export default function ProductsPage() {
                 <div className='flex space-x-4 mt-8 ml-auto'>
                     <MiniSearch />
                     <SelectDatesButton />
-                    <Link to={'/add-products'}>Add Products</Link> 
+
                     <FilterButton />
                 </div>
             </div>
