@@ -1,5 +1,6 @@
 
 import './App.css';
+import { FilledButton } from './components/Buttons/FilledButton';
 import Categories from './components/Categories';
 import ContentContainer from './components/ContentContainer';
 import Coupons from './components/Coupons';
@@ -20,24 +21,31 @@ import TotalCustomers from './components/dashboard_components/TotalCustomers';
 import TotalOrder from './components/dashboard_components/TotalOrder';
 import TotalProducts from './components/dashboard_components/TotalProducts';
 import TotalRevenue from './components/dashboard_components/TotalRevenue';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faDownload } from '@fortawesome/free-solid-svg-icons'
+import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
+import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
+import Settings from './pages/Settings';
 
 function App() {
   return (
-    <div className='bg-[#ffefff] w-full'>
-      <Dashboard />
+    <div className='bg-[#F9F9FC] w-full px-4 py-5 '>
+      {/* <Dashboard />
       <Products />
       <Categories />
       <Coupons />
       <Orders />
-      <Customers />
-      <div className='flex space-x-4 w-full h-[166px]'>
+      <Customers /> */}
+      {/* <div className='flex space-x-4 w-full h-[166px]'>
         <TotalRevenue label={'Total Revenue'} amount={75000} percent={10} />
         <TotalOrder label={'Total Orders'} amount={31500} percent={-7} />
         <TotalCustomers label={'Total Customers'} amount={24500} percent={0} />
         <TotalProducts label='Total Products' amount={1247} percent={15} />
-      </div>
-      <TopBar />
-      <SelectDatesButton />
+      </div> */}
+      <Settings/>
+
+      {/* <SelectDatesButton />
       <div className='p-8 space-x-8 w-full flex'>
         <ContentContainer label={'Top Products'} subheading={'Top products in this month'}></ContentContainer>
         <ContentContainer label={'Top Categories'} subheading={'Top categories in this month'}></ContentContainer>
@@ -63,6 +71,12 @@ function App() {
       <div className='p-4'>
         <GreyPercentLabel>0</GreyPercentLabel>
       </div>
+      <div className='p-4'>
+        <FilledButton type='filled'><FontAwesomeIcon icon={faPlus} /> Add Order</FilledButton>
+      </div>
+      <div className='p-4'>
+        <FilledButton type='default'><FontAwesomeIcon icon={faDownload} /> Export</FilledButton>
+      </div> */}
     </div>
   );
 }
