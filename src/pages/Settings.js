@@ -1,6 +1,5 @@
 
 import { FilledButton } from '../components/Buttons/FilledButton';
-import TopBar from '../components/TopBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
@@ -8,7 +7,6 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 function Settings() {
   return (
     <div className='bg-[#F9F9FC] w-full px-4 py-5 '>
-      <TopBar />
       <div className='space-x-8 w-full flex mt-5'>
         <h1 className='font-black text-[20px] leading-[30px] tracking-[0.01em] text-[#333333]'>Settings</h1>
       </div>

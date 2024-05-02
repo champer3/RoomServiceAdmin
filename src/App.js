@@ -10,6 +10,7 @@ import OrdersPage from "./pages/Orders";
 import OrderDetailsPage from "./pages/OrderDetails";
 import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
+import Settings from "./pages/Settings";
 const router = createBrowserRouter([
   {
     path: '/',
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
       { path: '/order-details', element: <OrderDetailsPage /> },
       { path: '/customers', element: <CustomersPage /> },
       { path: '/customer-details', element: <CustomerDetailsPage /> },
+      { path: '/settings', element: <Settings/>}
     ]
   }
 
