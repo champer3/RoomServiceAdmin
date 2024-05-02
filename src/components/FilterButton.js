@@ -1,6 +1,6 @@
 export default function FilterButton() {
     return (
-        <button className="items-center bg-[#ffffff] text-customGrey flex border border-[1px] rounded-lg py-[10px] px-[14px] hover:bg-customGrey hover:text-stone-100">
+        <button className="items-center bg-[#ffffff] text-customGrey flex border border-[1px] rounded-lg py-[10px] px-[14px] hover:bg-customGrey hover:text-stone-100 h-full">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_452_4960)">
                     <path d="M2.66747 5.16715H4.49129C4.85126 6.49158 6.21671 7.27344 7.54115 6.91348C8.39178 6.68228 9.05628 6.01779 9.28747 5.16715H17.3327C17.7008 5.16715 17.9993 4.86871 17.9993 4.50056C17.9993 4.13241 17.7008 3.83397 17.3327 3.83397H9.28747C8.92751 2.50951 7.56205 1.72765 6.23762 2.08762C5.38699 2.31881 4.72249 2.98331 4.49129 3.83394H2.66747C2.29932 3.83394 2.00089 4.13238 2.00089 4.50053C2.00089 4.86868 2.29932 5.16715 2.66747 5.16715Z" fill="currentColor" />
@@ -14,7 +14,7 @@ export default function FilterButton() {
                 </defs>
             </svg>
 
-            <p className="text-[14px] leading-[20px] tracking-[0.0005em] ml-1 font-bold">Filter</p>
+            <p className="text-[14px] leading-[20px] tracking-[0.0005em] ml-1 font-bold">Filters</p>
         </button>
     )
 }
