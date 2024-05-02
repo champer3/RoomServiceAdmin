@@ -14,7 +14,7 @@ export default function FilterButton() {
                 </defs>
             </svg>
 
-            <p className="text-[14px] leading-[20px] tracking-[0.0005em] ml-1 font-bold">Filter</p>
+            <p className="text-[14px] leading-[20px] tracking-[0.0005em] ml-1 font-bold">Filters</p>
         </button>
     )
 }

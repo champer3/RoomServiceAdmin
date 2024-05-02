@@ -3,6 +3,9 @@ import HomePage from "./pages/Home";
 import AddProjectsPage from "./pages/AddProducts";
 import ProductsPage from "./pages/Products";
 import SidePanel from "./pages/SidePanel";
+import Settings from "./pages/Settings";
+import Messages from "./pages/Messages";
+import ViewMessage from "./pages/ViewMessage";
 const router = createBrowserRouter([
   {
     path: '/',
@@ -17,7 +20,11 @@ const router = createBrowserRouter([
 ])
 function App() {
   return (
-    <RouterProvider router={router} />
+    <>
+    {/* <RouterProvider router={router} /> */}
+    <ViewMessage/>
+    </>
+    
   );
 }
 
