@@ -2,20 +2,24 @@ import { useState } from "react";
 import GreenLabel from "../StatusLabels/GreenLabel";
 import RedLabel from "../StatusLabels/RedLabel";
 
-export default function CustomerInfoCard({ name, status, labelColor, leftData, leftDetail, rightData, rightDetail }) {
-    const [isClicked, setIsClicked] = useState(true)
+export default function CustomerInfoCard({ name, status, labelColor, leftData, leftDetail, rightData, rightDetail, isRightMoney }) {
+    const [isClicked, setIsClicked] = useState(false)
     function handleClick() {
         setIsClicked((prevState) => !prevState)
     }
     return (
-        <div className={`w-full rounded-lg ${isClicked ? 'border border-[#283618]' : ''} bg-white mb-4`}>
+        <div className={`w-[250px] rounded-lg ${isClicked ? 'border border-[#283618]' : ''} bg-white`}>
             <div className="w-full items-center p-2">
                 <div className="flex items-center border-dotted p-2">
                     <button onClick={handleClick}>
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {isClicked ? <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect width="20" height="20" rx="6" fill="#283618" />
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77404C16.302 5.06693 16.3524 5.59216 16.0595 5.94717L8.91037 14.6128C8.76048 14.7944 8.4899 14.8159 8.31329 14.66L4.44865 11.2501C4.10355 10.9455 4.07063 10.4189 4.37514 10.0738C4.67964 9.72873 5.20625 9.69582 5.55135 10.0003L8.44707 12.5554L14.7739 4.88653C15.0667 4.53152 15.592 4.48115 15.947 4.77404Z" fill="white" />
+                        </svg> : <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="1.39999" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
                         </svg>
+                        }
+
                     </button>
                     <p className="font-semibold ml-auto mr-auto text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">{name}</p>
                     <button className="ml-auto">
@@ -41,7 +45,7 @@ export default function CustomerInfoCard({ name, status, labelColor, leftData, l
                 </div>
                 <div>
                     <p className="mb-1 font-bold text-[12px] leading-[18px] tracking-[0.005em] text-customGrey text-center">{rightDetail}</p>
-                    <p className="font-bold text-[16px] leading-[20px] tracking-[0.005em] text-[#333333] text-center">{rightData}</p>
+                    <p className="font-bold text-[16px] leading-[20px] tracking-[0.005em] text-[#333333] text-center">{isRightMoney ? "$": ""}{rightData}</p>
                 </div>
 
             </div>

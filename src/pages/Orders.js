@@ -1,5 +1,6 @@
 import moment from 'moment'
-import { numbers, PRODUCT_LIST } from '../assets/data'
+
+import { numbers, ORDER_LIST } from '../assets/data'
 import Path from '../components/Path'
 import TabButton from '../components/TabButton'
 import TableHead from '../components/dashboard_components/TableHead'
@@ -11,8 +12,10 @@ import FilterButton from '../components/FilterButton'
 import SelectDatesButton from '../components/SelectDatesButton'
 import { Link } from 'react-router-dom'
 import GreenLabel from '../components/StatusLabels/GreenLabel'
-import GreyLabel from '../components/StatusLabels/GreyLabel'
+import RedLabel from '../components/StatusLabels/RedLabel'
 
+import TableProductListing from '../components/dashboard_components/TableProductListing'
+import BlueLabel from '../components/StatusLabels/BlueLabel'
 
 function formatNumberWithCommas(number) {
     const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString('en-US', {
@@ -27,27 +30,29 @@ function formatDate(dateObject) {
     return moment(dateObject).format("D MMM YYYY")
 }
 
-export default function ProductsPage() {
+export default function OrdersPage() {
     const [activePage, setActivePage] = useState('all')
-    const [selectedRows, setSelectedRows] = useState([])
+    const [orderList, setOrderList] = useState(ORDER_LIST)
     const [activeColumn, setActiveColumn] = useState('')
+    const [selectedRows, setSelectedRows] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
-    const [productList, setProductList] = useState(PRODUCT_LIST)
-    const itemsPerPage = 20
+    // const itemsPerPage = 20
 
-    const shownItems = numbers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-    // productList.sort((a,b) => a['name'].localeCompare(b['name']))
+    // const shownItems = numbers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    function handleSelectTabButton(page) {
+        setActivePage(page)
+    }
 
     function handleAscendingSort(criteria) {
         setActiveColumn(criteria)
         if (criteria === 'status' || criteria === 'name') {
-            setProductList((prevList) => {
+            setOrderList((prevList) => {
                 prevList.sort((a, b) => a[criteria].localeCompare(b[criteria]))
                 return [...prevList]
             })
         }
         else {
-            setProductList((prevList) => {
+            setOrderList((prevList) => {
                 prevList.sort((a, b) => a[criteria] - b[criteria])
                 return [...prevList]
             })
@@ -57,21 +62,17 @@ export default function ProductsPage() {
     function handleDescendingSort(criteria) {
         setActiveColumn(criteria)
         if (criteria === 'status' || criteria === 'name') {
-            setProductList((prevList) => {
+            setOrderList((prevList) => {
                 prevList.sort((a, b) => b[criteria].localeCompare(a[criteria]))
                 return [...prevList]
             })
         }
         else {
-            setProductList((prevList) => {
+            setOrderList((prevList) => {
                 prevList.sort((a, b) => b[criteria] - a[criteria])
                 return [...prevList]
             })
         }
-    }
-
-    function handleSelectTabButton(page) {
-        setActivePage(page)
     }
 
     function handleIsSelected(row) {
@@ -83,9 +84,9 @@ export default function ProductsPage() {
         })
     }
 
-    function handleChangePage(newPage) {
-        setCurrentPage(newPage)
-    }
+    // function handleChangePage(newPage) {
+    //     setCurrentPage(newPage)
+    // }
 
     function handleIsRemoved(row) {
         setSelectedRows((prevState) => {
@@ -97,8 +98,8 @@ export default function ProductsPage() {
             <div className='ml-4'>
                 <div className='flex items-center'>
                     <div>
-                        <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Product</p>
-                        <Path pages={['Dashboard', 'Product List']} />
+                        <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Orders</p>
+                        <Path pages={['Dashboard', 'Order List']} />
                     </div>
                     <div className='flex ml-auto'>
                         <button className='flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
@@ -115,7 +116,7 @@ export default function ProductsPage() {
                             </svg>
                             Export
                         </button>
-                        <Link to={'/add-products'}>
+                        <Link to={'/'}>
                             <button className='flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <g clip-path="url(#clip0_499_3320)">
@@ -127,30 +128,30 @@ export default function ProductsPage() {
                                         </clipPath>
                                     </defs>
                                 </svg>
-                                <p className='ml-2'>Add Product</p>
+                                <p className='ml-2'>Add Order</p>
                             </button>
                         </Link>
                     </div>
                 </div>
-                <div className='flex items-center'>
-                    <div className='mt-8 flex border border-[#E0E2E7] bg-white rounded-lg p-[2px] w-[255px]'>
+                <div className='flex h-[60px] items-center'>
+                    <div className='mt-8 flex border border-[#E0E2E7] bg-white rounded-lg p-[2px] '>
                         <TabButton handleSelect={() => handleSelectTabButton('all')} isSelected={activePage === 'all'} >All Products</TabButton>
-                        <TabButton handleSelect={() => handleSelectTabButton('published')} isSelected={activePage === 'published'} >Published</TabButton>
-                        <TabButton handleSelect={() => handleSelectTabButton('draft')} isSelected={activePage === 'draft'} >Draft</TabButton>
+                        <TabButton handleSelect={() => handleSelectTabButton('processing')} isSelected={activePage === 'processing'} >Processing</TabButton>
+                        <TabButton handleSelect={() => handleSelectTabButton('shipped')} isSelected={activePage === 'shipped'} >Shipped</TabButton>
+                        <TabButton handleSelect={() => handleSelectTabButton('delivered')} isSelected={activePage === 'delivered'} >Delivered</TabButton>
+                        <TabButton handleSelect={() => handleSelectTabButton('canceled')} isSelected={activePage === 'canceled'} >Canceled</TabButton>
                     </div>
                     <div className='flex space-x-4 mt-8 ml-auto'>
                         <MiniSearch />
                         <SelectDatesButton />
-
                         <FilterButton />
                     </div>
                 </div>
                 {activePage === 'all' &&
                     <div className='mt-5'>
-                        {/* <div className=''></div> */}
                         <table className='w-full bg-white rounded-xl'>
                             <tr className='border-b'>
-                                <th className='pt-3'>
+                                <th className='pt-3 w-[30px]'>
                                     <button className='ml-4'>
                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <rect width="20" height="20" rx="6" fill="#BC6C25" />
@@ -160,27 +161,29 @@ export default function ProductsPage() {
 
                                     </button>
                                 </th>
-                                <th className='pl-6 w-[105px]'><TableHead heading={'Product'} active={activeColumn === 'name'} canOrder={true} ascend={() => handleAscendingSort('name')}  descend={() => handleDescendingSort('name')}/></th>
-                                <th className='pl-7 w-[100px]'><TableHead heading={'SKU'} /></th>
-                                <th className='pl- w-[100px]'><TableHead heading={'Category'} /></th>
-                                <th className='pl- w-[100px]'><TableHead heading={'Stock'} active={activeColumn === 'stock'} canOrder={true} ascend={() => handleAscendingSort('stock')}  descend={() => handleDescendingSort('stock')}/></th>
-                                <th className='pl-6 w-[100px]'><TableHead heading={'Price'} active={activeColumn === 'price'} canOrder={true} ascend={() => handleAscendingSort('price')}  descend={() => handleDescendingSort('price')}/></th>
-                                <th className='pl-12 w-[100px]'><TableHead heading={'Status'} active={activeColumn === 'status'} canOrder={true} ascend={() => handleAscendingSort('status')}  descend={() => handleDescendingSort('status')}/></th>
-                                <th className='pl-10 w-[50px]'><TableHead heading={'Added'} active={activeColumn === 'dateAdded'} canOrder={true} ascend={() => handleAscendingSort('dateAdded')}  descend={() => handleDescendingSort('dateAdded')}/></th>
+                                <th className='pl-6 w-[150px]'><TableHead heading={'Order ID'} /></th>
+                                <th className='pl-6 w-[250px]'><TableHead heading={'Product'} active={activeColumn === 'name'} canOrder={true} ascend={() => handleAscendingSort('name')} descend={() => handleDescendingSort('name')} /></th>
+                                <th className='pl-8 w-[200px]'><TableHead heading={'Date'} active={activeColumn === 'date'} canOrder={true} ascend={() => handleAscendingSort('date')} descend={() => handleDescendingSort('date')} /></th>
+                                <th className='pl-8 w-[250px] '><TableHead heading={'Customer'} /></th>
+                                <th className='w-[200px]'><TableHead heading={'Total'} active={activeColumn === 'total'} canOrder={true} ascend={() => handleAscendingSort('total')} descend={() => handleDescendingSort('total')} /></th>
+                                <th className='pl-12 w-[200px]'><TableHead heading={'Payment'} /></th>
+                                <th className='w-[100px]'><TableHead heading={'Status'} active={activeColumn === 'status'} canOrder={true} ascend={() => handleAscendingSort('status')} descend={() => handleDescendingSort('status')} /></th>
+                                <th className='pl-6 w-[100px]'><TableHead heading={'Action'} /></th>
                             </tr>
                             <tbody>
-                                {productList.map((product) => {
+                                {/* 
+                                     */}
+                                {orderList && orderList.map((order) => {
                                     return (
-                                        <tr className={`${selectedRows.indexOf(product.SKU) !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
-                                            <th className='w-[30px] pt-3'>
-
-                                                {selectedRows.indexOf(product.SKU) === -1 ?
-                                                    <button onClick={() => handleIsSelected(product.SKU)} className='ml-4'>
+                                        <tr className={`${selectedRows.indexOf(order.ID) !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
+                                            <td className='w-[30px] pt-3'>
+                                                {selectedRows.indexOf(order.ID) === -1 ?
+                                                    <button onClick={() => handleIsSelected(order.ID)} className='ml-4'>
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
                                                         </svg>
                                                     </button> :
-                                                    <button onClick={() => handleIsRemoved(product.SKU)} className='ml-4'>
+                                                    <button onClick={() => handleIsRemoved(order.ID)} className='ml-4'>
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <rect width="20" height="20" rx="6" fill="#BC6C25" />
                                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
@@ -189,47 +192,67 @@ export default function ProductsPage() {
 
                                                 }
 
-                                            </th>
-                                            <td className='flex ml-5 py-2'>
-                                                <img src={product.image} alt="" />
-                                                <div className="pl-2 w-[150px] items-center ">
-                                                    <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333] text-container line-clamp-2">{product.name}</p>
+                                            </td>
+                                            <td className='pl-6 text-[14px] text-[#BC6C25] font-semibold leading-[20px] tracking-[0.005em]'>{order.ID}</td>
+                                            <td className=''>
+                                                <TableProductListing image={order.image} mainProduct={order.name} remProducts={order.extra} />
+                                            </td>
+                                            <td className='pl-8 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(order.date)}</td>
+                                            <td className='pl-8 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]'>{order.customer}</td>
+                                            <td className='text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]'>${formatNumberWithCommas(order.total)}</td>
+                                            <td className='pl-12 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]'>{order.payment}</td>
+                                            {order.status === 'Processing' &&
+                                                <td><OrangeLabel>{order.status}</OrangeLabel></td>
+                                            }
+                                            {order.status === 'Delivered' &&
+                                                <td><GreenLabel>{order.status}</GreenLabel></td>
+                                            }
+                                            {order.status === 'Canceled' &&
+                                                <td><RedLabel>{order.status}</RedLabel></td>
+                                            }
+                                            {order.status === 'Shipped' &&
+                                                <td><BlueLabel>{order.status}</BlueLabel></td>
+                                            }
+                                            <td className='pl-7'>
+                                                <div className='flex space-x-2'>
+                                                    <button>
+                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <g clip-path="url(#clip0_736_4025)">
+                                                                <path d="M0.781333 12.7457C0.281202 13.2456 0.000151033 13.9238 0 14.631L0 15.9997H1.36867C2.07585 15.9995 2.75402 15.7185 3.254 15.2183L12.1493 6.323L9.67667 3.85034L0.781333 12.7457Z" fill="#A3A9B6" />
+                                                                <path d="M15.4299 0.569995C15.2675 0.407485 15.0747 0.278565 14.8626 0.190606C14.6504 0.102647 14.4229 0.057373 14.1932 0.057373C13.9635 0.057373 13.736 0.102647 13.5239 0.190606C13.3117 0.278565 13.1189 0.407485 12.9565 0.569995L10.6192 2.90799L13.0919 5.38066L15.4299 3.04333C15.5924 2.88099 15.7213 2.68821 15.8093 2.47601C15.8972 2.26382 15.9425 2.03637 15.9425 1.80666C15.9425 1.57696 15.8972 1.34951 15.8093 1.13731C15.7213 0.925114 15.5924 0.732335 15.4299 0.569995Z" fill="#A3A9B6" />
+                                                            </g>
+                                                            <defs>
+                                                                <clipPath id="clip0_736_4025">
+                                                                    <rect width="16" height="16" fill="white" />
+                                                                </clipPath>
+                                                            </defs>
+                                                        </svg>
+
+                                                    </button>
+                                                    <Link to={'/order-details'}>
+                                                        <button>
+                                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M7.99989 10.6658C9.4721 10.6658 10.6656 9.47234 10.6656 8.00014C10.6656 6.52793 9.4721 5.33447 7.99989 5.33447C6.52769 5.33447 5.33423 6.52793 5.33423 8.00014C5.33423 9.47234 6.52769 10.6658 7.99989 10.6658Z" fill="#A3A9B6" />
+                                                                <path d="M15.5112 6.28013C14.4776 4.59676 12.1265 1.77246 7.99998 1.77246C3.87352 1.77246 1.52239 4.59676 0.488772 6.28013C-0.162924 7.33421 -0.162924 8.66609 0.488772 9.7202C1.52239 11.4036 3.87352 14.2279 7.99998 14.2279C12.1265 14.2279 14.4776 11.4036 15.5112 9.7202C16.1629 8.66609 16.1629 7.33421 15.5112 6.28013ZM7.99998 11.9987C5.79168 11.9987 4.00147 10.2085 4.00147 8.00015C4.00147 5.79184 5.79168 4.00163 7.99998 4.00163C10.2083 4.00163 11.9985 5.79184 11.9985 8.00015C11.9963 10.2075 10.2074 11.9964 7.99998 11.9987Z" fill="#A3A9B6" />
+                                                            </svg>
+                                                        </button>
+                                                    </Link>
                                                 </div>
                                             </td>
-                                            <td className='pl-6'>
-                                                <p className=' font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>{product.SKU}</p>
-                                            </td>
-                                            <td className=' p-0'>
-                                                <p className=' font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{product.category}</p>
-                                            </td>
-                                            <td className='p-0'>
-                                                <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{product.stock}</p>
-                                            </td>
-                                            <td className='pl-6'>
-                                                <p className=' font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>${formatNumberWithCommas(product.price)}</p>
-                                            </td>
-                                            <td className='pl-12'>
-                                                {product.status === 'Low Stock' && <OrangeLabel>{product.status}</OrangeLabel>}
-                                                {product.status === 'Published' && <GreenLabel>{product.status}</GreenLabel>}
-                                                {product.status === 'Draft' && <GreyLabel>{product.status}</GreyLabel>}
-
-                                            </td>
-                                            <td className='pl-10'>
-                                                <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(product.dateAdded)}</p>
-                                            </td>
                                         </tr>
+
                                     )
                                 })}
-
                                 <tr>
                                     <th colSpan={8}>
                                         <div className='rounded-b-xl w-full bg-white p-4 items-center flex'>
                                             <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing 1-10 from 100</p>
                                             <div className='ml-auto flex space-x-2'>
                                                 <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}>
-                                                    <StyledDashboardButton><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
-                                                    </svg>
+                                                    <StyledDashboardButton>
+                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
+                                                        </svg>
                                                     </StyledDashboardButton>
                                                 </button>
                                                 <StyledDashboardButton>1</StyledDashboardButton>
@@ -247,36 +270,11 @@ export default function ProductsPage() {
                                     </th>
                                 </tr>
                             </tbody>
+
                         </table>
-
-                    </div>} {
-
-                    activePage === 'published' &&
-                    <>
-                        {shownItems.map((item) =>
-                            <li>{item}</li>)}
-                        <div className='flex'>
-                            <StyledDashboardButton isDisabled={currentPage === 1} handleClick={() => handleChangePage(Math.max(1, currentPage - 1))}>
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
-                                </svg>
-                            </StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(1)} isActive={currentPage === 1}>1</StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(2)} isActive={currentPage === 2}>2</StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(3)} isActive={currentPage === 3}>3</StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(4)} isActive={currentPage === 4}>4</StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(5)} isActive={currentPage === 5}>5</StyledDashboardButton>
-                            <StyledDashboardButton isDisabled={currentPage === 5} handleClick={() => handleChangePage(Math.min(numbers.length / itemsPerPage, currentPage + 1))}>
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z" fill="currentColor" />
-                                </svg>
-                            </StyledDashboardButton>
-                        </div>
-
-
-                    </>}
+                    </div>
+                }
             </div >
-            <div className='bg-[#F9F9FC] w-full h-[500px]' />
         </>
     )
 }

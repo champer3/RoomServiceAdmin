@@ -19,11 +19,45 @@ import TableStatusListing from '../components/dashboard_components/TableStatusLi
 import StateListing from '../components/dashboard_components/StateListing'
 import ProgressBar from '../components/dashboard_components/ProgressBar'
 import { CATEGORY_DATA, PRODUCT_DATA, TABLE_DATA, STATES_DATA, graphData } from '../assets/data'
+import { useState } from 'react'
 import Graph from '../components/Graph'
 
 
 
 export default function HomePage() {
+    const [tableList, setTableList] = useState(TABLE_DATA)
+    const [activeColumn, setActiveColumn] = useState('')
+    function handleAscendingSort(criteria) {
+        setActiveColumn(criteria)
+        if (criteria === 'product' || criteria === 'status') {
+            setTableList((prevList) => {
+                prevList.sort((a, b) => a[criteria].localeCompare(b[criteria]))
+                return [...prevList]
+            })
+        }
+        else {
+            setTableList((prevList) => {
+                prevList.sort((a, b) => a[criteria] - b[criteria])
+                return [...prevList]
+            })
+        }
+    }
+
+    function handleDescendingSort(criteria) {
+        setActiveColumn(criteria)
+        if (criteria === 'status' || criteria === 'product') {
+            setTableList((prevList) => {
+                prevList.sort((a, b) => b[criteria].localeCompare(a[criteria]))
+                return [...prevList]
+            })
+        }
+        else {
+            setTableList((prevList) => {
+                prevList.sort((a, b) => b[criteria] - a[criteria])
+                return [...prevList]
+            })
+        }
+    }
     console.log(graphData)
     return (
         <div className='ml-4'>
@@ -86,15 +120,15 @@ export default function HomePage() {
                     <table className='w-full'>
                         <thead>
                             <tr className='border-t border-b bg-[#F9F9FC]'>
-                                <th className=''><TableHead heading={'Product'} canOrder={true} /></th>
-                                <th className='pl-2'><TableHead heading={'Customer'} /></th>
-                                <th className=''><TableHead heading={'Total'} canOrder={true} /></th>
-                                <th className=''><TableHead heading={'Status'} canOrder={true} /></th>
-                                <th className=''><TableHead heading={'Action'} /></th>
+                                <th className='pl-5 w-[180px]'><TableHead heading={'Product'} canOrder={true} ascend={()=>handleAscendingSort('product')} descend={()=>handleDescendingSort('product')} active={activeColumn === 'product'}/></th>
+                                <th className='pl-8 w-[200px]'><TableHead heading={'Customer'} /></th>
+                                <th className='pl-8'><TableHead heading={'Total'} canOrder={true} ascend={()=> handleAscendingSort('total')} descend={()=> handleDescendingSort('total')} active={activeColumn === 'total'}/></th>
+                                <th className='pl-[105px] w-[200px]'><TableHead heading={'Status'} canOrder={true} ascend={()=>handleAscendingSort('status')} descend={()=>handleDescendingSort('status')} active={activeColumn === 'status'}/></th>
+                                <th className='pl-24'><TableHead heading={'Action'} /></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {TABLE_DATA.map((order) => {
+                            {tableList.map((order) => {
 
                                 return (
                                     <tr className='border-b'>
@@ -102,11 +136,12 @@ export default function HomePage() {
                                             <TableProductListing
                                                 image={order.image}
                                                 mainProduct={order.product}
-                                                remProducts={order.extra} /></td>
+                                                remProducts={order.extra} />
+                                        </td>
                                         <td className='p-0'><TableCustomerListing name={order.customerName} email={TABLE_DATA[0].customerEmail} /></td>
-                                        <td className='p-0'><TableTotalListing amount={order.total} /></td>
-                                        <td className='p-0'><TableStatusListing status={order.status} /></td>
-                                        <td className='pl-8'><TableActionListing /></td>
+                                        <td className='p-0 w-[100px]'><TableTotalListing amount={order.total} /></td>
+                                        <td className='pl-20'><TableStatusListing status={order.status} /></td>
+                                        <td className='pl-24'><TableActionListing /></td>
                                     </tr>
                                 )
                             })
@@ -117,9 +152,10 @@ export default function HomePage() {
                     <div className='rounded-lg w-full bg-white p-4 items-center flex'>
                         <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing 1-5 from 100</p>
                         <div className='ml-auto flex space-x-2'>
-                            <StyledDashboardButton><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
-                            </svg>
+                            <StyledDashboardButton>
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
+                                </svg>
                             </StyledDashboardButton>
                             <StyledDashboardButton>1</StyledDashboardButton>
                             <StyledDashboardButton>2</StyledDashboardButton>
