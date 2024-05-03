@@ -7,7 +7,6 @@ import Path from '../components/Path';
 function Settings() {
   return (
     <div className='bg-[#F9F9FC] w-full px-4 py-5 '>
-      <TopBar messages={10} notifications={10} />
       <div className='space-x-8 w-full flex mt-5'>
         <h1 className='font-black text-[20px] leading-[30px] tracking-[0.01em] text-[#333333]'>Settings</h1>
       </div>

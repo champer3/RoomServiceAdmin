@@ -11,6 +11,8 @@ import OrderDetailsPage from "./pages/OrderDetails";
 import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import Settings from "./pages/Settings";
+import CouponsPage from "./pages/Coupons";
+import AddCouponsPage from "./pages/AddCoupons";
 const router = createBrowserRouter([
   {
     path: '/',
@@ -26,7 +28,9 @@ const router = createBrowserRouter([
       { path: '/order-details', element: <OrderDetailsPage /> },
       { path: '/customers', element: <CustomersPage /> },
       { path: '/customer-details', element: <CustomerDetailsPage /> },
-      { path: '/settings', element: <Settings/>}
+      { path: '/settings', element: <Settings/>},
+      { path: '/coupons', element: <CouponsPage/>},
+      { path: '/add-coupons', element: <AddCouponsPage/>}
     ]
   }
 

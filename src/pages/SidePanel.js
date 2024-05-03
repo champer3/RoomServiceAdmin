@@ -14,7 +14,7 @@ import { useState } from "react";
 export default function SidePanel() {
     const [activePanel, setActivePanel] = useState('dashboard')
     return (
-        <div className='flex h-full bg-[#F9F9FC]'>
+        <div className='flex h-full min-w-fit bg-[#F9F9FC]'>
             <div className='bg-white w-[264px]'>
                 <div className="flex space-x-2 px-[24px] py-[20px] items-center">
                     <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -25,7 +25,7 @@ export default function SidePanel() {
                 <Link to={'/'} onClick={() => setActivePanel('dashboard')}><Dashboard active={activePanel === 'dashboard'} /></Link>
                 <Link to={'/products'} onClick={() => setActivePanel('products')}><Products active={activePanel === 'products'} /></Link>
                 <Link to={'/categories'} onClick={() => setActivePanel('categories')}><Categories active={activePanel === 'categories'} /></Link>
-                <Coupons />
+                <Link to={'/coupons'} onClick={() => setActivePanel('coupons')}><Coupons active={activePanel === 'coupons'} /></Link>
                 <Link to={'/orders'} onClick={() => setActivePanel('orders')}><Orders active={activePanel === 'orders'} /></Link>
                 <Link to={'/customers'} onClick={() => setActivePanel('customers')}><Customers active={activePanel === 'customers'}/></Link>
             </div>
