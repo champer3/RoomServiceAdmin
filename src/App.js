@@ -11,6 +11,7 @@ import OrderDetailsPage from "./pages/OrderDetails";
 import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import Settings from "./pages/Settings";
+import PageContextProvider from "./context/PageContext";
 const router = createBrowserRouter([
   {
     path: '/',
@@ -26,14 +27,19 @@ const router = createBrowserRouter([
       { path: '/order-details', element: <OrderDetailsPage /> },
       { path: '/customers', element: <CustomersPage /> },
       { path: '/customer-details', element: <CustomerDetailsPage /> },
-      { path: '/settings', element: <Settings/>}
+      { path: '/settings', element: <Settings /> }
     ]
   }
 
 ])
 function App() {
   return (
+    <PageContextProvider>
       <RouterProvider router={router} />
+    </PageContextProvider>
+
+
+
   );
 }
 

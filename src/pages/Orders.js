@@ -16,6 +16,8 @@ import RedLabel from '../components/StatusLabels/RedLabel'
 
 import TableProductListing from '../components/dashboard_components/TableProductListing'
 import BlueLabel from '../components/StatusLabels/BlueLabel'
+import { PageContext } from '../context/PageContext'
+import { useContext } from 'react'
 
 function formatNumberWithCommas(number) {
     const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString('en-US', {
@@ -30,12 +32,17 @@ function formatDate(dateObject) {
     return moment(dateObject).format("D MMM YYYY")
 }
 
+
+
+
 export default function OrdersPage() {
     const [activePage, setActivePage] = useState('all')
     const [orderList, setOrderList] = useState(ORDER_LIST)
     const [activeColumn, setActiveColumn] = useState('')
     const [selectedRows, setSelectedRows] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
+
+    const { viewOrder } = useContext(PageContext)
     // const itemsPerPage = 20
 
     // const shownItems = numbers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
@@ -229,7 +236,7 @@ export default function OrdersPage() {
                                                         </svg>
 
                                                     </button>
-                                                    <Link to={'/order-details'}>
+                                                    <Link to={'/order-details'} onClick={()=>{viewOrder(order.order_datails)}}>
                                                         <button>
                                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                 <path d="M7.99989 10.6658C9.4721 10.6658 10.6656 9.47234 10.6656 8.00014C10.6656 6.52793 9.4721 5.33447 7.99989 5.33447C6.52769 5.33447 5.33423 6.52793 5.33423 8.00014C5.33423 9.47234 6.52769 10.6658 7.99989 10.6658Z" fill="#A3A9B6" />

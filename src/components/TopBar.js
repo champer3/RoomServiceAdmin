@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom"
+import { useRef } from "react"
+import NotificationModal from "./NotificationModal"
 export default function TopBar({ messages, notifications }) {
+    const dialog = useRef()
     let messageMarginStyle = messages > 99 ? 'mr-4' : 'mr-1'
     let messageBadgeStyle = messages > 99 ? 'translate-x-3' : 'translate-x-1/8'
     // let notifMarginStyle = notifications > 99 ? 'mr-4' : 'mr-1'
@@ -25,7 +28,8 @@ export default function TopBar({ messages, notifications }) {
                     </svg>
                 </button>
             </Link>
-            <button className={`relative flex items-center justify-center mr-1`}>
+
+            <button onClick={() => dialog.current.showModal()} className={`relative flex items-center justify-center mr-1`}>
                 <span className={`p-[6px] h-[18px] flex justify-center items-center absolute top-0 right-0 -translate-y-1/8 ${notifBadgeStyle} rounded-md bg-[#283618] text-white text-[10px] text-xs font-semibold`}>
                     {notifications > 99 ? '99+' : notifications}
                 </span>
@@ -73,6 +77,7 @@ export default function TopBar({ messages, notifications }) {
                     <path d="M7.81051 9.75H16.1895C16.3378 9.75003 16.4828 9.79404 16.6061 9.87645C16.7294 9.95886 16.8255 10.076 16.8823 10.213C16.939 10.35 16.9539 10.5008 16.9249 10.6463C16.896 10.7917 16.8246 10.9254 16.7198 11.0302L12.5303 15.2197C12.3896 15.3603 12.1989 15.4393 12 15.4393C11.8011 15.4393 11.6104 15.3603 11.4698 15.2197L7.28026 11.0302C7.1754 10.9254 7.104 10.7917 7.07507 10.6463C7.04615 10.5008 7.061 10.35 7.11775 10.213C7.1745 10.076 7.27061 9.95886 7.39392 9.87645C7.51722 9.79404 7.6622 9.75003 7.81051 9.75Z" fill="#858D9D" />
                 </svg>
             </button>
+            <NotificationModal ref={dialog}/>
         </div>
     )
 }

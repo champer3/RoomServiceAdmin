@@ -1,13 +1,21 @@
 import Path from "../components/Path"
 import OrangeLabel from "../components/StatusLabels/OrangeLabel"
 import GreenLabel from "../components/StatusLabels/GreenLabel"
+import RedLabel from "../components/StatusLabels/RedLabel"
+import BlueLabel from "../components/StatusLabels/BlueLabel"
 import TableHead from "../components/dashboard_components/TableHead"
 import { ORDER_DETAILS_LIST } from "../assets/data"
+import { useContext } from "react"
+import { PageContext } from "../context/PageContext"
 
 export default function OrderDetailsPage() {
     let subTotal = 0
     let VAT = 0
     let deliveryFee = 5
+
+    const { order } = useContext(PageContext)
+
+    const { id, status, dateAdded, paymentMethod, shippingMethod, customer, customerEmail, customerPhone, customerAddress } = order
 
     function formatNumberWithCommas(number) {
         const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString('en-US', {
@@ -57,8 +65,19 @@ export default function OrderDetailsPage() {
                 <div className="w-[50%] space-y-4 bg-white h-[244px] p-[24px] rounded-lg">
                     <div className="flex">
                         <div className="w-full flex space-x-3">
-                            <p className="text-[#333333] font-semibold text-[18px] leading-[28px] tracking-[0.01em]">Order #302011</p>
-                            <OrangeLabel>Processing</OrangeLabel>
+                            <p className="text-[#333333] font-semibold text-[18px] leading-[28px] tracking-[0.01em]">Order {id}</p>
+                            {status === 'Processing' &&
+                                <td><OrangeLabel>{order.status}</OrangeLabel></td>
+                            }
+                            {status === 'Delivered' &&
+                                <td><GreenLabel>{order.status}</GreenLabel></td>
+                            }
+                            {status === 'Canceled' &&
+                                <td><RedLabel>{order.status}</RedLabel></td>
+                            }
+                            {status === 'Shipped' &&
+                                <td><BlueLabel>{order.status}</BlueLabel></td>
+                            }
                         </div>
                         <div className="">
                             <button >
@@ -91,7 +110,7 @@ export default function OrderDetailsPage() {
                             </svg>
                         </div>
                         <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">Added</p>
-                        <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">12 Dec 2022</p>
+                        <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">{dateAdded}</p>
                     </div>
                     <div className="w-full flex items-center">
                         <div className="flex items-center rounded-full w-[40px] h-[40px] bg-[#F0F1F3] p-[8px]">
@@ -109,7 +128,7 @@ export default function OrderDetailsPage() {
 
                         </div>
                         <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">Payment Method</p>
-                        <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">Visa</p>
+                        <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">{paymentMethod}</p>
                     </div>
                     <div className="w-full flex items-center">
                         <div className="flex items-center rounded-full w-[40px] h-[40px] bg-[#F0F1F3] p-[8px]">
@@ -126,7 +145,7 @@ export default function OrderDetailsPage() {
 
                         </div>
                         <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">Shipping Method</p>
-                        <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">Flat Shipping</p>
+                        <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">{shippingMethod}</p>
                     </div>
                 </div>
                 <div className="bg-white w-[50%] h-[244px] p-[24px] rounded-lg">
@@ -140,7 +159,7 @@ export default function OrderDetailsPage() {
                                 </svg>
                             </div>
                             <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">Added</p>
-                            <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">Josh Adam</p>
+                            <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">{customer}</p>
                         </div>
                         <div className="w-full flex items-center">
                             <div className="flex items-center rounded-full w-[40px] h-[40px] bg-[#F0F1F3] p-[8px]">
@@ -157,7 +176,7 @@ export default function OrderDetailsPage() {
                                 </svg>
                             </div>
                             <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">Email</p>
-                            <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">joshadam@gmail.com</p>
+                            <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">{customerEmail}</p>
                         </div>
                         <div className="w-full flex items-center">
                             <div className="flex items-center rounded-full w-[40px] h-[40px] bg-[#F0F1F3] p-[8px]">
@@ -174,7 +193,7 @@ export default function OrderDetailsPage() {
                                 </svg>
                             </div>
                             <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">Phone</p>
-                            <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">909 427 2910</p>
+                            <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">{customerPhone}</p>
                         </div>
                     </div>
                 </div>
@@ -262,7 +281,7 @@ export default function OrderDetailsPage() {
                             </div>
                             <div>
                                 <p className="font-bold text-[14px] leading-[20px] tracking-[0.005em] text-customGrey ">Shipping Address</p>
-                                <p className="font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333] ">1833 Bel Meadow Drive, Fontana, California 92335, USA</p>
+                                <p className="font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333] ">{customerAddress}</p>
                             </div>
                         </div>
                     </div>
