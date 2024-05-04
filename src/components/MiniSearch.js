@@ -11,7 +11,7 @@ export default function MiniSearch({searchItem}) {
                     </clipPath>
                 </defs>
             </svg>
-            <input placeholder={`search ${searchItem? searchItem: ''}. . .`} className="pl-2 border-none focus:border-none focus:ring-0 w-full h-full"/>
+            <input placeholder={`Search ${searchItem? searchItem: ''}. . .`} className="pl-2 border-none focus:border-none focus:ring-0 w-full h-full"/>
         </div>
     )
 

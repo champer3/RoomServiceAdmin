@@ -45,22 +45,24 @@ export default function TopBar({ messages, notifications }) {
                     </defs>
                 </svg>
             </button>
-            <button className={`relative flex items-center justify-center ${messageMarginStyle}`}>
-                <span className={`p-[6px] h-[18px] flex justify-center items-center absolute top-0 right-0 -translate-y-1/8 ${messageBadgeStyle} rounded-md bg-[#283618] text-white text-[10px] text-xs font-semibold`}>
-                    {messages > 99 ? '99+' : messages}
-                </span>
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_1544_665)">
-                        <path d="M28.9655 15.1564L22.652 21.4699C21.948 22.1721 20.9943 22.5664 20 22.5664C19.0057 22.5664 18.052 22.1721 17.348 21.4699L11.0345 15.1564C11.024 15.2749 11 15.3821 11 15.4999V24.4999C11.0012 25.4941 11.3967 26.4472 12.0997 27.1502C12.8027 27.8532 13.7558 28.2487 14.75 28.2499H25.25C26.2442 28.2487 27.1973 27.8532 27.9003 27.1502C28.6033 26.4472 28.9988 25.4941 29 24.4999V15.4999C29 15.3821 28.976 15.2749 28.9655 15.1564Z" fill="#858D9D" />
-                        <path d="M21.5915 20.4094L28.442 13.5581C28.1102 13.0079 27.6421 12.5524 27.083 12.2357C26.5239 11.9189 25.8926 11.7516 25.25 11.7499H14.75C14.1075 11.7516 13.4762 11.9189 12.9171 12.2357C12.358 12.5524 11.8899 13.0079 11.558 13.5581L18.4085 20.4094C18.8312 20.8304 19.4035 21.0667 20 21.0667C20.5966 21.0667 21.1689 20.8304 21.5915 20.4094Z" fill="#858D9D" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_1544_665">
-                            <rect width="18" height="18" fill="white" transform="translate(11 11)" />
-                        </clipPath>
-                    </defs>
-                </svg>
-            </button>
+            <Link to={'/messages'}>
+                <button className={`relative flex items-center justify-center ${messageMarginStyle}`}>
+                    <span className={`p-[6px] h-[18px] flex justify-center items-center absolute top-0 right-0 -translate-y-1/8 ${messageBadgeStyle} rounded-md bg-[#283618] text-white text-[10px] text-xs font-semibold`}>
+                        {messages > 99 ? '99+' : messages}
+                    </span>
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_1544_665)">
+                            <path d="M28.9655 15.1564L22.652 21.4699C21.948 22.1721 20.9943 22.5664 20 22.5664C19.0057 22.5664 18.052 22.1721 17.348 21.4699L11.0345 15.1564C11.024 15.2749 11 15.3821 11 15.4999V24.4999C11.0012 25.4941 11.3967 26.4472 12.0997 27.1502C12.8027 27.8532 13.7558 28.2487 14.75 28.2499H25.25C26.2442 28.2487 27.1973 27.8532 27.9003 27.1502C28.6033 26.4472 28.9988 25.4941 29 24.4999V15.4999C29 15.3821 28.976 15.2749 28.9655 15.1564Z" fill="#858D9D" />
+                            <path d="M21.5915 20.4094L28.442 13.5581C28.1102 13.0079 27.6421 12.5524 27.083 12.2357C26.5239 11.9189 25.8926 11.7516 25.25 11.7499H14.75C14.1075 11.7516 13.4762 11.9189 12.9171 12.2357C12.358 12.5524 11.8899 13.0079 11.558 13.5581L18.4085 20.4094C18.8312 20.8304 19.4035 21.0667 20 21.0667C20.5966 21.0667 21.1689 20.8304 21.5915 20.4094Z" fill="#858D9D" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_1544_665">
+                                <rect width="18" height="18" fill="white" transform="translate(11 11)" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </button>
+            </Link>
             <svg className="h-[35px] mr-3 w-[2px]" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1 0V40" stroke="#F0F1F3" />
             </svg>
@@ -77,7 +79,7 @@ export default function TopBar({ messages, notifications }) {
                     <path d="M7.81051 9.75H16.1895C16.3378 9.75003 16.4828 9.79404 16.6061 9.87645C16.7294 9.95886 16.8255 10.076 16.8823 10.213C16.939 10.35 16.9539 10.5008 16.9249 10.6463C16.896 10.7917 16.8246 10.9254 16.7198 11.0302L12.5303 15.2197C12.3896 15.3603 12.1989 15.4393 12 15.4393C11.8011 15.4393 11.6104 15.3603 11.4698 15.2197L7.28026 11.0302C7.1754 10.9254 7.104 10.7917 7.07507 10.6463C7.04615 10.5008 7.061 10.35 7.11775 10.213C7.1745 10.076 7.27061 9.95886 7.39392 9.87645C7.51722 9.79404 7.6622 9.75003 7.81051 9.75Z" fill="#858D9D" />
                 </svg>
             </button>
-            <NotificationModal ref={dialog}/>
+            <NotificationModal ref={dialog} />
         </div>
     )
 }

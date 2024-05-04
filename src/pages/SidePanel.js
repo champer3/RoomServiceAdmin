@@ -15,7 +15,7 @@ import { useContext } from "react";
 export default function SidePanel() {
     const { page, changePage } = useContext(PageContext)
     return (
-        <div className='flex h-full bg-[#F9F9FC]'>
+        <div className='flex h-full min-w-fit bg-[#F9F9FC]'>
             <div className='bg-white w-[264px]'>
                 <div className="flex space-x-2 px-[24px] py-[20px] items-center">
                     <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -26,7 +26,7 @@ export default function SidePanel() {
                 <Link to={'/'} onClick={() => changePage('dashboard')}><Dashboard active={page === 'dashboard'} /></Link>
                 <Link to={'/products'} onClick={() => changePage('products')}><Products active={page === 'products'} /></Link>
                 <Link to={'/categories'} onClick={() => changePage('categories')}><Categories active={page === 'categories'} /></Link>
-                <Coupons />
+                <Link to={'/coupons'} onClick={() => changePage('coupons')}><Coupons active={page === 'coupons'} /></Link>
                 <Link to={'/orders'} onClick={() => changePage('orders')}><Orders active={page === 'orders'} /></Link>
                 <Link to={'/customers'} onClick={() => changePage('customers')}><Customers active={page === 'customers'}/></Link>
             </div>
