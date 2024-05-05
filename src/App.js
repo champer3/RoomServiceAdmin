@@ -12,13 +12,16 @@ import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import Settings from "./pages/Settings";
 import CouponsPage from "./pages/Coupons";
+import Messages from './pages/Messages'
 import AddCouponsPage from "./pages/AddCoupons";
+import ViewMessage from "./pages/ViewMessage";
 const router = createBrowserRouter([
   {
     path: '/',
     element: <SidePanel />,
     children: [
       { path: '/', element: <HomePage /> },
+      { path: '/dashboard', element: <HomePage /> },
       { path: '/products', element: <ProductsPage /> },
       { path: '/add-products', element: <AddProjectsPage /> },
       { path: '/categories', element: <CategoriesPage /> },
@@ -30,7 +33,9 @@ const router = createBrowserRouter([
       { path: '/customer-details', element: <CustomerDetailsPage /> },
       { path: '/settings', element: <Settings/>},
       { path: '/coupons', element: <CouponsPage/>},
-      { path: '/add-coupons', element: <AddCouponsPage/>}
+      { path: '/add-coupons', element: <AddCouponsPage/>},
+      { path: '/messages', element: <Messages/>},
+      { path: '/viewmessage', element: <ViewMessage/>},
     ]
   }
 

@@ -1,5 +1,5 @@
 import { useState } from "react"
-export default function TableHead({ canOrder, heading, ascend, descend, active }) {
+export default function TableHead({ canOrder, heading, ascend, descend, active= true }) {
     const [arrowDirection, setArrowDirection] = useState('down')
 
     function handleAscend() {
@@ -15,7 +15,7 @@ export default function TableHead({ canOrder, heading, ascend, descend, active }
         <div className=" w-full flex py-[18px] items-center">
             {canOrder && <p className="text-[14px] font-bold leading-[20px] mr-auto tracking-[0.005em] text-[#333333]">{heading}</p>}
             {!canOrder && <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333]">{heading}</p>}
-            {((canOrder && (arrowDirection === 'down')) || (canOrder && !active)) &&
+            {((canOrder && arrowDirection === 'down') || (canOrder && !active)) &&
                 // this button is arrow down
                 <button onClick={handleAscend}>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
