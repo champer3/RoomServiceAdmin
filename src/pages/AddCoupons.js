@@ -1,7 +1,7 @@
 import Path from "../components/Path"
 import Input from "../components/Input"
-import TextArea from "../components/TextArea"
-import ImageDropzone from "../components/ImageDropzone"
+// import TextArea from "../components/TextArea"
+// import ImageDropzone from "../components/ImageDropzone"
 import Select from "../components/Select"
 import GreenLabel from "../components/StatusLabels/GreenLabel"
 import GreyLabel from "../components/StatusLabels/GreyLabel"
@@ -10,11 +10,11 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 
 export default function AddCouponsPage() {
-    const [isTicked, setIsTicked] = useState(false)
+    // const [isTicked, setIsTicked] = useState(false)
     const [status, setStatus] = useState()
-    function handleIsTicked() {
-        setIsTicked((prevState) => !prevState)
-    }
+    // function handleIsTicked() {
+    //     setIsTicked((prevState) => !prevState)
+    // }
 
     function handleSelectStatus(status) {
         setStatus(status)

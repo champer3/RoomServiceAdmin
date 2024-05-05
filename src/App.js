@@ -14,6 +14,8 @@ import Settings from "./pages/Settings";
 import CouponsPage from "./pages/Coupons";
 import Messages from './pages/Messages'
 import AddCouponsPage from "./pages/AddCoupons";
+import PageContextProvider from "./context/PageContext";
+import Messages from "./pages/Messages";
 import ViewMessage from "./pages/ViewMessage";
 const router = createBrowserRouter([
   {
@@ -42,7 +44,12 @@ const router = createBrowserRouter([
 ])
 function App() {
   return (
+    <PageContextProvider>
       <RouterProvider router={router} />
+    </PageContextProvider>
+
+
+
   );
 }
 

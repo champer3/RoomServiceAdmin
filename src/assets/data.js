@@ -256,6 +256,10 @@ export const CATEGORIES_LIST = [
     },
 ]
 
+
+
+
+
 export const ORDER_LIST = [
     {
         ID: 302012,
@@ -267,6 +271,17 @@ export const ORDER_LIST = [
         total: 120,
         payment: 'Mastercard',
         status: 'Processing',
+        order_datails: {
+            id: "#302012",
+            status: "Processing",
+            dateAdded: "29 Dec 2022",
+            paymentMethod: "Mastercard",
+            shippingMethod: "Flat Shipping",
+            customer: "John Bushmill",
+            customerEmail: "joshbushmill@gmail.com",
+            customerPhone: "909 427 2910",
+            customerAddress: "1833 Bel Meadow Drive, Fontana, California 92335, USA"
+        },
     },
     {
         ID: 302011,
@@ -278,6 +293,17 @@ export const ORDER_LIST = [
         total: 590,
         payment: 'Visa',
         status: 'Delivered',
+        order_datails: {
+            id: "#302011",
+            status: "Delivered",
+            dateAdded: "24 Dec 2022",
+            paymentMethod: "Visa",
+            shippingMethod: "Flat Shipping",
+            customer: "Linda Blair",
+            customerEmail: "Lindblair4@gmail.com",
+            customerPhone: "123 427 3388",
+            customerAddress: "1920 Allen Avenue, Dallas, Texas 92335, USA"
+        },
     },
     {
         ID: 302002,
@@ -289,6 +315,17 @@ export const ORDER_LIST = [
         total: 125,
         payment: 'Mastercard',
         status: 'Canceled',
+        order_datails: {
+            id: "#302002",
+            status: "Canceled",
+            dateAdded: "12 Dec 2022",
+            paymentMethod: "Mastercard",
+            shippingMethod: "Flat Shipping",
+            customer: "M Karim",
+            customerEmail: "karimm@gmail.com",
+            customerPhone: "123 654 9875",
+            customerAddress: "1833 Bel Meadow Drive, Fontana, Ohio 92335, USA"
+        },
     },
     {
         ID: 301901,
@@ -300,6 +337,17 @@ export const ORDER_LIST = [
         total: 348,
         payment: 'Mastercard',
         status: 'Shipped',
+        order_datails: {
+            id: "#301901",
+            status: "Shipped",
+            dateAdded: "9 Oct 2022",
+            paymentMethod: "Mastercard",
+            shippingMethod: "Flat Shipping",
+            customer: "Rajesh Masvidal",
+            customerEmail: "rajmasv@gmail.com",
+            customerPhone: "456 427 4567",
+            customerAddress: "2020 Hollow Drive, Fontana, California 92335, USA"
+        },
     },
     {
         ID: 301900,
@@ -311,6 +359,17 @@ export const ORDER_LIST = [
         total: 607,
         payment: 'Visa',
         status: 'Shipped',
+        order_datails: {
+            id: "#301900",
+            status: "Shipped",
+            dateAdded: "12 Oct 2022",
+            paymentMethod: "Visa",
+            shippingMethod: "Flat Shipping",
+            customer: "Laura Prichet",
+            customerEmail: "laurPrich@gmail.com",
+            customerPhone: "122 344 5667",
+            customerAddress: "19B School Crescent, Fontana, Tenneessee 92335, USA"
+        },
     },
     {
         ID: 301881,
@@ -322,6 +381,18 @@ export const ORDER_LIST = [
         total: 234,
         payment: 'Mastercard',
         status: 'Delivered',
+        order_datails: {
+            id: "#301881",
+            status: "Delivered",
+            dateAdded: "12 Oct 2022",
+            paymentMethod: "Mastercard",
+            shippingMethod: "Flat Shipping",
+            customer: "Tracy Williams",
+            customerEmail: "TwillZ@gmail.com",
+            customerPhone: "345 123 8690",
+            customerAddress: "19A School Crescent, Fontana, Georgia 54335, USA"
+        },
+
     },
     {
         ID: 301643,
@@ -333,6 +404,17 @@ export const ORDER_LIST = [
         total: 760,
         payment: 'PayPal',
         status: 'Canceled',
+        order_datails: {
+            id: "#301643",
+            status: "Canceled",
+            dateAdded: "12 Oct 2022",
+            paymentMethod: "PayPal",
+            shippingMethod: "Flat Shipping",
+            customer: "Bryan Barker",
+            customerEmail: "bparker2004@gmail.com",
+            customerPhone: "456 123 4357",
+            customerAddress: "1234 Dasshing Street, Montana, Alaska 54114, USA"
+        },
     },
     {
         ID: 301600,
@@ -344,6 +426,17 @@ export const ORDER_LIST = [
         total: 400,
         payment: 'PayPal',
         status: 'Delivered',
+        order_datails: {
+            id: "#301600",
+            status: "Delivered",
+            dateAdded: "19 Sept 2022",
+            paymentMethod: "PayPal",
+            shippingMethod: "Flat Shipping",
+            customer: "Josh Adam",
+            customerEmail: "joshadam@gmail.com",
+            customerPhone: "555 818 6226",
+            customerAddress: "6708 Smoke Road, Montana, Kentucky 23114, USA"
+        },
     },
     {
         ID: 301555,
@@ -355,6 +448,17 @@ export const ORDER_LIST = [
         total: 812,
         payment: 'Mastercard',
         status: 'Delivered',
+        order_datails: {
+            id: "#301555",
+            status: "Delivered",
+            dateAdded: "19 Sept 2022",
+            paymentMethod: "Mastercard",
+            shippingMethod: "Flat Shipping",
+            customer: "Lucy Driver",
+            customerEmail: "driverlucy@gmail.com",
+            customerPhone: "525 182 6440",
+            customerAddress: "6440 Anfield Road, Montana, Alabama 72014, USA"
+        },
     },
     {
         ID: 301002,
@@ -366,6 +470,17 @@ export const ORDER_LIST = [
         total: 123,
         payment: 'Mastercard',
         status: 'Canceled',
+        order_datails: {
+            id: "#301002",
+            status: "Canceled",
+            dateAdded: "10 Aug 2022",
+            paymentMethod: "Mastercard",
+            shippingMethod: "Flat Shipping",
+            customer: "Alex Holland",
+            customerEmail: "ahollAND@gmail.com",
+            customerPhone: "455 422 5223",
+            customerAddress: "1809 Manchester Street, Santana, Florida 72014, USA"
+        },
     },
 ]
 
@@ -387,7 +502,7 @@ export const ORDER_DETAILS_LIST = [
         price: 5,
     },
 
-    
+
 ]
 
 export const CUSTOMER_LIST = [
@@ -585,3 +700,29 @@ export const CUSTOMER_DETAIL_LIST = [
     },
 ]
 
+export const NOTIFICATIONS_LIST = [
+    {
+        message: "Henry Jacobs placed a new order (Skittles Medium size and two other items)",
+        time: "21/07/203/01/2024 (12:43PM)",
+    },
+    {
+        message: "Reece James placed a new order (Tacos Medium size and two other items)",
+        time: "21/07/203/01/2024 (12:43PM)",
+    },
+    {
+        message: "Andy Cole placed a new order (Amala Medium size and two other items)",
+        time: "21/07/203/01/2024 (12:43PM)"
+    },
+    {
+        message: "Jack Johnson placed a new order (Zion Medium size and two other items)",
+        time: "21/07/203/01/2024 (12:43PM)"
+    },
+    {
+        message: "Shally Poppy placed a new order (Puff Medium size and two other items)",
+        time: "21/07/203/01/2024 (12:43PM)"
+    },
+    {
+        message: "Paul Jacobs placed a new order (Mars Medium size and two other items)",
+        time: "21/07/203/01/2024 (12:43PM)"
+    },
+]

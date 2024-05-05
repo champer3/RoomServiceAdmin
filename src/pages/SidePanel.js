@@ -7,12 +7,14 @@ import Orders from '../components/Sidepanel/Orders'
 import Customers from '../components/Sidepanel/Customers'
 import TopBar from '../components/TopBar';
 import Logo from '../assets/Logo.png'
+import { PageContext } from "../context/PageContext";
+
 import { Link } from "react-router-dom"
-import { useState } from "react";
+import { useContext } from "react";
 
 
 export default function SidePanel() {
-    const [activePanel, setActivePanel] = useState('dashboard')
+    const { page, changePage } = useContext(PageContext)
     return (
         <div className='flex h-full min-w-fit bg-[#F9F9FC]'>
             <div className='bg-white w-[264px]'>
@@ -22,18 +24,17 @@ export default function SidePanel() {
                         <rect width="34" height="34" rx="10" fill="#283618" />
                     </svg> */}
                 </div>
-                <Link to={'/'} onClick={() => setActivePanel('dashboard')}><Dashboard active={activePanel === 'dashboard'} /></Link>
-                <Link to={'/products'} onClick={() => setActivePanel('products')}><Products active={activePanel === 'products'} /></Link>
-                <Link to={'/categories'} onClick={() => setActivePanel('categories')}><Categories active={activePanel === 'categories'} /></Link>
-                <Link to={'/coupons'} onClick={() => setActivePanel('coupons')}><Coupons active={activePanel === 'coupons'} /></Link>
-                <Link to={'/orders'} onClick={() => setActivePanel('orders')}><Orders active={activePanel === 'orders'} /></Link>
-                <Link to={'/customers'} onClick={() => setActivePanel('customers')}><Customers active={activePanel === 'customers'}/></Link>
+                <Link to={'/'} onClick={() => changePage('dashboard')}><Dashboard active={page === 'dashboard'} /></Link>
+                <Link to={'/products'} onClick={() => changePage('products')}><Products active={page === 'products'} /></Link>
+                <Link to={'/categories'} onClick={() => changePage('categories')}><Categories active={page === 'categories'} /></Link>
+                <Link to={'/coupons'} onClick={() => changePage('coupons')}><Coupons active={page === 'coupons'} /></Link>
+                <Link to={'/orders'} onClick={() => changePage('orders')}><Orders active={page === 'orders'} /></Link>
+                <Link to={'/customers'} onClick={() => changePage('customers')}><Customers active={page === 'customers'}/></Link>
             </div>
             <div className="px-8 pb-8 w-full">
                 <TopBar messages={11} notifications={11} />
                 <Outlet />
             </div>
-
         </div>
     )
 }

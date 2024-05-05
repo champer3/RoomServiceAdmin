@@ -27,6 +27,7 @@ import Graph from '../components/Graph'
 export default function HomePage() {
     const [tableList, setTableList] = useState(TABLE_DATA)
     const [activeColumn, setActiveColumn] = useState('')
+    
     function handleAscendingSort(criteria) {
         setActiveColumn(criteria)
         if (criteria === 'product' || criteria === 'status') {
@@ -58,6 +59,7 @@ export default function HomePage() {
             })
         }
     }
+
     console.log(graphData)
     return (
         <div className='ml-4'>
