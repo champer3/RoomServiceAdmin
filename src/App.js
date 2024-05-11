@@ -12,6 +12,7 @@ import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import Settings from "./pages/Settings";
 import CouponsPage from "./pages/Coupons";
+import Messages from './pages/Messages'
 import AddCouponsPage from "./pages/AddCoupons";
 import PageContextProvider from "./context/PageContext";
 import Messages from "./pages/Messages";
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
     element: <SidePanel />,
     children: [
       { path: '/', element: <HomePage /> },
+      { path: '/dashboard', element: <HomePage /> },
       { path: '/products', element: <ProductsPage /> },
       { path: '/add-products', element: <AddProjectsPage /> },
       { path: '/categories', element: <CategoriesPage /> },
@@ -31,11 +33,11 @@ const router = createBrowserRouter([
       { path: '/order-details', element: <OrderDetailsPage /> },
       { path: '/customers', element: <CustomersPage /> },
       { path: '/customer-details', element: <CustomerDetailsPage /> },
-      { path: '/coupons', element: <CouponsPage /> },
-      { path: '/add-coupons', element: <AddCouponsPage /> },
-      {path: '/messages', element: <Messages />},
-      {path: '/view-messages', element: <ViewMessage/>},
-      { path: '/settings', element: <Settings/>}
+      { path: '/settings', element: <Settings/>},
+      { path: '/coupons', element: <CouponsPage/>},
+      { path: '/add-coupons', element: <AddCouponsPage/>},
+      { path: '/messages', element: <Messages/>},
+      { path: '/viewmessage', element: <ViewMessage/>},
     ]
   }
 

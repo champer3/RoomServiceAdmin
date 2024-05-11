@@ -3,6 +3,7 @@
 // import TopBar from '../components/TopBar';
 // import Select from '../components/Select';
 import { useState } from 'react'
+import { Link } from "react-router-dom"
 import moment from 'moment'
 import Path from '../components/Path';
 import TabButton from '../components/TabButton'
@@ -16,18 +17,82 @@ import SelectDatesButton from '../components/SelectDatesButton'
 import { numbers } from '../assets/data'
 import GreenLabel from '../components/StatusLabels/GreenLabel';
 
-function formatDate(dateObject) {
-  return moment(dateObject).format("D MMM YYYY")
-}
+// function formatDate(dateObject) {
+//   return moment(dateObject).format("D MMM YYYY")
+// }
+function isSameWeek(date1, date2) {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+  
+    const d1Year = d1.getFullYear();
+    const d2Year = d2.getFullYear();
+  
+    const d1Week = getWeekNumber(d1);
+    const d2Week = getWeekNumber(d2);
+  
+    return d1Year === d2Year && d1Week === d2Week;
+  }
+  
+  function getWeekNumber(date) {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const daysSinceFirstDay = Math.round((date - firstDayOfYear) / (24 * 60 * 60 * 1000));
+    const weekNumber = Math.ceil((daysSinceFirstDay + firstDayOfYear.getDay() + 1) / 7);
+    return weekNumber;
+  }
+  
+  function formatDate(date) {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+  
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else if (isSameWeek(date, today)) {
+      const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return weekdays[date.getDay()];
+    } else {
+      const options = { day: 'numeric', month: 'short' , year: 'numeric'};
+      return date.toLocaleDateString('en-US', options);
+    }
+  }
+
 const date = new Date(2023, 0, 16)
 function Messages() {
   const [activePage, setActivePage] = useState('all')
   const [selectedRows, setSelectedRows] = useState([])
   const [currentPage, setCurrentPage] = useState(1);
-    // const itemsPerPage = 20
+    const itemsPerPage = 20
+    const [messages, setMessages] = useState([
+        {id: 302002, message:['Hello, I want to make an enquiry'],customer: 'Stephen Okunola', date: new Date(2023, 0, 16), status: 'Active'},
+        {id: 302002, message:['Hello, I want to make an enquiry'],customer: 'Stephen Okunola', date: new Date(2023, 0, 16), status: 'Active'},
+        {id: 302002, message:['Hello, I want to make an enquiry'],customer: 'Stephen Okunola', date: new Date(2023, 0, 16), status: 'Active'},
+        {id: 302002, message:['Hello, I want to make an enquiry'],customer: 'Stephen Okunola', date: new Date(2023, 0, 16), status: 'Closed'},
+        {id: 302002, message:['Hello, I want to make an enquiry'],customer: 'Stephen Okunola', date: new Date(2023, 0, 16), status: 'Closed'},
+        {id: 302002, message:['Hello, I want to make an enquiry'],customer: 'Stephen Okunola', date: new Date(2023, 0, 16), status: 'Closed'},
+        {id: 302002, message:['Hello, I want to make an enquiry'],customer: 'Stephen Okunola', date: new Date(2023, 0, 16), status: 'Closed'},
+    ])
 
-    // const shownItems = numbers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-    
+    const shownItems = numbers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    function filterDataByStatus(status) {
+        if (status === 'all') {
+          return messages; // Return all data if status is 'all'
+        } else {
+          return messages.filter(item => item.status === status); // Filter based on the chosen status
+        }
+      }
+      
+    function selectAll(){
+        var arr = []
+        for (var i = 0; i < messages.length; i++){
+            arr.push(i)
+        }
+        setSelectedRows(arr)
+    }
+    function deselectAll(){
+        setSelectedRows([])
+    }
   function handleSelectTabButton(page) {
     setActivePage(page)
 }
@@ -39,426 +104,66 @@ function Messages() {
           ]
       })
     }
-
-    //  function handleChangePage(newPage) {
-    //   setCurrentPage(newPage)
-    // }
-
-    function handleIsRemoved(row) {
-      setSelectedRows((prevState) => {
-          return prevState.filter((item => item !== row))
-      })
-    }
-
-  return (
-    <div className='bg-[#F9F9FC] w-full px-4 py-5 '>
-      <div className='space-x-8 w-full flex mt-5'>
-        <h1 className='font-black text-[20px] leading-[30px] tracking-[0.01em] text-[#333333]'>Messages</h1>
-      </div>
-      <div className='my-3 space-x-8 w-full flex justify-between items-center'>
-        {/* <Path pages={['Dashboard', 'Messages']} /> */}
-        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Messages', link: 'messages'}]} />
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M13.3333 17.5V15.8333C13.3333 14.2617 13.3333 13.4767 12.845 12.9883C12.3566 12.5 11.5716 12.5 9.99998 12.5H9.16665C7.59498 12.5 6.80998 12.5 6.32165 12.9883C5.83331 13.4767 5.83331 14.2617 5.83331 15.8333V17.5" stroke="white"/>
-        <path d="M5.83331 6.6665H9.99998" stroke="white" stroke-linecap="round"/>
-        <path d="M2.5 7.5C2.5 5.14333 2.5 3.96417 3.2325 3.2325C3.96417 2.5 5.14333 2.5 7.5 2.5H13.4767C13.8167 2.5 13.9875 2.5 14.14 2.56333C14.2933 2.62667 14.4142 2.74667 14.655 2.98833L17.0117 5.345C17.2533 5.58667 17.3733 5.70667 17.4367 5.86C17.5 6.0125 17.5 6.18333 17.5 6.52333V12.5C17.5 14.8567 17.5 16.0358 16.7675 16.7675C16.0358 17.5 14.8567 17.5 12.5 17.5H7.5C5.14333 17.5 3.96417 17.5 3.2325 16.7675C2.5 16.0358 2.5 14.8567 2.5 12.5V7.5Z" stroke="white"/>
-        </svg>
-        </div>
-        <div className='flex items-center'>
-                <div className='mt-8 flex border border-[#E0E2E7] bg-white rounded-lg p-[2px] w-[fit]'>
-                    <TabButton handleSelect={() => handleSelectTabButton('all')} isSelected={activePage === 'all'} >All Status</TabButton>
-                    <TabButton handleSelect={() => handleSelectTabButton('published')} isSelected={activePage === 'published'} >Active</TabButton>
-                    <TabButton handleSelect={() => handleSelectTabButton('draft')} isSelected={activePage === 'draft'} >Closed</TabButton>
-                </div>
-                <div className='flex space-x-4 mt-8 ml-auto'>
-                    <MiniSearch searchItem={'messages'} />
-                    <SelectDatesButton />
-
-                    <FilterButton />
-                </div>
-        </div>
-            {activePage === 'all' &&
-                <div className='mt-5'>
-                    {/* <div className=''></div> */}
-                    <table className='w-full bg-white rounded-xl'>
-                        <tr className='border-b'>
-                            <th className='pt-3'>
-                                <button className='ml-4'>
-                                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
-                                  </svg>
-                                </button>
-                            </th>
-                            <th className='w-[10%]'><TableHead heading={'Message ID'}/></th>
-                            <th className='w-[50%]'><TableHead heading={'Last Message'} canOrder={true}/></th>
-                            <th className=''><TableHead heading={'Date'}  canOrder={true}/></th>
-                            <th className=''><TableHead heading={'Customer'}/></th>
-                            <th className=''><TableHead heading={'Status'} canOrder={true} /></th>
-                            <th className=''><TableHead heading={'Action'} /></th>
-                        </tr>
-                        <tbody>
-                            <tr className={`${selectedRows.indexOf('302012') !== -1 ? 'bg-[#F9F9FC]' : ''} border-b` }>
-                                <th className='pt-3'>
-
-                                    {selectedRows.indexOf('302012') === -1 ?
-                                        <button onClick={() => handleIsSelected('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
+    function displayMessage(messages){
+        return(
+            <tbody>
+                {messages.map(({id, message, date, customer, status}, idx)=> 
+                                <tr className={`${selectedRows.indexOf(idx) !== -1 ? 'bg-[#F9F9FC]' : ''} border-b` }>
+                                    <th className='pt-3'>
+    
+                                        {selectedRows.indexOf(idx) === -1 ?
+                                            <button onClick={() => handleIsSelected(idx)} className='ml-4'>
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
+                                                </svg>
+                                            </button> :
+                                            <button onClick={() => handleIsRemoved(idx)} className='ml-4'>
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect width="20" height="20" rx="6" fill="#BC6C25" />
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
+                                                </svg>
+                                            </button>
+    
+                                        }
+    
+                                    </th>
+                                    <td className='p-0 py-5'>
+                                        {status ==='Active' ?<p className='ml-0 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>{id}</p>:<p className='ml-0 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{id}</p> }
+                                    </td>
+                                    <td className='p-0'>
+                                    {status ==='Active' ?<p className='ml-0 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>{message[message.length-1]}</p>:<p className='ml-0 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{message[message.length-1]}</p> }
+                                    </td>
+                                    <td className='p-0'>
+                                    <p className='ml-0 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(date)}</p>
+                                    </td>
+                                    <td className='p-0'>
+                                        <p className='ml-0 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{customer}</p>
+                                    </td>
+                                    <td className='pl-0'>
+                                        {status ==='Active' ? <OrangeLabel>{status}</OrangeLabel> : <GreenLabel>{status}</GreenLabel>}
+                                    </td>
+                                    <td className=''>
+                                        <div className='"ml-auto mr-auto"'>
+                                            <Link to="/viewmessage">
+                                            <button className='ml-4'>
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7.15623 8C7.15623 8.22378 7.24512 8.43839 7.40336 8.59662C7.56159 8.75486 7.7762 8.84375 7.99998 8.84375C8.22375 8.84375 8.43836 8.75486 8.5966 8.59662C8.75483 8.43839 8.84373 8.22378 8.84373 8C8.84373 7.77622 8.75483 7.56161 8.5966 7.40338C8.43836 7.24514 8.22375 7.15625 7.99998 7.15625C7.7762 7.15625 7.56159 7.24514 7.40336 7.40338C7.24512 7.56161 7.15623 7.77622 7.15623 8ZM10.6719 8C10.6719 8.22378 10.7607 8.43839 10.919 8.59662C11.0772 8.75486 11.2918 8.84375 11.5156 8.84375C11.7394 8.84375 11.954 8.75486 12.1122 8.59662C12.2705 8.43839 12.3594 8.22378 12.3594 8C12.3594 7.77622 12.2705 7.56161 12.1122 7.40338C11.954 7.24514 11.7394 7.15625 11.5156 7.15625C11.2918 7.15625 11.0772 7.24514 10.919 7.40338C10.7607 7.56161 10.6719 7.77622 10.6719 8ZM3.6406 8C3.6406 8.22378 3.7295 8.43839 3.88773 8.59662C4.04596 8.75486 4.26058 8.84375 4.48435 8.84375C4.70813 8.84375 4.92274 8.75486 5.08097 8.59662C5.23921 8.43839 5.3281 8.22378 5.3281 8C5.3281 7.77622 5.23921 7.56161 5.08097 7.40338C4.92274 7.24514 4.70813 7.15625 4.48435 7.15625C4.26058 7.15625 4.04596 7.24514 3.88773 7.40338C3.7295 7.56161 3.6406 7.77622 3.6406 8ZM15.2633 4.94844C14.866 4.00449 14.2965 3.15723 13.5705 2.42949C12.8496 1.70597 11.9938 1.13086 11.0515 0.736719C10.0847 0.330664 9.05818 0.125 7.99998 0.125H7.96482C6.89959 0.130273 5.86775 0.341211 4.89744 0.756055C3.96326 1.15424 3.11548 1.73037 2.40134 2.45234C1.6824 3.17832 1.11814 4.02207 0.727907 4.9625C0.323611 5.93633 0.119704 6.97168 0.124978 8.03691C0.130942 9.25766 0.419748 10.4604 0.968728 11.5508V14.2227C0.968728 14.4371 1.05392 14.6428 1.20556 14.7944C1.3572 14.9461 1.56287 15.0312 1.77732 15.0312H4.45095C5.54132 15.5802 6.74407 15.869 7.96482 15.875H8.00174C9.05466 15.875 10.076 15.6711 11.0375 15.2721C11.975 14.8826 12.8276 14.3142 13.5476 13.5986C14.2736 12.8797 14.8449 12.0395 15.2439 11.1025C15.6588 10.1322 15.8697 9.10039 15.875 8.03516C15.8803 6.96465 15.6728 5.92578 15.2633 4.94844ZM12.6072 12.6477C11.375 13.8676 9.74021 14.5391 7.99998 14.5391H7.97009C6.91013 14.5338 5.8572 14.2701 4.92732 13.7744L4.77966 13.6953H2.30467V11.2203L2.22556 11.0727C1.72986 10.1428 1.46619 9.08984 1.46092 8.02988C1.45388 6.27734 2.12361 4.63203 3.35232 3.39277C4.57927 2.15352 6.21931 1.46797 7.97185 1.46094H8.00174C8.88064 1.46094 9.73318 1.63145 10.5365 1.96895C11.3205 2.29766 12.0236 2.77051 12.6283 3.3752C13.2312 3.97812 13.7058 4.68301 14.0345 5.46699C14.3756 6.2791 14.5461 7.14043 14.5426 8.02988C14.532 9.78066 13.8447 11.4207 12.6072 12.6477Z" fill="#A3A9B6"/>
                                             </svg>
-                                        </button> :
-                                        <button onClick={() => handleIsRemoved('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
+                                            </button>
+                                            </Link>
+                                            <button className='ml-4'>
+                                            <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 2.65625C2.46599 2.65625 2.84375 2.27849 2.84375 1.8125C2.84375 1.34651 2.46599 0.96875 2 0.96875C1.53401 0.96875 1.15625 1.34651 1.15625 1.8125C1.15625 2.27849 1.53401 2.65625 2 2.65625Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M2 8.84375C2.46599 8.84375 2.84375 8.46599 2.84375 8C2.84375 7.53401 2.46599 7.15625 2 7.15625C1.53401 7.15625 1.15625 7.53401 1.15625 8C1.15625 8.46599 1.53401 8.84375 2 8.84375Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M2 15.0312C2.46599 15.0312 2.84375 14.6535 2.84375 14.1875C2.84375 13.7215 2.46599 13.3438 2 13.3438C1.53401 13.3438 1.15625 13.7215 1.15625 14.1875C1.15625 14.6535 1.53401 15.0312 2 15.0312Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
-                                        </button>
-
-                                    }
-
-                                </th>
-                                <td className='p-0 py-5'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>302012</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>Hello, I want to make an enquiry</p>
-                                </td>
-                                <td className='p-0'>
-                                <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(date)}</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Okunola Stephen</p>
-                                </td>
-                                <td className='pl-6'>
-                                    <OrangeLabel>Active</OrangeLabel>
-                                </td>
-                                <td className=''>
-                                    <div className='"ml-auto mr-auto"'>
-                                        <button className='ml-4'>
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.15623 8C7.15623 8.22378 7.24512 8.43839 7.40336 8.59662C7.56159 8.75486 7.7762 8.84375 7.99998 8.84375C8.22375 8.84375 8.43836 8.75486 8.5966 8.59662C8.75483 8.43839 8.84373 8.22378 8.84373 8C8.84373 7.77622 8.75483 7.56161 8.5966 7.40338C8.43836 7.24514 8.22375 7.15625 7.99998 7.15625C7.7762 7.15625 7.56159 7.24514 7.40336 7.40338C7.24512 7.56161 7.15623 7.77622 7.15623 8ZM10.6719 8C10.6719 8.22378 10.7607 8.43839 10.919 8.59662C11.0772 8.75486 11.2918 8.84375 11.5156 8.84375C11.7394 8.84375 11.954 8.75486 12.1122 8.59662C12.2705 8.43839 12.3594 8.22378 12.3594 8C12.3594 7.77622 12.2705 7.56161 12.1122 7.40338C11.954 7.24514 11.7394 7.15625 11.5156 7.15625C11.2918 7.15625 11.0772 7.24514 10.919 7.40338C10.7607 7.56161 10.6719 7.77622 10.6719 8ZM3.6406 8C3.6406 8.22378 3.7295 8.43839 3.88773 8.59662C4.04596 8.75486 4.26058 8.84375 4.48435 8.84375C4.70813 8.84375 4.92274 8.75486 5.08097 8.59662C5.23921 8.43839 5.3281 8.22378 5.3281 8C5.3281 7.77622 5.23921 7.56161 5.08097 7.40338C4.92274 7.24514 4.70813 7.15625 4.48435 7.15625C4.26058 7.15625 4.04596 7.24514 3.88773 7.40338C3.7295 7.56161 3.6406 7.77622 3.6406 8ZM15.2633 4.94844C14.866 4.00449 14.2965 3.15723 13.5705 2.42949C12.8496 1.70597 11.9938 1.13086 11.0515 0.736719C10.0847 0.330664 9.05818 0.125 7.99998 0.125H7.96482C6.89959 0.130273 5.86775 0.341211 4.89744 0.756055C3.96326 1.15424 3.11548 1.73037 2.40134 2.45234C1.6824 3.17832 1.11814 4.02207 0.727907 4.9625C0.323611 5.93633 0.119704 6.97168 0.124978 8.03691C0.130942 9.25766 0.419748 10.4604 0.968728 11.5508V14.2227C0.968728 14.4371 1.05392 14.6428 1.20556 14.7944C1.3572 14.9461 1.56287 15.0312 1.77732 15.0312H4.45095C5.54132 15.5802 6.74407 15.869 7.96482 15.875H8.00174C9.05466 15.875 10.076 15.6711 11.0375 15.2721C11.975 14.8826 12.8276 14.3142 13.5476 13.5986C14.2736 12.8797 14.8449 12.0395 15.2439 11.1025C15.6588 10.1322 15.8697 9.10039 15.875 8.03516C15.8803 6.96465 15.6728 5.92578 15.2633 4.94844ZM12.6072 12.6477C11.375 13.8676 9.74021 14.5391 7.99998 14.5391H7.97009C6.91013 14.5338 5.8572 14.2701 4.92732 13.7744L4.77966 13.6953H2.30467V11.2203L2.22556 11.0727C1.72986 10.1428 1.46619 9.08984 1.46092 8.02988C1.45388 6.27734 2.12361 4.63203 3.35232 3.39277C4.57927 2.15352 6.21931 1.46797 7.97185 1.46094H8.00174C8.88064 1.46094 9.73318 1.63145 10.5365 1.96895C11.3205 2.29766 12.0236 2.77051 12.6283 3.3752C13.2312 3.97812 13.7058 4.68301 14.0345 5.46699C14.3756 6.2791 14.5461 7.14043 14.5426 8.02988C14.532 9.78066 13.8447 11.4207 12.6072 12.6477Z" fill="#A3A9B6"/>
-                                        </svg>
-                                        </button>
-                                        <button className='ml-4'>
-                                        <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 2.65625C2.46599 2.65625 2.84375 2.27849 2.84375 1.8125C2.84375 1.34651 2.46599 0.96875 2 0.96875C1.53401 0.96875 1.15625 1.34651 1.15625 1.8125C1.15625 2.27849 1.53401 2.65625 2 2.65625Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 8.84375C2.46599 8.84375 2.84375 8.46599 2.84375 8C2.84375 7.53401 2.46599 7.15625 2 7.15625C1.53401 7.15625 1.15625 7.53401 1.15625 8C1.15625 8.46599 1.53401 8.84375 2 8.84375Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 15.0312C2.46599 15.0312 2.84375 14.6535 2.84375 14.1875C2.84375 13.7215 2.46599 13.3438 2 13.3438C1.53401 13.3438 1.15625 13.7215 1.15625 14.1875C1.15625 14.6535 1.53401 15.0312 2 15.0312Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr className={`${selectedRows.indexOf('302012') !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
-                                <th className='pt-3'>
-
-                                    {selectedRows.indexOf('302012') === -1 ?
-                                        <button onClick={() => handleIsSelected('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
-                                            </svg>
-                                        </button> :
-                                        <button onClick={() => handleIsRemoved('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
-                                            </svg>
-                                        </button>
-
-                                    }
-
-                                </th>
-                                <td className='p-0 py-5'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>302012</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>Hello, I want to make an enquiry</p>
-                                </td>
-                                <td className='p-0'>
-                                <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(date)}</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Okunola Stephen</p>
-                                </td>
-                                <td className='pl-6'>
-                                    <OrangeLabel>Active</OrangeLabel>
-                                </td>
-                                <td className=''>
-                                    <div className='"ml-auto mr-auto"'>
-                                        <button className='ml-4'>
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.15623 8C7.15623 8.22378 7.24512 8.43839 7.40336 8.59662C7.56159 8.75486 7.7762 8.84375 7.99998 8.84375C8.22375 8.84375 8.43836 8.75486 8.5966 8.59662C8.75483 8.43839 8.84373 8.22378 8.84373 8C8.84373 7.77622 8.75483 7.56161 8.5966 7.40338C8.43836 7.24514 8.22375 7.15625 7.99998 7.15625C7.7762 7.15625 7.56159 7.24514 7.40336 7.40338C7.24512 7.56161 7.15623 7.77622 7.15623 8ZM10.6719 8C10.6719 8.22378 10.7607 8.43839 10.919 8.59662C11.0772 8.75486 11.2918 8.84375 11.5156 8.84375C11.7394 8.84375 11.954 8.75486 12.1122 8.59662C12.2705 8.43839 12.3594 8.22378 12.3594 8C12.3594 7.77622 12.2705 7.56161 12.1122 7.40338C11.954 7.24514 11.7394 7.15625 11.5156 7.15625C11.2918 7.15625 11.0772 7.24514 10.919 7.40338C10.7607 7.56161 10.6719 7.77622 10.6719 8ZM3.6406 8C3.6406 8.22378 3.7295 8.43839 3.88773 8.59662C4.04596 8.75486 4.26058 8.84375 4.48435 8.84375C4.70813 8.84375 4.92274 8.75486 5.08097 8.59662C5.23921 8.43839 5.3281 8.22378 5.3281 8C5.3281 7.77622 5.23921 7.56161 5.08097 7.40338C4.92274 7.24514 4.70813 7.15625 4.48435 7.15625C4.26058 7.15625 4.04596 7.24514 3.88773 7.40338C3.7295 7.56161 3.6406 7.77622 3.6406 8ZM15.2633 4.94844C14.866 4.00449 14.2965 3.15723 13.5705 2.42949C12.8496 1.70597 11.9938 1.13086 11.0515 0.736719C10.0847 0.330664 9.05818 0.125 7.99998 0.125H7.96482C6.89959 0.130273 5.86775 0.341211 4.89744 0.756055C3.96326 1.15424 3.11548 1.73037 2.40134 2.45234C1.6824 3.17832 1.11814 4.02207 0.727907 4.9625C0.323611 5.93633 0.119704 6.97168 0.124978 8.03691C0.130942 9.25766 0.419748 10.4604 0.968728 11.5508V14.2227C0.968728 14.4371 1.05392 14.6428 1.20556 14.7944C1.3572 14.9461 1.56287 15.0312 1.77732 15.0312H4.45095C5.54132 15.5802 6.74407 15.869 7.96482 15.875H8.00174C9.05466 15.875 10.076 15.6711 11.0375 15.2721C11.975 14.8826 12.8276 14.3142 13.5476 13.5986C14.2736 12.8797 14.8449 12.0395 15.2439 11.1025C15.6588 10.1322 15.8697 9.10039 15.875 8.03516C15.8803 6.96465 15.6728 5.92578 15.2633 4.94844ZM12.6072 12.6477C11.375 13.8676 9.74021 14.5391 7.99998 14.5391H7.97009C6.91013 14.5338 5.8572 14.2701 4.92732 13.7744L4.77966 13.6953H2.30467V11.2203L2.22556 11.0727C1.72986 10.1428 1.46619 9.08984 1.46092 8.02988C1.45388 6.27734 2.12361 4.63203 3.35232 3.39277C4.57927 2.15352 6.21931 1.46797 7.97185 1.46094H8.00174C8.88064 1.46094 9.73318 1.63145 10.5365 1.96895C11.3205 2.29766 12.0236 2.77051 12.6283 3.3752C13.2312 3.97812 13.7058 4.68301 14.0345 5.46699C14.3756 6.2791 14.5461 7.14043 14.5426 8.02988C14.532 9.78066 13.8447 11.4207 12.6072 12.6477Z" fill="#A3A9B6"/>
-                                        </svg>
-                                        </button>
-                                        <button className='ml-4'>
-                                        <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 2.65625C2.46599 2.65625 2.84375 2.27849 2.84375 1.8125C2.84375 1.34651 2.46599 0.96875 2 0.96875C1.53401 0.96875 1.15625 1.34651 1.15625 1.8125C1.15625 2.27849 1.53401 2.65625 2 2.65625Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 8.84375C2.46599 8.84375 2.84375 8.46599 2.84375 8C2.84375 7.53401 2.46599 7.15625 2 7.15625C1.53401 7.15625 1.15625 7.53401 1.15625 8C1.15625 8.46599 1.53401 8.84375 2 8.84375Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 15.0312C2.46599 15.0312 2.84375 14.6535 2.84375 14.1875C2.84375 13.7215 2.46599 13.3438 2 13.3438C1.53401 13.3438 1.15625 13.7215 1.15625 14.1875C1.15625 14.6535 1.53401 15.0312 2 15.0312Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr className={`${selectedRows.indexOf('302012') !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
-                                <th className='pt-3'>
-
-                                    {selectedRows.indexOf('302012') === -1 ?
-                                        <button onClick={() => handleIsSelected('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
-                                            </svg>
-                                        </button> :
-                                        <button onClick={() => handleIsRemoved('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
-                                            </svg>
-                                        </button>
-
-                                    }
-
-                                </th>
-                                <td className='p-0 py-5'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>302012</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>Hello, I want to make an enquiry</p>
-                                </td>
-                                <td className='p-0'>
-                                <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(date)}</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Okunola Stephen</p>
-                                </td>
-                                <td className='pl-6'>
-                                    <OrangeLabel>Active</OrangeLabel>
-                                </td>
-                                <td className=''>
-                                    <div className='"ml-auto mr-auto"'>
-                                        <button className='ml-4'>
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.15623 8C7.15623 8.22378 7.24512 8.43839 7.40336 8.59662C7.56159 8.75486 7.7762 8.84375 7.99998 8.84375C8.22375 8.84375 8.43836 8.75486 8.5966 8.59662C8.75483 8.43839 8.84373 8.22378 8.84373 8C8.84373 7.77622 8.75483 7.56161 8.5966 7.40338C8.43836 7.24514 8.22375 7.15625 7.99998 7.15625C7.7762 7.15625 7.56159 7.24514 7.40336 7.40338C7.24512 7.56161 7.15623 7.77622 7.15623 8ZM10.6719 8C10.6719 8.22378 10.7607 8.43839 10.919 8.59662C11.0772 8.75486 11.2918 8.84375 11.5156 8.84375C11.7394 8.84375 11.954 8.75486 12.1122 8.59662C12.2705 8.43839 12.3594 8.22378 12.3594 8C12.3594 7.77622 12.2705 7.56161 12.1122 7.40338C11.954 7.24514 11.7394 7.15625 11.5156 7.15625C11.2918 7.15625 11.0772 7.24514 10.919 7.40338C10.7607 7.56161 10.6719 7.77622 10.6719 8ZM3.6406 8C3.6406 8.22378 3.7295 8.43839 3.88773 8.59662C4.04596 8.75486 4.26058 8.84375 4.48435 8.84375C4.70813 8.84375 4.92274 8.75486 5.08097 8.59662C5.23921 8.43839 5.3281 8.22378 5.3281 8C5.3281 7.77622 5.23921 7.56161 5.08097 7.40338C4.92274 7.24514 4.70813 7.15625 4.48435 7.15625C4.26058 7.15625 4.04596 7.24514 3.88773 7.40338C3.7295 7.56161 3.6406 7.77622 3.6406 8ZM15.2633 4.94844C14.866 4.00449 14.2965 3.15723 13.5705 2.42949C12.8496 1.70597 11.9938 1.13086 11.0515 0.736719C10.0847 0.330664 9.05818 0.125 7.99998 0.125H7.96482C6.89959 0.130273 5.86775 0.341211 4.89744 0.756055C3.96326 1.15424 3.11548 1.73037 2.40134 2.45234C1.6824 3.17832 1.11814 4.02207 0.727907 4.9625C0.323611 5.93633 0.119704 6.97168 0.124978 8.03691C0.130942 9.25766 0.419748 10.4604 0.968728 11.5508V14.2227C0.968728 14.4371 1.05392 14.6428 1.20556 14.7944C1.3572 14.9461 1.56287 15.0312 1.77732 15.0312H4.45095C5.54132 15.5802 6.74407 15.869 7.96482 15.875H8.00174C9.05466 15.875 10.076 15.6711 11.0375 15.2721C11.975 14.8826 12.8276 14.3142 13.5476 13.5986C14.2736 12.8797 14.8449 12.0395 15.2439 11.1025C15.6588 10.1322 15.8697 9.10039 15.875 8.03516C15.8803 6.96465 15.6728 5.92578 15.2633 4.94844ZM12.6072 12.6477C11.375 13.8676 9.74021 14.5391 7.99998 14.5391H7.97009C6.91013 14.5338 5.8572 14.2701 4.92732 13.7744L4.77966 13.6953H2.30467V11.2203L2.22556 11.0727C1.72986 10.1428 1.46619 9.08984 1.46092 8.02988C1.45388 6.27734 2.12361 4.63203 3.35232 3.39277C4.57927 2.15352 6.21931 1.46797 7.97185 1.46094H8.00174C8.88064 1.46094 9.73318 1.63145 10.5365 1.96895C11.3205 2.29766 12.0236 2.77051 12.6283 3.3752C13.2312 3.97812 13.7058 4.68301 14.0345 5.46699C14.3756 6.2791 14.5461 7.14043 14.5426 8.02988C14.532 9.78066 13.8447 11.4207 12.6072 12.6477Z" fill="#A3A9B6"/>
-                                        </svg>
-                                        </button>
-                                        <button className='ml-4'>
-                                        <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 2.65625C2.46599 2.65625 2.84375 2.27849 2.84375 1.8125C2.84375 1.34651 2.46599 0.96875 2 0.96875C1.53401 0.96875 1.15625 1.34651 1.15625 1.8125C1.15625 2.27849 1.53401 2.65625 2 2.65625Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 8.84375C2.46599 8.84375 2.84375 8.46599 2.84375 8C2.84375 7.53401 2.46599 7.15625 2 7.15625C1.53401 7.15625 1.15625 7.53401 1.15625 8C1.15625 8.46599 1.53401 8.84375 2 8.84375Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 15.0312C2.46599 15.0312 2.84375 14.6535 2.84375 14.1875C2.84375 13.7215 2.46599 13.3438 2 13.3438C1.53401 13.3438 1.15625 13.7215 1.15625 14.1875C1.15625 14.6535 1.53401 15.0312 2 15.0312Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr className={`${selectedRows.indexOf('302012') !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
-                                <th className='pt-3'>
-
-                                    {selectedRows.indexOf('302012') === -1 ?
-                                        <button onClick={() => handleIsSelected('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
-                                            </svg>
-                                        </button> :
-                                        <button onClick={() => handleIsRemoved('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
-                                            </svg>
-                                        </button>
-
-                                    }
-
-                                </th>
-                                <td className='p-0 py-5'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>302012</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-7 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Hello, I want to make an enquiry</p>
-                                </td>
-                                <td className='p-0'>
-                                <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(date)}</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Okunola Stephen</p>
-                                </td>
-                                <td className='pl-6'>
-                                    <GreenLabel>Closed</GreenLabel>
-                                </td>
-                                <td className=''>
-                                    <div className='"ml-auto mr-auto"'>
-                                        <button className='ml-4'>
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.15623 8C7.15623 8.22378 7.24512 8.43839 7.40336 8.59662C7.56159 8.75486 7.7762 8.84375 7.99998 8.84375C8.22375 8.84375 8.43836 8.75486 8.5966 8.59662C8.75483 8.43839 8.84373 8.22378 8.84373 8C8.84373 7.77622 8.75483 7.56161 8.5966 7.40338C8.43836 7.24514 8.22375 7.15625 7.99998 7.15625C7.7762 7.15625 7.56159 7.24514 7.40336 7.40338C7.24512 7.56161 7.15623 7.77622 7.15623 8ZM10.6719 8C10.6719 8.22378 10.7607 8.43839 10.919 8.59662C11.0772 8.75486 11.2918 8.84375 11.5156 8.84375C11.7394 8.84375 11.954 8.75486 12.1122 8.59662C12.2705 8.43839 12.3594 8.22378 12.3594 8C12.3594 7.77622 12.2705 7.56161 12.1122 7.40338C11.954 7.24514 11.7394 7.15625 11.5156 7.15625C11.2918 7.15625 11.0772 7.24514 10.919 7.40338C10.7607 7.56161 10.6719 7.77622 10.6719 8ZM3.6406 8C3.6406 8.22378 3.7295 8.43839 3.88773 8.59662C4.04596 8.75486 4.26058 8.84375 4.48435 8.84375C4.70813 8.84375 4.92274 8.75486 5.08097 8.59662C5.23921 8.43839 5.3281 8.22378 5.3281 8C5.3281 7.77622 5.23921 7.56161 5.08097 7.40338C4.92274 7.24514 4.70813 7.15625 4.48435 7.15625C4.26058 7.15625 4.04596 7.24514 3.88773 7.40338C3.7295 7.56161 3.6406 7.77622 3.6406 8ZM15.2633 4.94844C14.866 4.00449 14.2965 3.15723 13.5705 2.42949C12.8496 1.70597 11.9938 1.13086 11.0515 0.736719C10.0847 0.330664 9.05818 0.125 7.99998 0.125H7.96482C6.89959 0.130273 5.86775 0.341211 4.89744 0.756055C3.96326 1.15424 3.11548 1.73037 2.40134 2.45234C1.6824 3.17832 1.11814 4.02207 0.727907 4.9625C0.323611 5.93633 0.119704 6.97168 0.124978 8.03691C0.130942 9.25766 0.419748 10.4604 0.968728 11.5508V14.2227C0.968728 14.4371 1.05392 14.6428 1.20556 14.7944C1.3572 14.9461 1.56287 15.0312 1.77732 15.0312H4.45095C5.54132 15.5802 6.74407 15.869 7.96482 15.875H8.00174C9.05466 15.875 10.076 15.6711 11.0375 15.2721C11.975 14.8826 12.8276 14.3142 13.5476 13.5986C14.2736 12.8797 14.8449 12.0395 15.2439 11.1025C15.6588 10.1322 15.8697 9.10039 15.875 8.03516C15.8803 6.96465 15.6728 5.92578 15.2633 4.94844ZM12.6072 12.6477C11.375 13.8676 9.74021 14.5391 7.99998 14.5391H7.97009C6.91013 14.5338 5.8572 14.2701 4.92732 13.7744L4.77966 13.6953H2.30467V11.2203L2.22556 11.0727C1.72986 10.1428 1.46619 9.08984 1.46092 8.02988C1.45388 6.27734 2.12361 4.63203 3.35232 3.39277C4.57927 2.15352 6.21931 1.46797 7.97185 1.46094H8.00174C8.88064 1.46094 9.73318 1.63145 10.5365 1.96895C11.3205 2.29766 12.0236 2.77051 12.6283 3.3752C13.2312 3.97812 13.7058 4.68301 14.0345 5.46699C14.3756 6.2791 14.5461 7.14043 14.5426 8.02988C14.532 9.78066 13.8447 11.4207 12.6072 12.6477Z" fill="#A3A9B6"/>
-                                        </svg>
-                                        </button>
-                                        <button className='ml-4'>
-                                        <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 2.65625C2.46599 2.65625 2.84375 2.27849 2.84375 1.8125C2.84375 1.34651 2.46599 0.96875 2 0.96875C1.53401 0.96875 1.15625 1.34651 1.15625 1.8125C1.15625 2.27849 1.53401 2.65625 2 2.65625Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 8.84375C2.46599 8.84375 2.84375 8.46599 2.84375 8C2.84375 7.53401 2.46599 7.15625 2 7.15625C1.53401 7.15625 1.15625 7.53401 1.15625 8C1.15625 8.46599 1.53401 8.84375 2 8.84375Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 15.0312C2.46599 15.0312 2.84375 14.6535 2.84375 14.1875C2.84375 13.7215 2.46599 13.3438 2 13.3438C1.53401 13.3438 1.15625 13.7215 1.15625 14.1875C1.15625 14.6535 1.53401 15.0312 2 15.0312Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <tr className={`${selectedRows.indexOf('302012') !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
-                                <th className='pt-3'>
-
-                                    {selectedRows.indexOf('302012') === -1 ?
-                                        <button onClick={() => handleIsSelected('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
-                                            </svg>
-                                        </button> :
-                                        <button onClick={() => handleIsRemoved('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
-                                            </svg>
-                                        </button>
-
-                                    }
-
-                                </th>
-                                <td className='p-0 py-5'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>302012</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-7 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Hello, I want to make an enquiry</p>
-                                </td>
-                                <td className='p-0'>
-                                <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(date)}</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Okunola Stephen</p>
-                                </td>
-                                <td className='pl-6'>
-                                    <GreenLabel>Closed</GreenLabel>
-                                </td>
-                                <td className=''>
-                                    <div className='"ml-auto mr-auto"'>
-                                        <button className='ml-4'>
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.15623 8C7.15623 8.22378 7.24512 8.43839 7.40336 8.59662C7.56159 8.75486 7.7762 8.84375 7.99998 8.84375C8.22375 8.84375 8.43836 8.75486 8.5966 8.59662C8.75483 8.43839 8.84373 8.22378 8.84373 8C8.84373 7.77622 8.75483 7.56161 8.5966 7.40338C8.43836 7.24514 8.22375 7.15625 7.99998 7.15625C7.7762 7.15625 7.56159 7.24514 7.40336 7.40338C7.24512 7.56161 7.15623 7.77622 7.15623 8ZM10.6719 8C10.6719 8.22378 10.7607 8.43839 10.919 8.59662C11.0772 8.75486 11.2918 8.84375 11.5156 8.84375C11.7394 8.84375 11.954 8.75486 12.1122 8.59662C12.2705 8.43839 12.3594 8.22378 12.3594 8C12.3594 7.77622 12.2705 7.56161 12.1122 7.40338C11.954 7.24514 11.7394 7.15625 11.5156 7.15625C11.2918 7.15625 11.0772 7.24514 10.919 7.40338C10.7607 7.56161 10.6719 7.77622 10.6719 8ZM3.6406 8C3.6406 8.22378 3.7295 8.43839 3.88773 8.59662C4.04596 8.75486 4.26058 8.84375 4.48435 8.84375C4.70813 8.84375 4.92274 8.75486 5.08097 8.59662C5.23921 8.43839 5.3281 8.22378 5.3281 8C5.3281 7.77622 5.23921 7.56161 5.08097 7.40338C4.92274 7.24514 4.70813 7.15625 4.48435 7.15625C4.26058 7.15625 4.04596 7.24514 3.88773 7.40338C3.7295 7.56161 3.6406 7.77622 3.6406 8ZM15.2633 4.94844C14.866 4.00449 14.2965 3.15723 13.5705 2.42949C12.8496 1.70597 11.9938 1.13086 11.0515 0.736719C10.0847 0.330664 9.05818 0.125 7.99998 0.125H7.96482C6.89959 0.130273 5.86775 0.341211 4.89744 0.756055C3.96326 1.15424 3.11548 1.73037 2.40134 2.45234C1.6824 3.17832 1.11814 4.02207 0.727907 4.9625C0.323611 5.93633 0.119704 6.97168 0.124978 8.03691C0.130942 9.25766 0.419748 10.4604 0.968728 11.5508V14.2227C0.968728 14.4371 1.05392 14.6428 1.20556 14.7944C1.3572 14.9461 1.56287 15.0312 1.77732 15.0312H4.45095C5.54132 15.5802 6.74407 15.869 7.96482 15.875H8.00174C9.05466 15.875 10.076 15.6711 11.0375 15.2721C11.975 14.8826 12.8276 14.3142 13.5476 13.5986C14.2736 12.8797 14.8449 12.0395 15.2439 11.1025C15.6588 10.1322 15.8697 9.10039 15.875 8.03516C15.8803 6.96465 15.6728 5.92578 15.2633 4.94844ZM12.6072 12.6477C11.375 13.8676 9.74021 14.5391 7.99998 14.5391H7.97009C6.91013 14.5338 5.8572 14.2701 4.92732 13.7744L4.77966 13.6953H2.30467V11.2203L2.22556 11.0727C1.72986 10.1428 1.46619 9.08984 1.46092 8.02988C1.45388 6.27734 2.12361 4.63203 3.35232 3.39277C4.57927 2.15352 6.21931 1.46797 7.97185 1.46094H8.00174C8.88064 1.46094 9.73318 1.63145 10.5365 1.96895C11.3205 2.29766 12.0236 2.77051 12.6283 3.3752C13.2312 3.97812 13.7058 4.68301 14.0345 5.46699C14.3756 6.2791 14.5461 7.14043 14.5426 8.02988C14.532 9.78066 13.8447 11.4207 12.6072 12.6477Z" fill="#A3A9B6"/>
-                                        </svg>
-                                        </button>
-                                        <button className='ml-4'>
-                                        <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 2.65625C2.46599 2.65625 2.84375 2.27849 2.84375 1.8125C2.84375 1.34651 2.46599 0.96875 2 0.96875C1.53401 0.96875 1.15625 1.34651 1.15625 1.8125C1.15625 2.27849 1.53401 2.65625 2 2.65625Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 8.84375C2.46599 8.84375 2.84375 8.46599 2.84375 8C2.84375 7.53401 2.46599 7.15625 2 7.15625C1.53401 7.15625 1.15625 7.53401 1.15625 8C1.15625 8.46599 1.53401 8.84375 2 8.84375Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 15.0312C2.46599 15.0312 2.84375 14.6535 2.84375 14.1875C2.84375 13.7215 2.46599 13.3438 2 13.3438C1.53401 13.3438 1.15625 13.7215 1.15625 14.1875C1.15625 14.6535 1.53401 15.0312 2 15.0312Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <tr className={`${selectedRows.indexOf('302012') !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
-                                <th className='pt-3'>
-
-                                    {selectedRows.indexOf('302012') === -1 ?
-                                        <button onClick={() => handleIsSelected('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
-                                            </svg>
-                                        </button> :
-                                        <button onClick={() => handleIsRemoved('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
-                                            </svg>
-                                        </button>
-
-                                    }
-
-                                </th>
-                                <td className='p-0 py-5'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>302012</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-7 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Hello, I want to make an enquiry</p>
-                                </td>
-                                <td className='p-0'>
-                                <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(date)}</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Okunola Stephen</p>
-                                </td>
-                                <td className='pl-6'>
-                                    <GreenLabel>Closed</GreenLabel>
-                                </td>
-                                <td className=''>
-                                    <div className='"ml-auto mr-auto"'>
-                                        <button className='ml-4'>
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.15623 8C7.15623 8.22378 7.24512 8.43839 7.40336 8.59662C7.56159 8.75486 7.7762 8.84375 7.99998 8.84375C8.22375 8.84375 8.43836 8.75486 8.5966 8.59662C8.75483 8.43839 8.84373 8.22378 8.84373 8C8.84373 7.77622 8.75483 7.56161 8.5966 7.40338C8.43836 7.24514 8.22375 7.15625 7.99998 7.15625C7.7762 7.15625 7.56159 7.24514 7.40336 7.40338C7.24512 7.56161 7.15623 7.77622 7.15623 8ZM10.6719 8C10.6719 8.22378 10.7607 8.43839 10.919 8.59662C11.0772 8.75486 11.2918 8.84375 11.5156 8.84375C11.7394 8.84375 11.954 8.75486 12.1122 8.59662C12.2705 8.43839 12.3594 8.22378 12.3594 8C12.3594 7.77622 12.2705 7.56161 12.1122 7.40338C11.954 7.24514 11.7394 7.15625 11.5156 7.15625C11.2918 7.15625 11.0772 7.24514 10.919 7.40338C10.7607 7.56161 10.6719 7.77622 10.6719 8ZM3.6406 8C3.6406 8.22378 3.7295 8.43839 3.88773 8.59662C4.04596 8.75486 4.26058 8.84375 4.48435 8.84375C4.70813 8.84375 4.92274 8.75486 5.08097 8.59662C5.23921 8.43839 5.3281 8.22378 5.3281 8C5.3281 7.77622 5.23921 7.56161 5.08097 7.40338C4.92274 7.24514 4.70813 7.15625 4.48435 7.15625C4.26058 7.15625 4.04596 7.24514 3.88773 7.40338C3.7295 7.56161 3.6406 7.77622 3.6406 8ZM15.2633 4.94844C14.866 4.00449 14.2965 3.15723 13.5705 2.42949C12.8496 1.70597 11.9938 1.13086 11.0515 0.736719C10.0847 0.330664 9.05818 0.125 7.99998 0.125H7.96482C6.89959 0.130273 5.86775 0.341211 4.89744 0.756055C3.96326 1.15424 3.11548 1.73037 2.40134 2.45234C1.6824 3.17832 1.11814 4.02207 0.727907 4.9625C0.323611 5.93633 0.119704 6.97168 0.124978 8.03691C0.130942 9.25766 0.419748 10.4604 0.968728 11.5508V14.2227C0.968728 14.4371 1.05392 14.6428 1.20556 14.7944C1.3572 14.9461 1.56287 15.0312 1.77732 15.0312H4.45095C5.54132 15.5802 6.74407 15.869 7.96482 15.875H8.00174C9.05466 15.875 10.076 15.6711 11.0375 15.2721C11.975 14.8826 12.8276 14.3142 13.5476 13.5986C14.2736 12.8797 14.8449 12.0395 15.2439 11.1025C15.6588 10.1322 15.8697 9.10039 15.875 8.03516C15.8803 6.96465 15.6728 5.92578 15.2633 4.94844ZM12.6072 12.6477C11.375 13.8676 9.74021 14.5391 7.99998 14.5391H7.97009C6.91013 14.5338 5.8572 14.2701 4.92732 13.7744L4.77966 13.6953H2.30467V11.2203L2.22556 11.0727C1.72986 10.1428 1.46619 9.08984 1.46092 8.02988C1.45388 6.27734 2.12361 4.63203 3.35232 3.39277C4.57927 2.15352 6.21931 1.46797 7.97185 1.46094H8.00174C8.88064 1.46094 9.73318 1.63145 10.5365 1.96895C11.3205 2.29766 12.0236 2.77051 12.6283 3.3752C13.2312 3.97812 13.7058 4.68301 14.0345 5.46699C14.3756 6.2791 14.5461 7.14043 14.5426 8.02988C14.532 9.78066 13.8447 11.4207 12.6072 12.6477Z" fill="#A3A9B6"/>
-                                        </svg>
-                                        </button>
-                                        <button className='ml-4'>
-                                        <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 2.65625C2.46599 2.65625 2.84375 2.27849 2.84375 1.8125C2.84375 1.34651 2.46599 0.96875 2 0.96875C1.53401 0.96875 1.15625 1.34651 1.15625 1.8125C1.15625 2.27849 1.53401 2.65625 2 2.65625Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 8.84375C2.46599 8.84375 2.84375 8.46599 2.84375 8C2.84375 7.53401 2.46599 7.15625 2 7.15625C1.53401 7.15625 1.15625 7.53401 1.15625 8C1.15625 8.46599 1.53401 8.84375 2 8.84375Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 15.0312C2.46599 15.0312 2.84375 14.6535 2.84375 14.1875C2.84375 13.7215 2.46599 13.3438 2 13.3438C1.53401 13.3438 1.15625 13.7215 1.15625 14.1875C1.15625 14.6535 1.53401 15.0312 2 15.0312Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <tr className={`${selectedRows.indexOf('302012') !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
-                                <th className='pt-3'>
-
-                                    {selectedRows.indexOf('302012') === -1 ?
-                                        <button onClick={() => handleIsSelected('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
-                                            </svg>
-                                        </button> :
-                                        <button onClick={() => handleIsRemoved('302012')} className='ml-4'>
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
-                                            </svg>
-                                        </button>
-
-                                    }
-
-                                </th>
-                                <td className='p-0 py-5'>
-                                    <p className='ml-7 font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>302012</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-7 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Hello, I want to make an enquiry</p>
-                                </td>
-                                <td className='p-0'>
-                                <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(date)}</p>
-                                </td>
-                                <td className='p-0'>
-                                    <p className='ml-6 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>Okunola Stephen</p>
-                                </td>
-                                <td className='pl-6'>
-                                    <GreenLabel>Closed</GreenLabel>
-                                </td>
-                                <td className=''>
-                                    <div className='"ml-auto mr-auto"'>
-                                        <button className='ml-4'>
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.15623 8C7.15623 8.22378 7.24512 8.43839 7.40336 8.59662C7.56159 8.75486 7.7762 8.84375 7.99998 8.84375C8.22375 8.84375 8.43836 8.75486 8.5966 8.59662C8.75483 8.43839 8.84373 8.22378 8.84373 8C8.84373 7.77622 8.75483 7.56161 8.5966 7.40338C8.43836 7.24514 8.22375 7.15625 7.99998 7.15625C7.7762 7.15625 7.56159 7.24514 7.40336 7.40338C7.24512 7.56161 7.15623 7.77622 7.15623 8ZM10.6719 8C10.6719 8.22378 10.7607 8.43839 10.919 8.59662C11.0772 8.75486 11.2918 8.84375 11.5156 8.84375C11.7394 8.84375 11.954 8.75486 12.1122 8.59662C12.2705 8.43839 12.3594 8.22378 12.3594 8C12.3594 7.77622 12.2705 7.56161 12.1122 7.40338C11.954 7.24514 11.7394 7.15625 11.5156 7.15625C11.2918 7.15625 11.0772 7.24514 10.919 7.40338C10.7607 7.56161 10.6719 7.77622 10.6719 8ZM3.6406 8C3.6406 8.22378 3.7295 8.43839 3.88773 8.59662C4.04596 8.75486 4.26058 8.84375 4.48435 8.84375C4.70813 8.84375 4.92274 8.75486 5.08097 8.59662C5.23921 8.43839 5.3281 8.22378 5.3281 8C5.3281 7.77622 5.23921 7.56161 5.08097 7.40338C4.92274 7.24514 4.70813 7.15625 4.48435 7.15625C4.26058 7.15625 4.04596 7.24514 3.88773 7.40338C3.7295 7.56161 3.6406 7.77622 3.6406 8ZM15.2633 4.94844C14.866 4.00449 14.2965 3.15723 13.5705 2.42949C12.8496 1.70597 11.9938 1.13086 11.0515 0.736719C10.0847 0.330664 9.05818 0.125 7.99998 0.125H7.96482C6.89959 0.130273 5.86775 0.341211 4.89744 0.756055C3.96326 1.15424 3.11548 1.73037 2.40134 2.45234C1.6824 3.17832 1.11814 4.02207 0.727907 4.9625C0.323611 5.93633 0.119704 6.97168 0.124978 8.03691C0.130942 9.25766 0.419748 10.4604 0.968728 11.5508V14.2227C0.968728 14.4371 1.05392 14.6428 1.20556 14.7944C1.3572 14.9461 1.56287 15.0312 1.77732 15.0312H4.45095C5.54132 15.5802 6.74407 15.869 7.96482 15.875H8.00174C9.05466 15.875 10.076 15.6711 11.0375 15.2721C11.975 14.8826 12.8276 14.3142 13.5476 13.5986C14.2736 12.8797 14.8449 12.0395 15.2439 11.1025C15.6588 10.1322 15.8697 9.10039 15.875 8.03516C15.8803 6.96465 15.6728 5.92578 15.2633 4.94844ZM12.6072 12.6477C11.375 13.8676 9.74021 14.5391 7.99998 14.5391H7.97009C6.91013 14.5338 5.8572 14.2701 4.92732 13.7744L4.77966 13.6953H2.30467V11.2203L2.22556 11.0727C1.72986 10.1428 1.46619 9.08984 1.46092 8.02988C1.45388 6.27734 2.12361 4.63203 3.35232 3.39277C4.57927 2.15352 6.21931 1.46797 7.97185 1.46094H8.00174C8.88064 1.46094 9.73318 1.63145 10.5365 1.96895C11.3205 2.29766 12.0236 2.77051 12.6283 3.3752C13.2312 3.97812 13.7058 4.68301 14.0345 5.46699C14.3756 6.2791 14.5461 7.14043 14.5426 8.02988C14.532 9.78066 13.8447 11.4207 12.6072 12.6477Z" fill="#A3A9B6"/>
-                                        </svg>
-                                        </button>
-                                        <button className='ml-4'>
-                                        <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 2.65625C2.46599 2.65625 2.84375 2.27849 2.84375 1.8125C2.84375 1.34651 2.46599 0.96875 2 0.96875C1.53401 0.96875 1.15625 1.34651 1.15625 1.8125C1.15625 2.27849 1.53401 2.65625 2 2.65625Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 8.84375C2.46599 8.84375 2.84375 8.46599 2.84375 8C2.84375 7.53401 2.46599 7.15625 2 7.15625C1.53401 7.15625 1.15625 7.53401 1.15625 8C1.15625 8.46599 1.53401 8.84375 2 8.84375Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M2 15.0312C2.46599 15.0312 2.84375 14.6535 2.84375 14.1875C2.84375 13.7215 2.46599 13.3438 2 13.3438C1.53401 13.3438 1.15625 13.7215 1.15625 14.1875C1.15625 14.6535 1.53401 15.0312 2 15.0312Z" stroke="#A3A9B6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <tr>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        
+                        <tr>
                                 <th colSpan={8}>
                                     <div className='rounded-b-xl w-full bg-white p-4 border-t items-center flex'>
                                         <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing 1-10 from 100</p>
@@ -483,10 +188,104 @@ function Messages() {
                                     </div>
                                 </th>
                             </tr>
-                        </tbody>
+                    </tbody>                        
+         
+        )
+    }
+    function handleChangePage(newPage) {
+      setCurrentPage(newPage)
+    }
+
+    function handleIsRemoved(row) {
+      setSelectedRows((prevState) => {
+          return prevState.filter((item => item !== row))
+      })
+    }
+    function handleAscendingSort(criteria) {
+        if (criteria === 'customer') {
+            setMessages((prevList) => {
+                prevList.sort((a, b) => a[criteria].localeCompare(b[criteria]))
+                return [...prevList]
+            })
+        }
+        else {
+            setMessages((prevList) => {
+                prevList.sort((a, b) => a[criteria] - b[criteria])
+                return [...prevList]
+            })
+        }
+    }
+
+    function handleDescendingSort(criteria) {
+        if (criteria === 'customer') {
+            setMessages((prevList) => {
+                prevList.sort((a, b) => b[criteria].localeCompare(a[criteria]))
+                return [...prevList]
+            })
+        }
+        else {
+            setMessages((prevList) => {
+                prevList.sort((a, b) => b[criteria] - a[criteria])
+                return [...prevList]
+            })
+        }
+    }
+  return (
+    <div className='bg-[#F9F9FC] w-full px-4 py-5 '>
+      <div className='space-x-8 w-full flex mt-5'>
+        <h1 className='font-black text-[20px] leading-[30px] tracking-[0.01em] text-[#333333]'>Messages</h1>
+      </div>
+      <div className='my-3 space-x-8 w-full flex justify-between items-center'>
+        <Path pages={['Dashboard', 'Messages']} />
+
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13.3333 17.5V15.8333C13.3333 14.2617 13.3333 13.4767 12.845 12.9883C12.3566 12.5 11.5716 12.5 9.99998 12.5H9.16665C7.59498 12.5 6.80998 12.5 6.32165 12.9883C5.83331 13.4767 5.83331 14.2617 5.83331 15.8333V17.5" stroke="white"/>
+        <path d="M5.83331 6.6665H9.99998" stroke="white" stroke-linecap="round"/>
+        <path d="M2.5 7.5C2.5 5.14333 2.5 3.96417 3.2325 3.2325C3.96417 2.5 5.14333 2.5 7.5 2.5H13.4767C13.8167 2.5 13.9875 2.5 14.14 2.56333C14.2933 2.62667 14.4142 2.74667 14.655 2.98833L17.0117 5.345C17.2533 5.58667 17.3733 5.70667 17.4367 5.86C17.5 6.0125 17.5 6.18333 17.5 6.52333V12.5C17.5 14.8567 17.5 16.0358 16.7675 16.7675C16.0358 17.5 14.8567 17.5 12.5 17.5H7.5C5.14333 17.5 3.96417 17.5 3.2325 16.7675C2.5 16.0358 2.5 14.8567 2.5 12.5V7.5Z" stroke="white"/>
+        </svg>
+        </div>
+        <div className='flex items-center'>
+                <div className='mt-8 flex border border-[#E0E2E7] bg-white rounded-lg p-[2px] w-[fit]'>
+                    <TabButton handleSelect={() => handleSelectTabButton('all')} isSelected={activePage === 'all'} >All Status</TabButton>
+                    <TabButton handleSelect={() => handleSelectTabButton('Active')} isSelected={activePage === 'Active'} >Active</TabButton>
+                    <TabButton handleSelect={() => handleSelectTabButton('Closed')} isSelected={activePage === 'Closed'} >Closed</TabButton>
+                </div>
+                <div className='flex space-x-4 mt-8 ml-auto'>
+                    <MiniSearch searchItem={'messages'} />
+                    <SelectDatesButton />
+
+                    <FilterButton />
+                </div>
+        </div>
+                <div className='mt-5'>
+                    {/* <div className=''></div> */}
+                    <table className='w-full bg-white rounded-xl'>
+                        <tr className='border-b'>
+                            <th className='pt-3'>
+                                   {selectedRows.length !== messages.length ?
+                                            <button onClick={() => selectAll()} className='ml-4'>
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
+                                                </svg>
+                                            </button> :
+                                            <button onClick={() => deselectAll()} className='ml-4'>
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect width="20" height="20" rx="6" fill="#BC6C25" />
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
+                                                </svg>
+                                            </button>}
+                            </th>
+                            <th className='w-[10%]'><TableHead heading={'Message ID'}/></th>
+                            <th className='w-[50%]'><TableHead heading={'Last Message'} canOrder={true} ascend={()=>handleAscendingSort('message')} descend={()=> handleDescendingSort('message')}/></th>
+                            <th className=''><TableHead heading={'Date'}  canOrder={true} ascend={()=>handleAscendingSort('date')} descend={()=> handleDescendingSort('date')}/></th>
+                            <th className=''><TableHead heading={'Customer'}/></th>
+                            <th className=''><TableHead heading={'Status'} canOrder={true} ascend={()=>handleAscendingSort('status')} descend={()=> handleDescendingSort('status')} /></th>
+                            <th className=''><TableHead heading={'Action'} /></th>
+                        </tr>
+                        {displayMessage(filterDataByStatus(activePage))}
                     </table>
 
-                </div>}
+                </div>
 {/*             
       <div className='flex gap-10'>
         <div className='w-[70%] rounded-xl my-3  p-3 bg-white'>

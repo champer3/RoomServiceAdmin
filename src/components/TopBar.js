@@ -45,7 +45,7 @@ export default function TopBar({ messages, notifications }) {
                     </defs>
                 </svg>
             </button>
-            <Link to={'/messages'}>
+            <Link to={"/messages"}>
                 <button className={`relative flex items-center justify-center ${messageMarginStyle}`}>
                     <span className={`p-[6px] h-[18px] flex justify-center items-center absolute top-0 right-0 -translate-y-1/8 ${messageBadgeStyle} rounded-md bg-[#283618] text-white text-[10px] text-xs font-semibold`}>
                         {messages > 99 ? '99+' : messages}
