@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import Path from "../components/Path"
 import TabButton from "../components/TabButton"
 import MiniSearch from "../components/MiniSearch"
@@ -6,6 +6,7 @@ import FilterButton from "../components/FilterButton"
 import { CUSTOMER_LIST } from "../assets/data"
 import CustomerInfoCard from "../components/customer_components/CustomerInfoCard"
 import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton"
+import { PageContext } from "../context/PageContext"
 export default function CustomersPage() {
     const [activePage, setActivePage] = useState('all')
     const [currentPage, setCurrentPage] = useState(1)
@@ -13,6 +14,8 @@ export default function CustomersPage() {
     const lastPage = CUSTOMER_LIST.length % itemsPerPage === 0 ? CUSTOMER_LIST.length / itemsPerPage : Math.floor(CUSTOMER_LIST.length / itemsPerPage) + 1
 
     const shownItems = CUSTOMER_LIST.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+    const {changePage} = useContext(PageContext)
 
     function handleSelectTabButton(status) {
         setActivePage(status)
@@ -53,10 +56,11 @@ export default function CustomersPage() {
 
     return (
         <>
+            {changePage('customers')}
             <div className="flex w-full items-center">
                 <div>
                     <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Customers</p>
-                    <Path pages={['Dashboard', 'Customer List']} />
+                    <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Customer List', link: 'customers'}]} />
                 </div>
                 <div className='flex ml-auto'>
                     <button className='flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>

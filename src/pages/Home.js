@@ -19,14 +19,18 @@ import TableStatusListing from '../components/dashboard_components/TableStatusLi
 import StateListing from '../components/dashboard_components/StateListing'
 import ProgressBar from '../components/dashboard_components/ProgressBar'
 import { CATEGORY_DATA, PRODUCT_DATA, TABLE_DATA, STATES_DATA, graphData } from '../assets/data'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import Graph from '../components/Graph'
+import { PageContext } from '../context/PageContext'
 
 
 
 export default function HomePage() {
     const [tableList, setTableList] = useState(TABLE_DATA)
     const [activeColumn, setActiveColumn] = useState('')
+
+    const {changePage} = useContext(PageContext)
+
     
     function handleAscendingSort(criteria) {
         setActiveColumn(criteria)
@@ -59,10 +63,26 @@ export default function HomePage() {
             })
         }
     }
+    // { path: '/', element: <HomePage /> },
+// { path: '/products', element: <ProductsPage /> },
+// { path: '/add-products', element: <AddProjectsPage /> },
+// { path: '/categories', element: <CategoriesPage /> },
+// { path: '/add-category', element: <AddCategoryPage /> },
+// { path: '/edit-category', element: <EditCategoryPage /> },
+// { path: '/orders', element: <OrdersPage /> },
+// { path: '/order-details', element: <OrderDetailsPage /> },
+// { path: '/customers', element: <CustomersPage /> },
+// { path: '/customer-details', element: <CustomerDetailsPage /> },
+// { path: '/coupons', element: <CouponsPage /> },
+// { path: '/add-coupons', element: <AddCouponsPage /> },
+// {path: '/messages', element: <Messages />},
+// {path: '/view-messages', element: <ViewMessage/>},
+// { path: '/settings', element: <Settings/>}
 
     console.log(graphData)
     return (
         <div className='ml-4'>
+            {changePage('dashboard')}
             <div className='flex items-center'>
                 <div>
                     <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Welcome Back, Stephen</p>

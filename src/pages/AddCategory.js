@@ -3,15 +3,21 @@ import Input from "../components/Input"
 import TextArea from "../components/TextArea"
 import ImageDropzone from "../components/ImageDropzone"
 import { Link } from "react-router-dom"
+import { useContext } from "react"
+import { PageContext } from "../context/PageContext"
+
 
 export default function AddCategoryPage() {
+    const {changePage} = useContext(PageContext)
+
     return (
         <div className="">
+            {changePage('categories')}
             <div className="ml-4">
                 <div className="flex items-center">
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Add Category</p>
-                        <Path pages={['Dashboard', 'Categories', 'Add Category']} />
+                        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Categories', link: 'categories'}, {name: 'Add Category', link: 'add-category'}]} />
                     </div>
                     <div className='flex ml-auto'>
                         <Link to={'/categories'}>

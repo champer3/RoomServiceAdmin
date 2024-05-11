@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
-const styling = 'w-full h-full rounded-lg border border-dashed border-2 border-[#F0F1F3] bg-[#F9F9FC] py-[24px] px-[12px]'
+const styling = 'w-full rounded-lg border border-dashed border-2 border-[#F0F1F3] bg-[#F9F9FC] py-[24px] px-[12px]'
 export default function ImageDropzone({ label, description }) {
     const [file, setFile] = useState(null)
     const onDrop = useCallback(acceptedFiles => {
@@ -37,7 +37,6 @@ export default function ImageDropzone({ label, description }) {
                                     </clipPath>
                                 </defs>
                             </svg>
-
                             <p className="p-8 text-center font-extrabold text-[14px] leading-[20px] tracking-[0.005em] text-[#858D9D]">{isDragActive ? 'Drop the image here ...' : description}</p>
                             <div className="w-full flex justify-center items-center">
                                 <button className="border border-[1px] border-[#283618] px-[14px] py-[10px] font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#283618] rounded-lg hover:text-white hover:bg-[#283618]">Add Image</button>

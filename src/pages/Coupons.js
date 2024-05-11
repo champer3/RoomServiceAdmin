@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import Path from "../components/Path"
 import { Link } from "react-router-dom"
 // import TabButton from "../components/TabButton"
@@ -9,11 +9,13 @@ import { CUSTOMER_LIST } from "../assets/data"
 import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton"
 import Tabutton from "../components/Tabutton"
 import CouponsInfoCard from "../components/CouponsInfoCard"
+import { PageContext } from "../context/PageContext"
 export default function CouponsPage() {
     const [activePage, setActivePage] = useState('all')
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 15
     const lastPage = CUSTOMER_LIST.length % itemsPerPage === 0 ? CUSTOMER_LIST.length / itemsPerPage : Math.floor(CUSTOMER_LIST.length / itemsPerPage) + 1
+    const { changePage } = useContext(PageContext)
 
     const shownItems = [
          {name: "NEWUSER2024",status: "Active",value: 10,used: 267},
@@ -72,10 +74,11 @@ export default function CouponsPage() {
 
     return (
         <>
+            {changePage('coupons')}
             <div className="flex w-full items-center">
                 <div>
                     <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Coupons</p>
-                    <Path pages={['Dashboard', 'Coupons']} />
+                    <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Coupons', link: 'coupons'}]} />
                 </div>
                 <div className='flex ml-auto'>
                     <button className='flex border-none bg-white hover:border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>

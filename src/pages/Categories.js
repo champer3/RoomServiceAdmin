@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom"
 import moment from "moment";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton";
 import TableHead from "../components/dashboard_components/TableHead";
 import { numbers, CATEGORIES_LIST } from "../assets/data";
 import Path from "../components/Path"
+import { PageContext } from "../context/PageContext";
 
 export default function CategoriesPage() {
     function formatDate(dateObject) {
@@ -20,6 +21,8 @@ export default function CategoriesPage() {
     // function handleSelectTabButton(page) {
     //     setActivePage(page)
     // }
+
+    const {changePage} = useContext(PageContext)
 
     function handleAscendingSort(criteria) {
         setActiveColumn(criteria)
@@ -74,10 +77,11 @@ export default function CategoriesPage() {
 
     return (
         <div className="">
+            {changePage('categories')}
             <div className='flex items-center'>
                 <div>
                     <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Categories</p>
-                    <Path pages={['Dashboard', 'Categories']} />
+                    <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Categories', link: 'categories'}]} />
                 </div>
                 <div className='flex ml-auto'>
                     <button className='flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>

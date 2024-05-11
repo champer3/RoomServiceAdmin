@@ -3,7 +3,7 @@ import { numbers, PRODUCT_LIST } from '../assets/data'
 import Path from '../components/Path'
 import TabButton from '../components/TabButton'
 import TableHead from '../components/dashboard_components/TableHead'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import OrangeLabel from '../components/StatusLabels/OrangeLabel'
 import StyledDashboardButton from '../components/dashboard_components/StyledDashboardButton'
 import MiniSearch from '../components/MiniSearch'
@@ -12,6 +12,7 @@ import SelectDatesButton from '../components/SelectDatesButton'
 import { Link } from 'react-router-dom'
 import GreenLabel from '../components/StatusLabels/GreenLabel'
 import GreyLabel from '../components/StatusLabels/GreyLabel'
+import { PageContext } from '../context/PageContext'
 
 
 function formatNumberWithCommas(number) {
@@ -34,6 +35,7 @@ export default function ProductsPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [productList, setProductList] = useState(PRODUCT_LIST)
     const itemsPerPage = 20
+    const {changePage} = useContext(PageContext)
 
     const shownItems = numbers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
     // productList.sort((a,b) => a['name'].localeCompare(b['name']))
@@ -92,13 +94,15 @@ export default function ProductsPage() {
             return prevState.filter((item => item !== row))
         })
     }
+
     return (
-        <>
+        <>  
+            {changePage('products')}
             <div className='ml-4'>
                 <div className='flex items-center'>
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Product</p>
-                        <Path pages={['Dashboard', 'Product List']} />
+                        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Product List', link: 'products'}]} />
                     </div>
                     <div className='flex ml-auto'>
                         <button className='flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>

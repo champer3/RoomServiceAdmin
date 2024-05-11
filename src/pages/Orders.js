@@ -42,7 +42,7 @@ export default function OrdersPage() {
     const [selectedRows, setSelectedRows] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
 
-    const { viewOrder } = useContext(PageContext)
+    const { viewOrder, changePage } = useContext(PageContext)
     // const itemsPerPage = 20
 
     // const shownItems = numbers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
@@ -100,13 +100,15 @@ export default function OrdersPage() {
             return prevState.filter((item => item !== row))
         })
     }
+
     return (
         <>
+            {changePage('orders')}
             <div className='ml-4'>
                 <div className='flex items-center'>
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Orders</p>
-                        <Path pages={['Dashboard', 'Order List']} />
+                        <Path pages={[{ name: 'Dashboard', link: '' }, { name: 'Order List', link: 'orders' }]} />
                     </div>
                     <div className='flex ml-auto'>
                         <button className='flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
@@ -123,21 +125,19 @@ export default function OrdersPage() {
                             </svg>
                             Export
                         </button>
-                        <Link to={'/'}>
-                            <button className='flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <g clip-path="url(#clip0_499_3320)">
-                                        <path d="M17.3333 9.33333H10.6667V2.66667C10.6667 2.48986 10.5964 2.32029 10.4714 2.19526C10.3464 2.07024 10.1768 2 10 2V2C9.82319 2 9.65362 2.07024 9.5286 2.19526C9.40357 2.32029 9.33333 2.48986 9.33333 2.66667V9.33333H2.66667C2.48986 9.33333 2.32029 9.40357 2.19526 9.5286C2.07024 9.65362 2 9.82319 2 10V10C2 10.1768 2.07024 10.3464 2.19526 10.4714C2.32029 10.5964 2.48986 10.6667 2.66667 10.6667H9.33333V17.3333C9.33333 17.5101 9.40357 17.6797 9.5286 17.8047C9.65362 17.9298 9.82319 18 10 18C10.1768 18 10.3464 17.9298 10.4714 17.8047C10.5964 17.6797 10.6667 17.5101 10.6667 17.3333V10.6667H17.3333C17.5101 10.6667 17.6797 10.5964 17.8047 10.4714C17.9298 10.3464 18 10.1768 18 10C18 9.82319 17.9298 9.65362 17.8047 9.5286C17.6797 9.40357 17.5101 9.33333 17.3333 9.33333Z" fill="white" />
-                                    </g>
-                                    <defs>
-                                        <clipPath id="clip0_499_3320">
-                                            <rect width="16" height="16" fill="white" transform="translate(2 2)" />
-                                        </clipPath>
-                                    </defs>
-                                </svg>
-                                <p className='ml-2'>Add Order</p>
-                            </button>
-                        </Link>
+                        <button className='flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_499_3320)">
+                                    <path d="M17.3333 9.33333H10.6667V2.66667C10.6667 2.48986 10.5964 2.32029 10.4714 2.19526C10.3464 2.07024 10.1768 2 10 2V2C9.82319 2 9.65362 2.07024 9.5286 2.19526C9.40357 2.32029 9.33333 2.48986 9.33333 2.66667V9.33333H2.66667C2.48986 9.33333 2.32029 9.40357 2.19526 9.5286C2.07024 9.65362 2 9.82319 2 10V10C2 10.1768 2.07024 10.3464 2.19526 10.4714C2.32029 10.5964 2.48986 10.6667 2.66667 10.6667H9.33333V17.3333C9.33333 17.5101 9.40357 17.6797 9.5286 17.8047C9.65362 17.9298 9.82319 18 10 18C10.1768 18 10.3464 17.9298 10.4714 17.8047C10.5964 17.6797 10.6667 17.5101 10.6667 17.3333V10.6667H17.3333C17.5101 10.6667 17.6797 10.5964 17.8047 10.4714C17.9298 10.3464 18 10.1768 18 10C18 9.82319 17.9298 9.65362 17.8047 9.5286C17.6797 9.40357 17.5101 9.33333 17.3333 9.33333Z" fill="white" />
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_499_3320">
+                                        <rect width="16" height="16" fill="white" transform="translate(2 2)" />
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                            <p className='ml-2'>Add Order</p>
+                        </button>
                     </div>
                 </div>
                 <div className='flex h-[60px] items-center'>
@@ -236,7 +236,7 @@ export default function OrdersPage() {
                                                         </svg>
 
                                                     </button>
-                                                    <Link to={'/order-details'} onClick={()=>{viewOrder(order.order_datails)}}>
+                                                    <Link to={'/order-details'} onClick={() => { viewOrder(order.order_datails) }}>
                                                         <button>
                                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                 <path d="M7.99989 10.6658C9.4721 10.6658 10.6656 9.47234 10.6656 8.00014C10.6656 6.52793 9.4721 5.33447 7.99989 5.33447C6.52769 5.33447 5.33423 6.52793 5.33423 8.00014C5.33423 9.47234 6.52769 10.6658 7.99989 10.6658Z" fill="#A3A9B6" />

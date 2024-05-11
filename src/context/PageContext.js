@@ -7,7 +7,7 @@ export const PageContext = createContext({
 
 
 export default function PageContextProvider({children}) {
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [currentPage, setCurrentPage] = useState('empty');
   const [currentOrder, setCurrentOrder] = useState({
     id: "#302011",
     status: "Processing",

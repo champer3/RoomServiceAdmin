@@ -1,20 +1,33 @@
 
 // import { FilledButton } from '../components/Buttons/FilledButton';
-import TopBar from '../components/TopBar';
+// import TopBar from '../components/TopBar';
 // import Select from '../components/Select';
 import Path from '../components/Path';
 // import Input  from '../components/Input'
-
+        // { path: '/', element: <HomePage /> },
+// { path: '/products', element: <ProductsPage /> },
+// { path: '/add-products', element: <AddProjectsPage /> },
+// { path: '/categories', element: <CategoriesPage /> },
+// { path: '/add-category', element: <AddCategoryPage /> },
+// { path: '/edit-category', element: <EditCategoryPage /> },
+// { path: '/orders', element: <OrdersPage /> },
+// { path: '/order-details', element: <OrderDetailsPage /> },
+// { path: '/customers', element: <CustomersPage /> },
+// { path: '/customer-details', element: <CustomerDetailsPage /> },
+// { path: '/coupons', element: <CouponsPage /> },
+// { path: '/add-coupons', element: <AddCouponsPage /> },
+// {path: '/messages', element: <Messages />},
+// {path: '/view-messages', element: <ViewMessage/>},
+// { path: '/settings', element: <Settings/>}
 function ViewMessage() {
   return (
     <div className='bg-[#F9F9FC] w-full px-4 py-5 '>
-      <TopBar messages={10} notifications={10} />
       <div className='space-x-8 w-full flex mt-5'>
         <h1 className='font-black text-[20px] leading-[30px] tracking-[0.01em] text-[#333333]'>View Message</h1>
       </div>
       <div className='my-3 space-x-8 w-full mb-10 flex justify-between items-center'>
         <Path pages={['Dashboard', 'Messages', 'Stephen Okunola']} />
-
+        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Messages', link: 'messages'}, {name: 'Stephen Okunola', link: 'view-messages'}]} />
       </div>
       <div className=' w-full rounded-xl my-6  p-3 bg-white px-[50px]'>
         <div className='flex justify-between items-center border-b py-4 '>

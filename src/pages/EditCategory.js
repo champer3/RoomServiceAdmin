@@ -11,7 +11,7 @@ export default function EditCategoryPage() {
                 <div className="flex items-center">
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Edit Category</p>
-                        <Path pages={['Dashboard', 'Categories', 'Edit Category']} />
+                        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Categories', link: 'categories'}, {name: 'Edit Category', link: 'edit-category'}]} />
                     </div>
                     <div className='flex ml-auto'>
                         <Link to={'/categories'}>
