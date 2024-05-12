@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { numbers, PRODUCT_LIST } from '../assets/data'
+import { PRODUCT_LIST } from '../assets/data'
 import Path from '../components/Path'
 import TabButton from '../components/TabButton'
 import TableHead from '../components/dashboard_components/TableHead'
@@ -29,27 +29,41 @@ function formatDate(dateObject) {
 }
 
 export default function ProductsPage() {
+    const itemsPerPage = 10
     const [activePage, setActivePage] = useState('all')
     const [selectedRows, setSelectedRows] = useState([])
     const [activeColumn, setActiveColumn] = useState('')
     const [currentPage, setCurrentPage] = useState(1);
     const [productList, setProductList] = useState(PRODUCT_LIST)
-    const itemsPerPage = 20
-    const {changePage} = useContext(PageContext)
+    const [shownItems, setShownItems] = useState((productList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)))
 
-    const shownItems = numbers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    const lastPage = (productList.length % itemsPerPage === 0 ? productList.length / itemsPerPage : Math.floor(productList.length / itemsPerPage) + 1)
+
+
+    const arr = [];
+    for (let i = 1; i <= lastPage; i++) {
+        arr.push(i);
+    }
+    const { changePage } = useContext(PageContext)
+
+    // const shownItems = productList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
     // productList.sort((a,b) => a['name'].localeCompare(b['name']))
+
+    function handlePageClick(pageNum) {
+        setCurrentPage(pageNum)
+        setShownItems((productList.slice((pageNum - 1) * itemsPerPage, pageNum * itemsPerPage)))
+    }
 
     function handleAscendingSort(criteria) {
         setActiveColumn(criteria)
         if (criteria === 'status' || criteria === 'name') {
-            setProductList((prevList) => {
+            setShownItems((prevList) => {
                 prevList.sort((a, b) => a[criteria].localeCompare(b[criteria]))
                 return [...prevList]
             })
         }
         else {
-            setProductList((prevList) => {
+            setShownItems((prevList) => {
                 prevList.sort((a, b) => a[criteria] - b[criteria])
                 return [...prevList]
             })
@@ -59,13 +73,13 @@ export default function ProductsPage() {
     function handleDescendingSort(criteria) {
         setActiveColumn(criteria)
         if (criteria === 'status' || criteria === 'name') {
-            setProductList((prevList) => {
+            setShownItems((prevList) => {
                 prevList.sort((a, b) => b[criteria].localeCompare(a[criteria]))
                 return [...prevList]
             })
         }
         else {
-            setProductList((prevList) => {
+            setShownItems((prevList) => {
                 prevList.sort((a, b) => b[criteria] - a[criteria])
                 return [...prevList]
             })
@@ -74,6 +88,21 @@ export default function ProductsPage() {
 
     function handleSelectTabButton(page) {
         setActivePage(page)
+        if (page === 'all') {
+            setProductList(() => PRODUCT_LIST)
+            setShownItems((PRODUCT_LIST.slice(0, 10)))
+            setCurrentPage(1)
+            return
+        }
+        setProductList(() => {
+            const result = PRODUCT_LIST.filter((item) => {
+                return (item.status).toLowerCase() === page
+            })
+            setShownItems((result.slice(0, 10)))
+            return result
+
+        })
+        setCurrentPage(1)
     }
 
     function handleIsSelected(row) {
@@ -85,9 +114,6 @@ export default function ProductsPage() {
         })
     }
 
-    function handleChangePage(newPage) {
-        setCurrentPage(newPage)
-    }
 
     function handleIsRemoved(row) {
         setSelectedRows((prevState) => {
@@ -96,13 +122,13 @@ export default function ProductsPage() {
     }
 
     return (
-        <>  
+        <>
             {changePage('products')}
             <div className='ml-4'>
                 <div className='flex items-center'>
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Product</p>
-                        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Product List', link: 'products'}]} />
+                        <Path pages={[{ name: 'Dashboard', link: '' }, { name: 'Product List', link: 'products' }]} />
                     </div>
                     <div className='flex ml-auto'>
                         <button className='flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
@@ -149,136 +175,110 @@ export default function ProductsPage() {
                         <FilterButton />
                     </div>
                 </div>
-                {activePage === 'all' &&
-                    <div className='mt-5'>
-                        {/* <div className=''></div> */}
-                        <table className='w-full bg-white rounded-xl'>
-                            <tr className='border-b'>
-                                <th className='pt-3'>
-                                    <button className='ml-4'>
-                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M3.75 10C3.75 9.53978 4.1231 9.16669 4.58333 9.16669H15.4167C15.8769 9.16669 16.25 9.53978 16.25 10C16.25 10.4603 15.8769 10.8334 15.4167 10.8334H4.58333C4.1231 10.8334 3.75 10.4603 3.75 10Z" fill="white" />
-                                        </svg>
+
+                <div className='mt-5'>
+                    {/* <div className=''></div> */}
+                    <table className='w-full bg-white rounded-xl'>
+                        <tr className='border-b'>
+                            <th className='pt-3'>
+                                <button className='ml-4'>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="20" height="20" rx="6" fill="#BC6C25" />
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.75 10C3.75 9.53978 4.1231 9.16669 4.58333 9.16669H15.4167C15.8769 9.16669 16.25 9.53978 16.25 10C16.25 10.4603 15.8769 10.8334 15.4167 10.8334H4.58333C4.1231 10.8334 3.75 10.4603 3.75 10Z" fill="white" />
+                                    </svg>
 
 
-                                    </button>
-                                </th>
-                                <th className='pl-6 w-[105px]'><TableHead heading={'Product'} active={activeColumn === 'name'} canOrder={true} ascend={() => handleAscendingSort('name')}  descend={() => handleDescendingSort('name')}/></th>
-                                <th className='pl-7 w-[100px]'><TableHead heading={'SKU'} /></th>
-                                <th className='pl- w-[100px]'><TableHead heading={'Category'} /></th>
-                                <th className='pl- w-[100px]'><TableHead heading={'Stock'} active={activeColumn === 'stock'} canOrder={true} ascend={() => handleAscendingSort('stock')}  descend={() => handleDescendingSort('stock')}/></th>
-                                <th className='pl-6 w-[100px]'><TableHead heading={'Price'} active={activeColumn === 'price'} canOrder={true} ascend={() => handleAscendingSort('price')}  descend={() => handleDescendingSort('price')}/></th>
-                                <th className='pl-12 w-[100px]'><TableHead heading={'Status'} active={activeColumn === 'status'} canOrder={true} ascend={() => handleAscendingSort('status')}  descend={() => handleDescendingSort('status')}/></th>
-                                <th className='pl-10 w-[50px]'><TableHead heading={'Added'} active={activeColumn === 'dateAdded'} canOrder={true} ascend={() => handleAscendingSort('dateAdded')}  descend={() => handleDescendingSort('dateAdded')}/></th>
-                            </tr>
-                            <tbody>
-                                {productList.map((product) => {
-                                    return (
-                                        <tr className={`${selectedRows.indexOf(product.SKU) !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
-                                            <th className='w-[30px] pt-3'>
+                                </button>
+                            </th>
+                            <th className='pl-6 w-[105px]'><TableHead heading={'Product'} active={activeColumn === 'name'} canOrder={true} ascend={() => handleAscendingSort('name')} descend={() => handleDescendingSort('name')} /></th>
+                            <th className='pl-7 w-[100px]'><TableHead heading={'SKU'} /></th>
+                            <th className='pl- w-[100px]'><TableHead heading={'Category'} /></th>
+                            <th className='pl- w-[100px]'><TableHead heading={'Stock'} active={activeColumn === 'stock'} canOrder={true} ascend={() => handleAscendingSort('stock')} descend={() => handleDescendingSort('stock')} /></th>
+                            <th className='pl-6 w-[100px]'><TableHead heading={'Price'} active={activeColumn === 'price'} canOrder={true} ascend={() => handleAscendingSort('price')} descend={() => handleDescendingSort('price')} /></th>
+                            <th className='pl-12 w-[100px]'><TableHead heading={'Status'} active={activeColumn === 'status'} canOrder={true} ascend={() => handleAscendingSort('status')} descend={() => handleDescendingSort('status')} /></th>
+                            <th className='pl-10 w-[50px]'><TableHead heading={'Added'} active={activeColumn === 'dateAdded'} canOrder={true} ascend={() => handleAscendingSort('dateAdded')} descend={() => handleDescendingSort('dateAdded')} /></th>
+                        </tr>
+                        <tbody>
+                            {shownItems.map((product) => {
+                                return (
+                                    <tr className={`${selectedRows.indexOf(product.SKU) !== -1 ? 'bg-[#F9F9FC]' : ''} border-b`}>
+                                        <th className='w-[30px] pt-3'>
 
-                                                {selectedRows.indexOf(product.SKU) === -1 ?
-                                                    <button onClick={() => handleIsSelected(product.SKU)} className='ml-4'>
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
-                                                        </svg>
-                                                    </button> :
-                                                    <button onClick={() => handleIsRemoved(product.SKU)} className='ml-4'>
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
-                                                        </svg>
-                                                    </button>
-
-                                                }
-
-                                            </th>
-                                            <td className='flex ml-5 py-2'>
-                                                <img src={product.image} alt="" />
-                                                <div className="pl-2 w-[150px] items-center ">
-                                                    <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333] text-container line-clamp-2">{product.name}</p>
-                                                </div>
-                                            </td>
-                                            <td className='pl-6'>
-                                                <p className=' font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>{product.SKU}</p>
-                                            </td>
-                                            <td className=' p-0'>
-                                                <p className=' font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{product.category}</p>
-                                            </td>
-                                            <td className='p-0'>
-                                                <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{product.stock}</p>
-                                            </td>
-                                            <td className='pl-6'>
-                                                <p className=' font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>${formatNumberWithCommas(product.price)}</p>
-                                            </td>
-                                            <td className='pl-12'>
-                                                {product.status === 'Low Stock' && <OrangeLabel>{product.status}</OrangeLabel>}
-                                                {product.status === 'Published' && <GreenLabel>{product.status}</GreenLabel>}
-                                                {product.status === 'Draft' && <GreyLabel>{product.status}</GreyLabel>}
-
-                                            </td>
-                                            <td className='pl-10'>
-                                                <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(product.dateAdded)}</p>
-                                            </td>
-                                        </tr>
-                                    )
-                                })}
-
-                                <tr>
-                                    <th colSpan={8}>
-                                        <div className='rounded-b-xl w-full bg-white p-4 items-center flex'>
-                                            <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing 1-10 from 100</p>
-                                            <div className='ml-auto flex space-x-2'>
-                                                <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}>
-                                                    <StyledDashboardButton><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
+                                            {selectedRows.indexOf(product.SKU) === -1 ?
+                                                <button onClick={() => handleIsSelected(product.SKU)} className='ml-4'>
+                                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" stroke-width="2" />
                                                     </svg>
-                                                    </StyledDashboardButton>
-                                                </button>
-                                                <StyledDashboardButton>1</StyledDashboardButton>
-                                                <StyledDashboardButton>2</StyledDashboardButton>
-                                                <StyledDashboardButton>3</StyledDashboardButton>
-                                                <StyledDashboardButton>...</StyledDashboardButton>
-                                                <button onClick={() => setCurrentPage(Math.min(numbers.length, currentPage + 1))}>
-                                                    <StyledDashboardButton><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z" fill="currentColor" />
+                                                </button> :
+                                                <button onClick={() => handleIsRemoved(product.SKU)} className='ml-4'>
+                                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <rect width="20" height="20" rx="6" fill="#BC6C25" />
+                                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
                                                     </svg>
-                                                    </StyledDashboardButton>
                                                 </button>
+
+                                            }
+
+                                        </th>
+                                        <td className='flex ml-5 py-2'>
+                                            <img src={product.image} alt="" />
+                                            <div className="pl-2 w-[150px] items-center ">
+                                                <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333] text-container line-clamp-2">{product.name}</p>
                                             </div>
+                                        </td>
+                                        <td className='pl-6'>
+                                            <p className=' font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]'>{product.SKU}</p>
+                                        </td>
+                                        <td className=' p-0'>
+                                            <p className=' font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{product.category}</p>
+                                        </td>
+                                        <td className='p-0'>
+                                            <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{product.stock}</p>
+                                        </td>
+                                        <td className='pl-6'>
+                                            <p className=' font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>${formatNumberWithCommas(product.price)}</p>
+                                        </td>
+                                        <td className='pl-12'>
+                                            {product.status === 'Low Stock' && <OrangeLabel>{product.status}</OrangeLabel>}
+                                            {product.status === 'Published' && <GreenLabel>{product.status}</GreenLabel>}
+                                            {product.status === 'Draft' && <GreyLabel>{product.status}</GreyLabel>}
+
+                                        </td>
+                                        <td className='pl-10'>
+                                            <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(product.dateAdded)}</p>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+
+                            <tr>
+                                <th colSpan={8}>
+                                    <div className='rounded-b-xl w-full p-4 items-center flex'>
+                                        <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing {(currentPage - 1) * itemsPerPage + 1}-{(currentPage - 1) * itemsPerPage + itemsPerPage > productList.length ? productList.length : (currentPage - 1) * itemsPerPage + itemsPerPage} from {productList.length}</p>
+                                        <div className='ml-auto flex space-x-2'>
+                                            <button onClick={() => handlePageClick(Math.max(1, currentPage - 1))}>
+                                                <StyledDashboardButton isDisabled={currentPage === 1}><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
+                                                </svg>
+                                                </StyledDashboardButton>
+                                            </button>
+                                            {arr.map((pageNum) => {
+                                                return <StyledDashboardButton handleClick={() => (handlePageClick(pageNum))} isActive={currentPage === pageNum}>{pageNum}</StyledDashboardButton>
+                                            })
+                                            }
+                                            <StyledDashboardButton handleClick={() => handlePageClick(Math.min(shownItems.length, currentPage + 1))} isDisabled={currentPage === lastPage}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z" fill="currentColor" />
+                                            </svg>
+                                            </StyledDashboardButton>
                                         </div>
-                                    </th>
-                                </tr>
-                            </tbody>
-                        </table>
 
-                    </div>} {
+                                    </div>
+                                </th>
+                            </tr>
+                        </tbody>
+                    </table>
 
-                    activePage === 'published' &&
-                    <>
-                        {shownItems.map((item) =>
-                            <li>{item}</li>)}
-                        <div className='flex'>
-                            <StyledDashboardButton isDisabled={currentPage === 1} handleClick={() => handleChangePage(Math.max(1, currentPage - 1))}>
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
-                                </svg>
-                            </StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(1)} isActive={currentPage === 1}>1</StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(2)} isActive={currentPage === 2}>2</StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(3)} isActive={currentPage === 3}>3</StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(4)} isActive={currentPage === 4}>4</StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => handleChangePage(5)} isActive={currentPage === 5}>5</StyledDashboardButton>
-                            <StyledDashboardButton isDisabled={currentPage === 5} handleClick={() => handleChangePage(Math.min(numbers.length / itemsPerPage, currentPage + 1))}>
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z" fill="currentColor" />
-                                </svg>
-                            </StyledDashboardButton>
-                        </div>
-
-
-                    </>}
+                </div>
             </div >
             <div className='bg-[#F9F9FC] w-full h-[500px]' />
         </>

@@ -12,7 +12,7 @@ import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import Settings from "./pages/Settings";
 import CouponsPage from "./pages/Coupons";
-import Messages from './pages/Messages'
+// import Messages from './pages/Messages'
 import AddCouponsPage from "./pages/AddCoupons";
 import PageContextProvider from "./context/PageContext";
 import Messages from "./pages/Messages";
