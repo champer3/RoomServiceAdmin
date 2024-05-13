@@ -13,7 +13,7 @@ export default function OrderDetailsPage() {
     let VAT = 0
     let deliveryFee = 5
 
-    const { order } = useContext(PageContext)
+    const { order, changePage } = useContext(PageContext)
 
     const { id, status, dateAdded, paymentMethod, shippingMethod, customer, customerEmail, customerPhone, customerAddress } = order
 
@@ -25,12 +25,14 @@ export default function OrderDetailsPage() {
 
         return formattedNumber;
     }
+
     return (
         <>
+            {changePage('orders')}
             <div className='items-center'>
                 <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Order Details</p>
                 <div className='flex items-center'>
-                    <div><Path pages={['Dashboard', 'Order List', 'Order Details']} /></div>
+                    <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Order List', link: 'orders'}, {name: 'Order Details', link: 'order-details'}]} />
                     <button className='flex ml-auto border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
                         <svg className='mr-2' width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_499_3317)">

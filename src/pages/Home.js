@@ -19,25 +19,60 @@ import TableStatusListing from '../components/dashboard_components/TableStatusLi
 import StateListing from '../components/dashboard_components/StateListing'
 import ProgressBar from '../components/dashboard_components/ProgressBar'
 import { CATEGORY_DATA, PRODUCT_DATA, TABLE_DATA, STATES_DATA, graphData } from '../assets/data'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import Graph from '../components/Graph'
+import { PageContext } from '../context/PageContext'
 
 
 
 export default function HomePage() {
-    const [tableList, setTableList] = useState(TABLE_DATA)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [seeAll, setSeeAll] = useState(false)
     const [activeColumn, setActiveColumn] = useState('')
-    
+    const [itemsPerPage, setItemsPerPage] = useState(5)
+    const [shownItems, setShownItems] = useState((TABLE_DATA.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)))
+    const lastPage = (TABLE_DATA.length % itemsPerPage === 0 ? TABLE_DATA.length / itemsPerPage : Math.floor(TABLE_DATA.length / itemsPerPage) + 1)
+
+    const { changePage } = useContext(PageContext)
+
+    const arr = [];
+    for (let i = 1; i <= lastPage; i++) {
+        arr.push(i);
+    }
+
+    function handlePageClick(pageNum) {
+        setCurrentPage(pageNum)
+        setShownItems((TABLE_DATA.slice((pageNum - 1) * itemsPerPage, pageNum * itemsPerPage)))
+    }
+
+    function handleSeeAll() {
+        setSeeAll((prevState => {
+            if (!prevState) {
+                setCurrentPage(1)
+                setShownItems(TABLE_DATA)
+                setItemsPerPage(TABLE_DATA.length)
+            }
+            else{
+                setCurrentPage(1)
+                setShownItems((TABLE_DATA.slice(0, 5)))
+                setItemsPerPage(5)
+            }
+            return !prevState
+        }
+        ))
+    }
+
+
     function handleAscendingSort(criteria) {
         setActiveColumn(criteria)
         if (criteria === 'product' || criteria === 'status') {
-            setTableList((prevList) => {
+            setShownItems((prevList) => {
                 prevList.sort((a, b) => a[criteria].localeCompare(b[criteria]))
                 return [...prevList]
             })
         }
         else {
-            setTableList((prevList) => {
+            setShownItems((prevList) => {
                 prevList.sort((a, b) => a[criteria] - b[criteria])
                 return [...prevList]
             })
@@ -47,22 +82,24 @@ export default function HomePage() {
     function handleDescendingSort(criteria) {
         setActiveColumn(criteria)
         if (criteria === 'status' || criteria === 'product') {
-            setTableList((prevList) => {
+            setShownItems((prevList) => {
                 prevList.sort((a, b) => b[criteria].localeCompare(a[criteria]))
                 return [...prevList]
             })
         }
         else {
-            setTableList((prevList) => {
+            setShownItems((prevList) => {
                 prevList.sort((a, b) => b[criteria] - a[criteria])
                 return [...prevList]
             })
         }
     }
 
+
     console.log(graphData)
     return (
         <div className='ml-4'>
+            {changePage('dashboard')}
             <div className='flex items-center'>
                 <div>
                     <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Welcome Back, Stephen</p>
@@ -116,74 +153,136 @@ export default function HomePage() {
                         <div className='ml-auto flex space-x-4'>
                             <SelectDatesButton />
                             <FilterButton />
-                            <StyledDashboardButton>See All</StyledDashboardButton>
+                            <StyledDashboardButton handleClick={() => handleSeeAll()}>{seeAll? 'Unsee All' : 'See All'}</StyledDashboardButton>
                         </div>
                     </div>
-                    <table className='w-full'>
-                        <thead>
-                            <tr className='border-t border-b bg-[#F9F9FC]'>
-                                <th className='pl-5 w-[180px]'><TableHead heading={'Product'} canOrder={true} ascend={()=>handleAscendingSort('product')} descend={()=>handleDescendingSort('product')} active={activeColumn === 'product'}/></th>
-                                <th className='pl-8 w-[200px]'><TableHead heading={'Customer'} /></th>
-                                <th className='pl-8'><TableHead heading={'Total'} canOrder={true} ascend={()=> handleAscendingSort('total')} descend={()=> handleDescendingSort('total')} active={activeColumn === 'total'}/></th>
-                                <th className='pl-[105px] w-[200px]'><TableHead heading={'Status'} canOrder={true} ascend={()=>handleAscendingSort('status')} descend={()=>handleDescendingSort('status')} active={activeColumn === 'status'}/></th>
-                                <th className='pl-24'><TableHead heading={'Action'} /></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {tableList.map((order) => {
-
-                                return (
-                                    <tr className='border-b'>
-                                        <td className='p-0'>
-                                            <TableProductListing
-                                                image={order.image}
-                                                mainProduct={order.product}
-                                                remProducts={order.extra} />
-                                        </td>
-                                        <td className='p-0'><TableCustomerListing name={order.customerName} email={TABLE_DATA[0].customerEmail} /></td>
-                                        <td className='p-0 w-[100px]'><TableTotalListing amount={order.total} /></td>
-                                        <td className='pl-20'><TableStatusListing status={order.status} /></td>
-                                        <td className='pl-24'><TableActionListing /></td>
+                    {
+                        !seeAll &&
+                        <>
+                            <table className='w-full'>
+                                <thead>
+                                    <tr className='border-t border-b bg-[#F9F9FC]'>
+                                        <th className='pl-5 w-[180px]'><TableHead heading={'Product'} canOrder={true} ascend={() => handleAscendingSort('product')} descend={() => handleDescendingSort('product')} active={activeColumn === 'product'} /></th>
+                                        <th className='pl-8 w-[200px]'><TableHead heading={'Customer'} /></th>
+                                        <th className='pl-8'><TableHead heading={'Total'} canOrder={true} ascend={() => handleAscendingSort('total')} descend={() => handleDescendingSort('total')} active={activeColumn === 'total'} /></th>
+                                        <th className='pl-[105px] w-[200px]'><TableHead heading={'Status'} canOrder={true} ascend={() => handleAscendingSort('status')} descend={() => handleDescendingSort('status')} active={activeColumn === 'status'} /></th>
+                                        <th className='pl-24'><TableHead heading={'Action'} /></th>
                                     </tr>
-                                )
-                            })
+                                </thead>
+                                <tbody>
+                                    {shownItems.map((order) => {
+                                        return (
+                                            <tr className='border-b'>
+                                                <td className='p-0'>
+                                                    <TableProductListing
+                                                        image={order.image}
+                                                        mainProduct={order.product}
+                                                        remProducts={order.extra} />
+                                                </td>
+                                                <td className='p-0'><TableCustomerListing name={order.customerName} email={order.customerEmail} /></td>
+                                                <td className='p-0 w-[100px]'><TableTotalListing amount={order.total} /></td>
+                                                <td className='pl-20'><TableStatusListing status={order.status} /></td>
+                                                <td className='pl-24'><TableActionListing /></td>
+                                            </tr>
+                                        )
+                                    })
 
-                            }
-                        </tbody>
-                    </table>
-                    <div className='rounded-lg w-full bg-white p-4 items-center flex'>
-                        <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing 1-5 from 100</p>
-                        <div className='ml-auto flex space-x-2'>
-                            <StyledDashboardButton>
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
-                                </svg>
-                            </StyledDashboardButton>
-                            <StyledDashboardButton>1</StyledDashboardButton>
-                            <StyledDashboardButton>2</StyledDashboardButton>
-                            <StyledDashboardButton>3</StyledDashboardButton>
-                            <StyledDashboardButton>...</StyledDashboardButton>
-                            <StyledDashboardButton><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z" fill="currentColor" />
-                            </svg>
-                            </StyledDashboardButton>
-                        </div>
-                    </div>
-                </div>
-                <div className='w-[30%] rounded-lg bg-white'>
-                    <ContentContainer label={'Customer Growth'} subheading={'Based on States'}>
-                        <img src={mapImg} alt="" />
-                    </ContentContainer>
-                    <div class="w-full h-[350px] overflow-auto scrollbar-thin scrollbar-thumb-rounded-lg scrollbar-thumb-[#BC6C25] scrollbar-track-gray-100">
-                        {STATES_DATA.map((state) => {
-                            return (<div key={state.name} className=' ml-auto mr-auto w-[312px] bg-[#FFFFFF] mt-3 p-2 flex items-center'>
-                                <StateListing img={state.image} state={state.name} customerTotal={state.customers} />
-                                <div className='ml-auto'>
-                                    <ProgressBar color={state.color} progress={state.percent} />
+                                    }
+                                </tbody>
+                            </table>
+                            <div className='rounded-b-xl w-full p-4 items-center flex'>
+                                <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing {(currentPage - 1) * itemsPerPage + 1}-{(currentPage - 1) * itemsPerPage + itemsPerPage > TABLE_DATA.length ? TABLE_DATA.length : (currentPage - 1) * itemsPerPage + itemsPerPage} from {TABLE_DATA.length}</p>
+                                <div className='ml-auto flex space-x-2'>
+                                    <button onClick={() => handlePageClick(Math.max(1, currentPage - 1))}>
+                                        <StyledDashboardButton isDisabled={currentPage === 1}><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
+                                        </svg>
+                                        </StyledDashboardButton>
+                                    </button>
+                                    {arr.map((pageNum) => {
+                                        return <StyledDashboardButton handleClick={() => (handlePageClick(pageNum))} isActive={currentPage === pageNum}>{pageNum}</StyledDashboardButton>
+                                    })
+                                    }
+                                    <StyledDashboardButton handleClick={() => handlePageClick(Math.min(shownItems.length, currentPage + 1))} isDisabled={currentPage === lastPage}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z" fill="currentColor" />
+                                    </svg>
+                                    </StyledDashboardButton>
                                 </div>
-                            </div>)
-                        })
-                        }
+                            </div>
+                        </>
+                    }
+                    {
+                        seeAll &&
+                        <>
+                            <table className='w-full'>
+                                <thead>
+                                    <tr className='border-t border-b bg-[#F9F9FC]'>
+                                        <th className='pl-5 w-[180px]'><TableHead heading={'Product'} canOrder={true} ascend={() => handleAscendingSort('product')} descend={() => handleDescendingSort('product')} active={activeColumn === 'product'} /></th>
+                                        <th className='pl-8 w-[200px]'><TableHead heading={'Customer'} /></th>
+                                        <th className='pl-8'><TableHead heading={'Total'} canOrder={true} ascend={() => handleAscendingSort('total')} descend={() => handleDescendingSort('total')} active={activeColumn === 'total'} /></th>
+                                        <th className='pl-[105px] w-[200px]'><TableHead heading={'Status'} canOrder={true} ascend={() => handleAscendingSort('status')} descend={() => handleDescendingSort('status')} active={activeColumn === 'status'} /></th>
+                                        <th className='pl-24'><TableHead heading={'Action'} /></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {shownItems.map((order) => {
+                                        return (
+                                            <tr className='border-b'>
+                                                <td className='p-0'>
+                                                    <TableProductListing
+                                                        image={order.image}
+                                                        mainProduct={order.product}
+                                                        remProducts={order.extra} />
+                                                </td>
+                                                <td className='p-0'><TableCustomerListing name={order.customerName} email={order.customerEmail} /></td>
+                                                <td className='p-0 w-[100px]'><TableTotalListing amount={order.total} /></td>
+                                                <td className='pl-20'><TableStatusListing status={order.status} /></td>
+                                                <td className='pl-24'><TableActionListing /></td>
+                                            </tr>
+                                        )
+                                    })
+
+                                    }
+                                </tbody>
+                            </table>
+                            <div className='rounded-b-xl w-full p-4 items-center flex'>
+                                <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing {(currentPage - 1) * itemsPerPage + 1}-{(currentPage - 1) * itemsPerPage + itemsPerPage > TABLE_DATA.length ? TABLE_DATA.length : (currentPage - 1) * itemsPerPage + itemsPerPage} from {TABLE_DATA.length}</p>
+                                <div className='ml-auto flex space-x-2'>
+                                    <button onClick={() => handlePageClick(Math.max(1, currentPage - 1))}>
+                                        <StyledDashboardButton isDisabled={currentPage === 1}><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
+                                        </svg>
+                                        </StyledDashboardButton>
+                                    </button>
+                                    {arr.map((pageNum) => {
+                                        return <StyledDashboardButton handleClick={() => (handlePageClick(pageNum))} isActive={currentPage === pageNum}>{pageNum}</StyledDashboardButton>
+                                    })
+                                    }
+                                    <StyledDashboardButton handleClick={() => handlePageClick(Math.min(shownItems.length, currentPage + 1))} isDisabled={currentPage === lastPage}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z" fill="currentColor" />
+                                    </svg>
+                                    </StyledDashboardButton>
+                                </div>
+                            </div>
+                        </>
+                    }
+                </div>
+                <div className='w-[30%]'>
+                    <div className='rounded-lg bg-white'>
+                        <ContentContainer label={'Customer Growth'} subheading={'Based on States'}>
+                            <img src={mapImg} alt="" />
+                        </ContentContainer>
+                        <div class="w-full h-[350px] overflow-auto scrollbar-thin scrollbar-thumb-rounded-lg scrollbar-thumb-[#BC6C25] scrollbar-track-gray-100">
+                            {STATES_DATA.map((state) => {
+                                return (<div key={state.name} className=' ml-auto mr-auto w-[312px] bg-[#FFFFFF] mt-3 p-2 flex items-center'>
+                                    <StateListing img={state.image} state={state.name} customerTotal={state.customers} />
+                                    <div className='ml-auto'>
+                                        <ProgressBar color={state.color} progress={state.percent} />
+                                    </div>
+                                </div>)
+                            })
+                            }
+                        </div>
                     </div>
                 </div>
 

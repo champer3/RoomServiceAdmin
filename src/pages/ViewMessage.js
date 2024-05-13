@@ -1,12 +1,13 @@
 
 // import { FilledButton } from '../components/Buttons/FilledButton';
-import TopBar from '../components/TopBar';
-import { useState, useEffect, useRef  } from "react"
-import Select from '../components/Select';
+// import TopBar from '../components/TopBar';
+import { useState, useRef, useContext  } from "react"
+// import Select from '../components/Select';
 import Path from '../components/Path';
+import { PageContext } from "../context/PageContext";
 // import Input  from '../components/Input'
 function  DisplayMessage({messages}){
-    const [date, setDate] = useState('')
+    // const [date, setDate] = useState('')
     const [currentDate, setCurrentDate] = useState(null);
 
     // Group messages by date
@@ -222,6 +223,7 @@ function isSameWeek(date1, date2) {
   
   
 function ViewMessage() {
+    const { changePage } = useContext(PageContext)
     const [fileType, setFileType] = useState(null);
     const [messages, setMessages] = useState([
         [0, 'Hey are you there', '10:55 am', new Date(2024, 3, 20)],
@@ -324,13 +326,13 @@ function ViewMessage() {
       setFileType(null)
     };
     return (
-    <div className='bg-[#F9F9FC] w-full px-4 py-5 '>                                                 
+    <div className='bg-[#F9F9FC] w-full px-4 py-5 '>
+      {changePage('empty')}                                                 
       <div className='space-x-8 w-full flex mt-5'>
         <h1 className='font-black text-[20px] leading-[30px] tracking-[0.01em] text-[#333333]'>View Message</h1>
       </div>
       <div className='my-3 space-x-8 w-full mb-10 flex justify-between items-center'>
-        <Path pages={['Dashboard', 'Messages', 'Stephen Okunola']} />
-
+        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Messages', link: 'messages'}, {name: 'Stephen Okunola', link: 'view-messages'}]} />
       </div>
       <div className=' w-full rounded-xl my-6  p-3 bg-white px-[50px]'>
         <div className='flex justify-between items-center border-b py-4 '>

@@ -1,3 +1,4 @@
+import { useContext } from "react"
 import { CUSTOMER_DETAIL_LIST } from "../assets/data"
 import FilterButton from "../components/FilterButton"
 import Path from "../components/Path"
@@ -9,8 +10,11 @@ import StyledDashboardButton from "../components/dashboard_components/StyledDash
 import TableHead from "../components/dashboard_components/TableHead"
 import TableProductListing from "../components/dashboard_components/TableProductListing"
 import moment from "moment"
+import { PageContext } from "../context/PageContext"
 
 export default function CustomerDetailsPage() {
+    const {changePage} = useContext(PageContext)
+
     function formatDate(dateObject) {
         return moment(dateObject).format("D MMM YYYY")
     }
@@ -23,12 +27,12 @@ export default function CustomerDetailsPage() {
 
         return formattedNumber;
     }
-
     return (
         <>
+            {changePage('customers')}
             <div className="w-full">
                 <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Customer Details</p>
-                <Path pages={['Dashboard', 'Customer List', 'Customer Details']} />
+                <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Customer List', link: 'customers'}, {name: 'Customer Details', link: 'customer-details'}]} />
             </div>
             <div className="mt-4 p-3 flex">
                 <div className="bg-white rounded-lg p-5">

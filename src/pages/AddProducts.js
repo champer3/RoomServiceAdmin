@@ -6,12 +6,15 @@ import Select from "../components/Select"
 import GreenLabel from "../components/StatusLabels/GreenLabel"
 import GreyLabel from "../components/StatusLabels/GreyLabel"
 import OrangeLabel from "../components/StatusLabels/OrangeLabel"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { Link } from "react-router-dom"
+import { PageContext } from "../context/PageContext"
 
 export default function AddProjectsPage() {
     const [isTicked, setIsTicked] = useState(false)
     const [status, setStatus] = useState()
+    const {changePage} = useContext(PageContext)
+
     function handleIsTicked() {
         setIsTicked((prevState) => !prevState)
     }
@@ -22,11 +25,12 @@ export default function AddProjectsPage() {
 
     return (
         <>
+            {changePage('products')}
             <div className="ml-4">
                 <div className="flex items-center">
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Add Product</p>
-                        <Path pages={['Dashboard', 'Product List', 'Add Product']} />
+                        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Product List', link: 'products'}, {name: 'Add Product', link: 'add-products'}]} />
                     </div>
                     <div className='flex ml-auto'>
                         <Link to={'/products'}>

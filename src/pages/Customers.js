@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import Path from "../components/Path"
 import TabButton from "../components/TabButton"
 import MiniSearch from "../components/MiniSearch"
@@ -6,17 +6,44 @@ import FilterButton from "../components/FilterButton"
 import { CUSTOMER_LIST } from "../assets/data"
 import CustomerInfoCard from "../components/customer_components/CustomerInfoCard"
 import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton"
+import { PageContext } from "../context/PageContext"
 export default function CustomersPage() {
     const [activePage, setActivePage] = useState('all')
     const [currentPage, setCurrentPage] = useState(1)
+    const [totalItems, setTotalItems] = useState(CUSTOMER_LIST)
     const itemsPerPage = 15
-    const lastPage = CUSTOMER_LIST.length % itemsPerPage === 0 ? CUSTOMER_LIST.length / itemsPerPage : Math.floor(CUSTOMER_LIST.length / itemsPerPage) + 1
+    const lastPage = (totalItems.length % itemsPerPage === 0 ? totalItems.length / itemsPerPage : Math.floor(totalItems.length / itemsPerPage) + 1)
+    const shownItems = (totalItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage))
 
-    const shownItems = CUSTOMER_LIST.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
-    function handleSelectTabButton(status) {
-        setActivePage(status)
+    const arr = [];
+    for (let i = 1; i <= lastPage; i++) {
+        arr.push(i);
     }
+
+
+
+
+
+    const { changePage } = useContext(PageContext)
+
+    function handleSelectTabButton(page) {
+        setActivePage(page)
+        if (page === 'all') {
+            setTotalItems(CUSTOMER_LIST)
+            setCurrentPage(1)
+            return
+        }
+
+        const filtered = CUSTOMER_LIST.filter((item) => {
+            return (item.status).toLowerCase() === page
+        })
+        setTotalItems(filtered)
+        setCurrentPage(1)
+
+    }
+
+
 
     function formatNumberWithCommas(number) {
         const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString('en-US', {
@@ -33,7 +60,7 @@ export default function CustomersPage() {
             <tr className="">
                 {row.map((item) => {
                     return <td className="p-2">
-                            <CustomerInfoCard name={item.name} status={item.status} labelColor={(item.status).toLowerCase() === 'active' ? 'green' : 'red'} leftData={formatNumberWithCommas(item.orders)} leftDetail={"Orders"} rightData={formatNumberWithCommas(item.spent)} rightDetail={"Spent"} isRightMoney={true} />
+                        <CustomerInfoCard name={item.name} status={item.status} labelColor={(item.status).toLowerCase() === 'active' ? 'green' : 'red'} leftData={formatNumberWithCommas(item.orders)} leftDetail={"Orders"} rightData={formatNumberWithCommas(item.spent)} rightDetail={"Spent"} isRightMoney={true} />
                     </td>
                 }
                 )
@@ -53,10 +80,11 @@ export default function CustomersPage() {
 
     return (
         <>
+            {changePage('customers')}
             <div className="flex w-full items-center">
                 <div>
                     <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Customers</p>
-                    <Path pages={['Dashboard', 'Customer List']} />
+                    <Path pages={[{ name: 'Dashboard', link: '' }, { name: 'Customer List', link: 'customers' }]} />
                 </div>
                 <div className='flex ml-auto'>
                     <button className='flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
@@ -99,31 +127,32 @@ export default function CustomersPage() {
                     <FilterButton />
                 </div>
             </div>
-            {activePage === 'all' && <>
-                <table className="w-full">
-                    {displayRows(shownItems)}
-                </table>
 
-                <div className='rounded-b-xl w-full p-4 items-center flex'>
-                    <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing {(currentPage - 1) * itemsPerPage + 1}-{currentPage * itemsPerPage > CUSTOMER_LIST.length ? (CUSTOMER_LIST.length - (currentPage * itemsPerPage)) + ((currentPage - 1) * itemsPerPage) + ((currentPage - 1) * itemsPerPage) : currentPage * itemsPerPage} from 100</p>
-                    <div className='ml-auto flex space-x-2'>
-                        <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}>
-                            <StyledDashboardButton isDisabled={currentPage === 1}><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
-                            </svg>
-                            </StyledDashboardButton>
-                        </button>
-                        <StyledDashboardButton handleClick={()=>(setCurrentPage(1))} isActive={currentPage === 1}>1</StyledDashboardButton>
-                        <StyledDashboardButton handleClick={()=>(setCurrentPage(2))} isActive={currentPage === 2}>2</StyledDashboardButton>
-                            <StyledDashboardButton handleClick={() => setCurrentPage(Math.min(shownItems.length, currentPage + 1))} isDisabled={currentPage === lastPage}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z" fill="currentColor" />
-                            </svg>
-                            </StyledDashboardButton>
-                    </div>
+            <table className="w-full">
+                {displayRows(shownItems)}
+            </table>
 
+            <div className='rounded-b-xl w-full p-4 items-center flex'>
+                <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing {(currentPage - 1) * itemsPerPage + 1}-{(currentPage - 1) * itemsPerPage + itemsPerPage > totalItems.length ? totalItems.length : (currentPage - 1) * itemsPerPage + itemsPerPage} from {totalItems.length}</p>
+                <div className='ml-auto flex space-x-2'>
+                    <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}>
+                        <StyledDashboardButton isDisabled={currentPage === 1}><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
+                        </svg>
+                        </StyledDashboardButton>
+                    </button>
+                    {arr.map((pageNum) => {
+                        return <StyledDashboardButton handleClick={() => (setCurrentPage(pageNum))} isActive={currentPage === pageNum}>{pageNum}</StyledDashboardButton>
+                    })
+                    }
+                    <StyledDashboardButton handleClick={() => setCurrentPage(Math.min(shownItems.length, currentPage + 1))} isDisabled={currentPage === lastPage}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z" fill="currentColor" />
+                    </svg>
+                    </StyledDashboardButton>
                 </div>
-            </>
-            }
+
+            </div>
+
         </>
     )
 }
