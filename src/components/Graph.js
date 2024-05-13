@@ -85,7 +85,7 @@ export default function Graph({ data }) {
 
     return (
         <div className="">
-            <svg ref={graphRef} width="1300" height="300"></svg>
+            <svg ref={graphRef} width="" height="300"></svg>
         </div>
     )
 }

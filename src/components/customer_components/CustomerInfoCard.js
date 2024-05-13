@@ -8,7 +8,7 @@ export default function CustomerInfoCard({ name, status, labelColor, leftData, l
         setIsClicked((prevState) => !prevState)
     }
     return (
-        <div className={`w-[250px] rounded-lg ${isClicked ? 'border border-[#283618]' : ''} bg-white`}>
+        <div className={`w-full rounded-lg ${isClicked ? 'border border-[#283618]' : ''} bg-white`}>
             <div className="w-full items-center p-2">
                 <div className="flex items-center border-dotted p-2">
                     <button onClick={handleClick}>

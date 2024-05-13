@@ -1,7 +1,7 @@
 export default function TotalCustomers({ label, amount, percent }) {
     const finalNumber = amount.toLocaleString()
     return (
-        <section className="py-4 space-y-2 flex-col bg-customer-bg bg-no-repeat bg-[#3250FF] w-[25%] bg-cover rounded-xl aspect-w-16 aspect-h-9">
+        <section className="py-4 space-y-2 flex-col bg-customer-bg bg-no-repeat w-full bg-[#3250FF]  bg-cover rounded-xl aspect-w-16 aspect-h-9">
             <div className="px-6 pt-6">
                 <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="36" height="36" rx="8" fill="white" fill-opacity="0.2" />

@@ -2,7 +2,7 @@ export default function TotalRevenue({ label, amount, percent }) {
     const formattedNumber = Math.round(amount)
     const finalNumber = formattedNumber.toLocaleString()
     return (
-        <section className="py-4 space-y-2 flex-col bg-section-bg bg-no-repeat bg-rs-green w-[25%] bg-cover rounded-xl">
+        <section className="py-4 space-y-2 flex-col bg-section-bg bg-no-repeat w-full bg-rs-green  bg-cover rounded-xl">
             <div className="px-6 pt-6">
                 <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="36" height="36" rx="8" fill="white" fill-opacity="0.2" />
