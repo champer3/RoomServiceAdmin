@@ -3,11 +3,12 @@ import moment from "moment";
 import { useContext, useState } from "react";
 import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton";
 import TableHead from "../components/dashboard_components/TableHead";
-import { CATEGORIES_LIST } from "../assets/data";
+// import { CATEGORIES_LIST } from "../assets/data";
 import Path from "../components/Path"
 import { PageContext } from "../context/PageContext";
 
 export default function CategoriesPage() {
+    const { changePage, viewCategory, categories } = useContext(PageContext)
     function formatDate(dateObject) {
         return moment(dateObject).format("D MMM YYYY")
     }
@@ -15,10 +16,10 @@ export default function CategoriesPage() {
     const [selectedRows, setSelectedRows] = useState([])
     const [activeColumn, setActiveColumn] = useState('')
     const [currentPage, setCurrentPage] = useState(1);
-    const [categoriesList, setCategoriesList] = useState(CATEGORIES_LIST.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage))
-    const lastPage = (CATEGORIES_LIST.length % itemsPerPage === 0 ? CATEGORIES_LIST.length / itemsPerPage : Math.floor(CATEGORIES_LIST.length / itemsPerPage) + 1)
+    const [categoriesList, setCategoriesList] = useState(categories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage))
+    const lastPage = (categories.length % itemsPerPage === 0 ? categories.length / itemsPerPage : Math.floor(categories.length / itemsPerPage) + 1)
 
-    const { changePage } = useContext(PageContext)
+
 
     const arr = [];
     for (let i = 1; i <= lastPage; i++) {
@@ -27,7 +28,7 @@ export default function CategoriesPage() {
 
     function handlePageClick(pageNum) {
         setCurrentPage(pageNum)
-        setCategoriesList((CATEGORIES_LIST.slice((pageNum - 1) * itemsPerPage, pageNum * itemsPerPage)))
+        setCategoriesList((categories.slice((pageNum - 1) * itemsPerPage, pageNum * itemsPerPage)))
     }
 
     function handleAscendingSort(criteria) {
@@ -122,23 +123,25 @@ export default function CategoriesPage() {
                 </div>
             </div>
             <table className='w-full bg-white rounded-xl'>
-                <tr className='border-b'>
-                    <th className='w-[30px] pt-3'>
-                        <button className='ml-4'>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M3.75 10C3.75 9.53978 4.1231 9.16669 4.58333 9.16669H15.4167C15.8769 9.16669 16.25 9.53978 16.25 10C16.25 10.4603 15.8769 10.8334 15.4167 10.8334H4.58333C4.1231 10.8334 3.75 10.4603 3.75 10Z" fill="white" />
-                            </svg>
+                <thead>
+                    <tr className='border-b'>
+                        <th className='w-[30px] pt-3'>
+                            <button className='ml-4'>
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="20" height="20" rx="6" fill="#BC6C25" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M3.75 10C3.75 9.53978 4.1231 9.16669 4.58333 9.16669H15.4167C15.8769 9.16669 16.25 9.53978 16.25 10C16.25 10.4603 15.8769 10.8334 15.4167 10.8334H4.58333C4.1231 10.8334 3.75 10.4603 3.75 10Z" fill="white" />
+                                </svg>
 
 
-                        </button>
-                    </th>
-                    <th className='pl-4 w-[200px]'><TableHead heading={'Category Name'} active={activeColumn === 'name'} canOrder={true} ascend={() => handleAscendingSort('name')} descend={() => handleDescendingSort('name')} /></th>
-                    <th className='pl-6'><TableHead heading={'Sold'} canOrder={true} active={activeColumn === 'sold'} ascend={() => handleAscendingSort('sold')} descend={() => handleDescendingSort('sold')} /></th>
-                    <th className='pl-6'><TableHead heading={'Stock'} canOrder={true} active={activeColumn === 'stock'} ascend={() => handleAscendingSort('stock')} descend={() => handleDescendingSort('stock')} /></th>
-                    <th className='pl-6 w-[150px]'><TableHead heading={'Added'} active={activeColumn === 'dateAdded'} canOrder={true} ascend={() => handleAscendingSort('dateAdded')} descend={() => handleDescendingSort('dateAdded')} /></th>
-                    <th className='pl-6 w-[100px]'><TableHead heading={'Action'} /></th>
-                </tr>
+                            </button>
+                        </th>
+                        <th className='pl-4 w-[200px]'><TableHead heading={'Category Name'} active={activeColumn === 'name'} canOrder={true} ascend={() => handleAscendingSort('name')} descend={() => handleDescendingSort('name')} /></th>
+                        <th className='pl-6'><TableHead heading={'Sold'} canOrder={true} active={activeColumn === 'sold'} ascend={() => handleAscendingSort('sold')} descend={() => handleDescendingSort('sold')} /></th>
+                        <th className='pl-6'><TableHead heading={'Stock'} canOrder={true} active={activeColumn === 'stock'} ascend={() => handleAscendingSort('stock')} descend={() => handleDescendingSort('stock')} /></th>
+                        <th className='pl-6 w-[150px]'><TableHead heading={'Added'} active={activeColumn === 'dateAdded'} canOrder={true} ascend={() => handleAscendingSort('dateAdded')} descend={() => handleDescendingSort('dateAdded')} /></th>
+                        <th className='pl-6 w-[100px]'><TableHead heading={'Action'} /></th>
+                    </tr>
+                </thead>
                 <tbody>
                     {categoriesList.map((category) => {
                         return (
@@ -163,7 +166,7 @@ export default function CategoriesPage() {
                                 </th>
                                 <td className="p-2">
                                     <div className='flex items-center w-[200px] ml-3'>
-                                        <img className="" src={category.image} alt="" />
+                                        <img width={44} height={44} className="" src={category.image} alt="" />
                                         <p className="ml-2 text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333] text-container line-clamp-2">{category.name}</p>
                                     </div>
                                 </td>
@@ -178,8 +181,8 @@ export default function CategoriesPage() {
                                 </td>
                                 <td className="pl-3">
                                     <div className="flex space-x-2 items-center">
-                                        <Link to={'/edit-category'}>
-                                            <button>
+                                        <Link to={'/edit-category'} onClick={() => { viewCategory({ id: category.id, name: category.name, image: category.image, description: category.description, imageURL: category.imageURL }) }}>
+                                            <button> {/* edit*/}
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <g clip-path="url(#clip0_578_3577)">
                                                         <path d="M0.781333 12.7458C0.281202 13.2458 0.000151033 13.9239 0 14.6311L0 15.9998H1.36867C2.07585 15.9996 2.75402 15.7186 3.254 15.2184L12.1493 6.32313L9.67667 3.85046L0.781333 12.7458Z" fill="#A3A9B6" />
@@ -193,13 +196,14 @@ export default function CategoriesPage() {
                                                 </svg>
                                             </button>
                                         </Link>
-                                        <button>
+                                        <button > {/* view*/}
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M7.99989 10.6656C9.4721 10.6656 10.6656 9.4721 10.6656 7.99989C10.6656 6.52769 9.4721 5.33423 7.99989 5.33423C6.52769 5.33423 5.33423 6.52769 5.33423 7.99989C5.33423 9.4721 6.52769 10.6656 7.99989 10.6656Z" fill="#A3A9B6" />
                                                 <path d="M15.5112 6.28001C14.4776 4.59663 12.1265 1.77234 7.99998 1.77234C3.87352 1.77234 1.52239 4.59663 0.488772 6.28001C-0.162924 7.33409 -0.162924 8.66597 0.488772 9.72008C1.52239 11.4035 3.87352 14.2277 7.99998 14.2277C12.1265 14.2277 14.4776 11.4035 15.5112 9.72008C16.1629 8.66597 16.1629 7.33409 15.5112 6.28001ZM7.99998 11.9985C5.79168 11.9985 4.00147 10.2083 4.00147 8.00003C4.00147 5.79172 5.79168 4.00151 7.99998 4.00151C10.2083 4.00151 11.9985 5.79172 11.9985 8.00003C11.9963 10.2074 10.2074 11.9963 7.99998 11.9985Z" fill="#A3A9B6" />
                                             </svg>
                                         </button>
-                                        <button>
+
+                                        <button> {/* delete  */}
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M14 2.66666H11.9334C11.6144 1.11572 10.2501 0.002 8.66669 0H7.33334C5.74994 0.002 4.38562 1.11572 4.06669 2.66666H2.00003C1.63184 2.66666 1.33337 2.96513 1.33337 3.33331C1.33337 3.7015 1.63184 4 2.00003 4H2.66669V12.6667C2.66891 14.5067 4.16 15.9978 6.00003 16H10C11.8401 15.9978 13.3312 14.5067 13.3334 12.6667V4H14C14.3682 4 14.6667 3.70153 14.6667 3.33334C14.6667 2.96516 14.3682 2.66666 14 2.66666ZM7.33337 11.3333C7.33337 11.7015 7.0349 12 6.66672 12C6.2985 12 6.00003 11.7015 6.00003 11.3333V7.33334C6.00003 6.96516 6.2985 6.66669 6.66669 6.66669C7.03487 6.66669 7.33334 6.96516 7.33334 7.33334V11.3333H7.33337ZM10 11.3333C10 11.7015 9.70156 12 9.33337 12C8.96519 12 8.66672 11.7015 8.66672 11.3333V7.33334C8.66672 6.96516 8.96519 6.66669 9.33337 6.66669C9.70156 6.66669 10 6.96516 10 7.33334V11.3333ZM5.44737 2.66666C5.73094 1.86819 6.48606 1.33434 7.33337 1.33331H8.66672C9.51403 1.33434 10.2692 1.86819 10.5527 2.66666H5.44737Z" fill="#A3A9B6" />
                                             </svg>
@@ -213,14 +217,12 @@ export default function CategoriesPage() {
                     <tr>
                         <th colSpan={8}>
                             <div className='rounded-b-xl w-full p-4 items-center flex'>
-                                <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing {(currentPage - 1) * itemsPerPage + 1}-{(currentPage - 1) * itemsPerPage + itemsPerPage > CATEGORIES_LIST.length ? CATEGORIES_LIST.length : (currentPage - 1) * itemsPerPage + itemsPerPage} from {CATEGORIES_LIST.length}</p>
+                                <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing {(currentPage - 1) * itemsPerPage + 1}-{(currentPage - 1) * itemsPerPage + itemsPerPage > categories.length ? categories.length : (currentPage - 1) * itemsPerPage + itemsPerPage} from {categories.length}</p>
                                 <div className='ml-auto flex space-x-2'>
-                                    <button onClick={() => handlePageClick(Math.max(1, currentPage - 1))}>
-                                        <StyledDashboardButton isDisabled={currentPage === 1}><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
-                                        </svg>
-                                        </StyledDashboardButton>
-                                    </button>
+                                    <StyledDashboardButton handleClick={() => handlePageClick(Math.max(1, currentPage - 1))} isDisabled={currentPage === 1}><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z" fill="currentColor" />
+                                    </svg>
+                                    </StyledDashboardButton>
                                     {arr.map((pageNum) => {
                                         return <StyledDashboardButton handleClick={() => (handlePageClick(pageNum))} isActive={currentPage === pageNum}>{pageNum}</StyledDashboardButton>
                                     })
