@@ -12,7 +12,7 @@ export default function TableHead({ canOrder, heading, ascend, descend, active= 
         descend()
     }
     return (
-        <div className=" w-full flex py-[18px] items-center">
+        <div className="flex py-[18px] items-center">
             {canOrder && <p className="text-[14px] font-bold leading-[20px] mr-auto tracking-[0.005em] text-[#333333]">{heading}</p>}
             {!canOrder && <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333]">{heading}</p>}
             {((canOrder && arrowDirection === 'down') || (canOrder && !active)) &&

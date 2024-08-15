@@ -12,43 +12,44 @@ import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import Settings from "./pages/Settings";
 import CouponsPage from "./pages/Coupons";
-import Messages from './pages/Messages'
+import Messages from "./pages/Messages";
 import AddCouponsPage from "./pages/AddCoupons";
 import PageContextProvider from "./context/PageContext";
 import ViewMessage from "./pages/ViewMessage";
+import LoginPage from "./pages/Login";
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <SidePanel />,
     children: [
-      { path: '/', element: <HomePage /> },
-      { path: '/dashboard', element: <HomePage /> },
-      { path: '/products', element: <ProductsPage /> },
-      { path: '/add-products', element: <AddProjectsPage /> },
-      { path: '/categories', element: <CategoriesPage /> },
-      { path: '/add-category', element: <AddCategoryPage /> },
-      { path: '/edit-category', element: <EditCategoryPage /> },
-      { path: '/orders', element: <OrdersPage /> },
-      { path: '/order-details', element: <OrderDetailsPage /> },
-      { path: '/customers', element: <CustomersPage /> },
-      { path: '/customer-details', element: <CustomerDetailsPage /> },
-      { path: '/settings', element: <Settings/>},
-      { path: '/coupons', element: <CouponsPage/>},
-      { path: '/add-coupons', element: <AddCouponsPage/>},
-      { path: '/messages', element: <Messages/>},
-      { path: '/viewmessage', element: <ViewMessage/>},
-    ]
-  }
-
-])
+      { path: "/", element: <HomePage /> },
+      { path: "/dashboard", element: <HomePage /> },
+      { path: "/products", element: <ProductsPage /> },
+      { path: "/add-products", element: <AddProjectsPage /> },
+      { path: "/categories", element: <CategoriesPage /> },
+      { path: "/add-category", element: <AddCategoryPage /> },
+      { path: "/edit-category", element: <EditCategoryPage /> },
+      { path: "/orders", element: <OrdersPage /> },
+      { path: "/order-details", element: <OrderDetailsPage /> },
+      { path: "/customers", element: <CustomersPage /> },
+      { path: "/customer-details", element: <CustomerDetailsPage /> },
+      { path: "/settings", element: <Settings /> },
+      { path: "/coupons", element: <CouponsPage /> },
+      { path: "/add-coupons", element: <AddCouponsPage /> },
+      { path: "/messages", element: <Messages /> },
+      { path: "/viewmessage", element: <ViewMessage /> },
+    ],
+  },
+  {
+    path: "/auth",
+    element: <LoginPage />,
+  },
+]);
 function App() {
   return (
     <PageContextProvider>
       <RouterProvider router={router} />
     </PageContextProvider>
-
-
-
   );
 }
 

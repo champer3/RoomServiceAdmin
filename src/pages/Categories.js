@@ -237,7 +237,6 @@ export default function CategoriesPage() {
                     </tr>
                 </tbody>
             </table>
-            <div className='bg-[#F9F9FC] w-full h-[500px]' />
         </div>
 
     )
