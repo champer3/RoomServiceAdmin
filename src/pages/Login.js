@@ -1,20 +1,47 @@
 import React, { useRef } from "react";
+import axios from 'axios';
+import { initializeSocket } from '../socketService'
 
 const LoginPage = () => {
-  const usernameRef = useRef();
+  const emailRef = useRef();
   const passwordRef = useRef();
 
-  const changeHandler = () => {};
+  const changeHandler = () => { };
 
-  const touchHandler = () => {};
+  const touchHandler = () => { };
 
   // The data from the form is collected here
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const username = usernameRef.current.value;
+
+    const email = emailRef.current.value;
     const password = passwordRef.current.value;
 
-    console.log([username, password]);
+    const postData = {
+      email,
+      password,
+    };
+
+    try {
+      const response = await axios.post(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/login`,
+        JSON.stringify(postData),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const authToken = response.data.token;
+
+      localStorage.setItem('token', authToken)
+
+      initializeSocket(authToken)
+    } catch (err) {
+      console.error('Login failed:', err.response ? err.response.data : err.message);
+    }
+
+    console.log([email, password]);
   };
   return (
     <div className="bg-green-400 min-h-screen flex flex-col justify-center">
@@ -30,16 +57,16 @@ const LoginPage = () => {
             <div className="p-5">
               <label
                 className="block font-bold text-rs-green"
-                htmlFor="username"
+                htmlFor="email"
               >
-                Username
+                Email
               </label>
               <input
-                ref={usernameRef}
+                ref={emailRef}
                 className="border-0 border-b focus:bg-stone-100 focus:ring-0 focus:border-green-700 focus:text-sm focus:border-b-2 w-80"
-                id="username"
+                id="email"
                 type="text"
-                placeholder="Enter your username here"
+                placeholder="Enter your email here"
                 onChange={changeHandler}
                 onBlur={touchHandler}
               ></input>
