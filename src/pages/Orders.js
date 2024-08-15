@@ -1,8 +1,10 @@
 import moment from 'moment'
+import axios from 'axios';
 
 import { ORDER_LIST } from '../assets/data'
 import Path from '../components/Path'
 import TabButton from '../components/TabButton'
+import OrderStatus from '../components/OrderStatus'
 import TableHead from '../components/dashboard_components/TableHead'
 import { useState } from 'react'
 import OrangeLabel from '../components/StatusLabels/OrangeLabel'
@@ -32,6 +34,26 @@ function formatDate(dateObject) {
     return moment(dateObject).format("D MMM YYYY")
 }
 
+// async function updateDeliveryBackend(){
+//     try {
+//         const response = await axios.patch(
+//           `http://10.0.0.173:3000//api/v1/orders/deliver/:order`,
+//           JSON.stringify(postData),
+//           {
+//             headers: {
+//               "Content-Type": "application/json",
+//             },
+//           }
+//         );
+//         const authToken = response.data.token;
+//         console.log(authToken);
+//         await saveTokenToAsyncStorage(authToken);
+//         return response.data.data.user;
+//       } catch (err) {
+//         console.log(err.error);
+//       }
+// }
+
 
 
 
@@ -51,7 +73,7 @@ export default function OrdersPage() {
     for (let i = 1; i <= lastPage; i++) {
         arr.push(i);
     }
-   
+
 
     function handlePageClick(pageNum) {
         setCurrentPage(pageNum)
@@ -237,7 +259,7 @@ export default function OrdersPage() {
                                         <td className='pl-8 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]'>{order.customer}</td>
                                         <td className='text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]'>${formatNumberWithCommas(order.total)}</td>
                                         <td className='pl-12 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]'>{order.payment}</td>
-                                        {order.status === 'Processing' &&
+                                        {/* {order.status === 'Processing' &&
                                             <td><OrangeLabel>{order.status}</OrangeLabel></td>
                                         }
                                         {order.status === 'Delivered' &&
@@ -248,7 +270,8 @@ export default function OrdersPage() {
                                         }
                                         {order.status === 'Shipped' &&
                                             <td><BlueLabel>{order.status}</BlueLabel></td>
-                                        }
+                                        } */}
+                                        <OrderStatus order={order.status} />
                                         <td className='pl-7'>
                                             <div className='flex space-x-2'>
                                                 <button>
@@ -281,7 +304,7 @@ export default function OrdersPage() {
                             })}
                             <tr>
                                 <th colSpan={8}>
-                                <div className='rounded-b-xl w-full p-4 items-center flex'>
+                                    <div className='rounded-b-xl w-full p-4 items-center flex'>
                                         <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]'>Showing {(currentPage - 1) * itemsPerPage + 1}-{(currentPage - 1) * itemsPerPage + itemsPerPage > orderList.length ? orderList.length : (currentPage - 1) * itemsPerPage + itemsPerPage} from {orderList.length}</p>
                                         <div className='ml-auto flex space-x-2'>
                                             <button onClick={() => handlePageClick(Math.max(1, currentPage - 1))}>
