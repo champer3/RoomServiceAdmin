@@ -15,7 +15,6 @@ const OrderStatus = ({ order }) => {
 
     const updateOrder = async (orderStatus) => {
         const authToken = localStorage.getItem('token')
-        console.log("sbebjkbfkwe", authToken)
         const postData = {
             orderStatus
         }
