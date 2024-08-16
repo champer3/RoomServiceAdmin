@@ -129,7 +129,7 @@ export default function CouponsPage() {
             <div className="flex w-full items-center">
                 <div>
                     <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Coupons</p>
-                    <Path pages={[{ name: 'Dashboard', link: '' }, { name: 'Coupons', link: 'coupons' }]} />
+                    <Path pages={[{ name: 'Dashboard', link: 'dashboard' }, { name: 'Coupons', link: 'coupons' }]} />
                 </div>
                 <div className='flex ml-auto'>
                     <button className='flex border-none bg-white hover:border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>

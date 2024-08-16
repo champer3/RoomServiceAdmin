@@ -24,7 +24,7 @@ export default function SidePanel() {
                         <rect width="34" height="34" rx="10" fill="#283618" />
                     </svg> */}
                 </div>
-                <Link to={'/'} onClick={() => changePage('dashboard')}><Dashboard active={page === 'dashboard'} /></Link>
+                <Link to={'/dashboard'} onClick={() => changePage('dashboard')}><Dashboard active={page === 'dashboard'} /></Link>
                 <Link to={'/products'} onClick={() => changePage('products')}><Products active={page === 'products'} /></Link>
                 <Link to={'/categories'} onClick={() => changePage('categories')}><Categories active={page === 'categories'} /></Link>
                 <Link to={'/coupons'} onClick={() => changePage('coupons')}><Coupons active={page === 'coupons'} /></Link>

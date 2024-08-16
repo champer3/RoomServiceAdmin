@@ -20,9 +20,13 @@ import LoginPage from "./pages/Login";
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <LoginPage />,
+  },
+  {
+    path: "/",
     element: <SidePanel />,
     children: [
-      { path: "/", element: <HomePage /> },
+      // { path: "/home", element: <HomePage /> },
       { path: "/dashboard", element: <HomePage /> },
       { path: "/products", element: <ProductsPage /> },
       { path: "/add-products", element: <AddProjectsPage /> },
@@ -39,10 +43,6 @@ const router = createBrowserRouter([
       { path: "/messages", element: <Messages /> },
       { path: "/viewmessage", element: <ViewMessage /> },
     ],
-  },
-  {
-    path: "/auth",
-    element: <LoginPage />,
   },
 ]);
 function App() {

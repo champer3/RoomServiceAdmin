@@ -128,7 +128,7 @@ export default function ProductsPage() {
                 <div className='flex items-center'>
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Product</p>
-                        <Path pages={[{ name: 'Dashboard', link: '' }, { name: 'Product List', link: 'products' }]} />
+                        <Path pages={[{ name: 'Dashboard', link: 'dashboard' }, { name: 'Product List', link: 'products' }]} />
                     </div>
                     <div className='flex ml-auto'>
                         <button className='flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
@@ -196,7 +196,7 @@ export default function ProductsPage() {
                             <th className='pl- w-[100px]'><TableHead heading={'Stock'} active={activeColumn === 'stock'} canOrder={true} ascend={() => handleAscendingSort('stock')} descend={() => handleDescendingSort('stock')} /></th>
                             <th className='pl-6 w-[100px]'><TableHead heading={'Price'} active={activeColumn === 'price'} canOrder={true} ascend={() => handleAscendingSort('price')} descend={() => handleDescendingSort('price')} /></th>
                             <th className='pl-12 w-[100px]'><TableHead heading={'Status'} active={activeColumn === 'status'} canOrder={true} ascend={() => handleAscendingSort('status')} descend={() => handleDescendingSort('status')} /></th>
-                            <th className='pl-10 w-[50px]'><TableHead heading={'Added'} active={activeColumn === 'dateAdded'} canOrder={true} ascend={() => handleAscendingSort('dateAdded')} descend={() => handleDescendingSort('dateAdded')} /></th>
+                            <th className='pl-5 w-[70px]'><TableHead heading={'Added'} active={activeColumn === 'dateAdded'} canOrder={true} ascend={() => handleAscendingSort('dateAdded')} descend={() => handleDescendingSort('dateAdded')} /></th>
                         </tr>
                         <tbody>
                             {shownItems.map((product) => {
@@ -244,7 +244,7 @@ export default function ProductsPage() {
                                             {product.status === 'Draft' && <GreyLabel>{product.status}</GreyLabel>}
 
                                         </td>
-                                        <td className='pl-10'>
+                                        <td className='pl-4 '>
                                             <p className='font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]'>{formatDate(product.dateAdded)}</p>
                                         </td>
                                     </tr>

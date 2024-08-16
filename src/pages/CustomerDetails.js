@@ -32,7 +32,7 @@ export default function CustomerDetailsPage() {
             {changePage('customers')}
             <div className="w-full">
                 <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Customer Details</p>
-                <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Customer List', link: 'customers'}, {name: 'Customer Details', link: 'customer-details'}]} />
+                <Path pages={[{name: 'Dashboard', link: 'dashboard'}, {name: 'Customer List', link: 'customers'}, {name: 'Customer Details', link: 'customer-details'}]} />
             </div>
             <div className="mt-4 p-3 flex">
                 <div className="bg-white rounded-lg p-5">

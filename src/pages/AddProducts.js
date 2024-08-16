@@ -30,7 +30,7 @@ export default function AddProjectsPage() {
                 <div className="flex items-center">
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Add Product</p>
-                        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Product List', link: 'products'}, {name: 'Add Product', link: 'add-products'}]} />
+                        <Path pages={[{name: 'Dashboard', link: 'dashboard'}, {name: 'Product List', link: 'products'}, {name: 'Add Product', link: 'add-products'}]} />
                     </div>
                     <div className='flex ml-auto'>
                         <Link to={'/products'}>
