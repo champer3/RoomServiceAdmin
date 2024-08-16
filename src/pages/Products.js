@@ -28,6 +28,25 @@ function formatDate(dateObject) {
     return moment(dateObject).format("D MMM YYYY")
 }
 
+// With this function you can access all the products in the database
+// Todo: We need to implement something in the backend that only sends out 20 products at a time, for buffer reasons
+const getAllProducts = async () => {
+    try {
+        const products = await axios.get(
+            `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        return products
+    } catch (err) {
+        console.log(err)
+    }
+}
+
 export default function ProductsPage() {
     const itemsPerPage = 10
     const [activePage, setActivePage] = useState('all')

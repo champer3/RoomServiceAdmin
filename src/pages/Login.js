@@ -1,4 +1,6 @@
 import React, { useRef, useState } from "react";
+import axios from 'axios';
+import { initializeSocket } from '../socketService'
 
 const validate = (data) => {
   return String(data)
@@ -9,28 +11,45 @@ const validate = (data) => {
 };
 
 const LoginPage = () => {
-  const [usernameIsValid, setUsernameIsValid] = useState(false);
-  const [passwordIsValid, setPasswordIsValid] = useState(false);
   const usernameRef = useRef();
   const passwordRef = useRef();
 
-  const changeInputHandler = (event) => {
-    const isValid = validate(event.target.value) ? true : false;
-    setUsernameIsValid(isValid);
-  };
+  const changeHandler = () => {};
 
-  const changePasswordHandler = (event) => {
-    const isValid = passwordRef.current.value.length < 6 ? false : true;
-    setPasswordIsValid(isValid);
-  };
+  const touchHandler = () => {};
 
   // The data from the form is collected here
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const username = usernameRef.current.value;
+
+    const email = emailRef.current.value;
     const password = passwordRef.current.value;
 
-    console.log([username, password]);
+    const postData = {
+      email,
+      password,
+    };
+
+    try {
+      const response = await axios.post(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/login`,
+        JSON.stringify(postData),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const authToken = response.data.token;
+
+      localStorage.setItem('token', authToken)
+
+      initializeSocket(authToken)
+    } catch (err) {
+      console.error('Login failed:', err.response ? err.response.data : err.message);
+    }
+
+    console.log([email, password]);
   };
   return (
     <div className="bg-green-400 min-h-screen flex flex-col justify-center">
@@ -46,37 +65,19 @@ const LoginPage = () => {
             <div className="p-5">
               <label
                 className="block font-bold text-rs-green"
-                htmlFor="username"
+                htmlFor="email"
               >
-                Username
+                Email
               </label>
-              <div className="relative">
-                <span className="absolute inset-y-2 left-0">
-                  <svg
-                    className="w-6 h-6 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-width="2"
-                      d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                    />
-                  </svg>
-                </span>
-                <input
-                  ref={usernameRef}
-                  className="pl-7 pr-10 py-2 border-0 border-b focus:bg-stone-100 focus:ring-0 focus:border-green-700 focus:text-sm focus:border-b-2 w-80"
-                  id="username"
-                  type="text"
-                  placeholder="Enter your username here"
-                  onChange={changeInputHandler}
-                ></input>
-              </div>
+              <input
+                ref={usernameRef}
+                className="border-0 border-b focus:bg-stone-100 focus:ring-0 focus:border-green-700 focus:text-sm focus:border-b-2 w-80"
+                id="username"
+                type="text"
+                placeholder="Enter your username here"
+                onChange={changeHandler}
+                onBlur={touchHandler}
+              ></input>
             </div>
             <div className="p-5">
               <label

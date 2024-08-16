@@ -34,6 +34,26 @@ function formatDate(dateObject) {
     return moment(dateObject).format("D MMM YYYY")
 }
 
+// With this function you can access all the orders in the database
+// Todo: We need to implement something in the backend that only sends out 20 orders at a time, for buffer reasons
+const getAllOrders = async () => {
+    const authToken = localStorage.getItem('token')
+    try {
+        const orders = await axios.get(
+            `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                },
+            }
+        );
+        return orders
+    } catch (err) {
+        console.log(err)
+    }
+}
+
 // async function updateDeliveryBackend(){
 //     try {
 //         const response = await axios.patch(

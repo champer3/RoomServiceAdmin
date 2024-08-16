@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 
 const OrderStatus = ({ order }) => {
     const [selectedStatus, setSelectedStatus] = useState('Processing');
@@ -12,9 +13,34 @@ const OrderStatus = ({ order }) => {
         { label: 'Shipped', value: 'Shipped', color: 'bg-[#EAF8FF]' },
     ];
 
+    const updateOrder = async (orderStatus) => {
+        const authToken = localStorage.getItem('token')
+        const postData = {
+            orderStatus
+        }
+        try{
+            await axios.patch(
+                // `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/login`,
+                `http://10.0.0.173:3000/api/v1/orders/deliver/66bb745d2b976142fbfa3f2e`, // THIS IS A PLACE HOLDER API call
+                JSON.stringify(postData),
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                  },
+                }
+              );
+        } catch (err){
+            console.log(err)
+        }
+        
+    }
+
     const handleSelect = (option) => {
+        console.log(option.value)
         setSelectedStatus(option.value);
         setIsOpen(false);
+        updateOrder(option.value)
     };
 
     const handleClickOutside = (event) => {

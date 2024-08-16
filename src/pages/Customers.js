@@ -7,6 +7,27 @@ import { CUSTOMER_LIST } from "../assets/data"
 import CustomerInfoCard from "../components/customer_components/CustomerInfoCard"
 import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton"
 import { PageContext } from "../context/PageContext"
+
+// With this function you can access all the Users in the database
+// Todo: We need to implement something in the backend that only sends out 20 Users at a time, for buffer reasons
+const getAllUsers = async () => {
+    const authToken = localStorage.getItem('token')
+    try {
+        const users = await axios.get(
+            `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                },
+            }
+        );
+        return users
+    } catch (err) {
+        console.log(err)
+    }
+}
+
 export default function CustomersPage() {
     const [activePage, setActivePage] = useState('all')
     const [currentPage, setCurrentPage] = useState(1)
