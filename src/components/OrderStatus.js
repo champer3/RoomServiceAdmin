@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 const OrderStatus = ({ order }) => {
-    const [selectedStatus, setSelectedStatus] = useState('Processing');
+    const [selectedStatus, setSelectedStatus] = useState(order);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -11,6 +11,7 @@ const OrderStatus = ({ order }) => {
         { label: 'Delivered', value: 'Delivered', color: 'bg-[#039F0330]' },
         { label: 'Canceled', value: 'Canceled', color: 'bg-[#FEECEE]' },
         { label: 'Shipped', value: 'Shipped', color: 'bg-[#EAF8FF]' },
+        { label: 'Ready', value: 'Ready', color: 'bg-[#CDEBFF]' },
     ];
 
     const updateOrder = async (orderStatus) => {
@@ -37,6 +38,7 @@ const OrderStatus = ({ order }) => {
     }
 
     const handleSelect = (option) => {
+        console.log(order)
         console.log(option.value)
         setSelectedStatus(option.value);
         setIsOpen(false);
@@ -70,6 +72,7 @@ const OrderStatus = ({ order }) => {
                     onClick={() => setIsOpen(!isOpen)}
                 >
                     {selectedStatus}
+                    {console.log(selectedStatus)}
                     <i className="fas fa-chevron-down ml-2"></i> {/* Font Awesome icon */}
                 </button>
                 {isOpen && (

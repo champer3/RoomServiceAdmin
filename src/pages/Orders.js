@@ -440,7 +440,7 @@ export default function OrdersPage() {
                             )}
                           </td>
                           <td className="pl-6 text-[14px] text-[#BC6C25] font-semibold leading-[20px] tracking-[0.005em]">
-                            {order.id.slice(0, 4)}
+                            {order.id.slice(-4)}
                           </td>
                           <td className="">
                             <TableProductListing
