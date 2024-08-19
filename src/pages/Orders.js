@@ -95,7 +95,13 @@ export default function OrdersPage() {
   // const [shownItems, setShownItems] = useState(
 
   // );
-
+  console.log(
+    orderList &&
+      orderList.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      )
+  );
   const lastPage = orderList
     ? orderList.length % itemsPerPage === 0
       ? orderList.length / itemsPerPage
@@ -178,7 +184,7 @@ export default function OrdersPage() {
       return prevState.filter((item) => item !== row);
     });
   }
-  console.log(orderList);
+  // orderList && orderList.map((order) => console.log(order.orderStatus));
   return (
     <>
       {!orderList && <p>Loading</p>}
@@ -377,9 +383,10 @@ export default function OrdersPage() {
                       (currentPage - 1) * itemsPerPage,
                       currentPage * itemsPerPage
                     )
-                    .map((order) => {
+                    .map((order, index) => {
                       return (
                         <tr
+                          key={index}
                           className={`${
                             selectedRows.indexOf(order.id) !== -1
                               ? "bg-stone-100"
@@ -461,50 +468,9 @@ export default function OrdersPage() {
                           <td className="pl-12 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
                             {order.payment}
                           </td>
-                          {/* {order.status === 'Processing' &&
-                                            <td><OrangeLabel>{order.status}</OrangeLabel></td>
-                                        }
-                                        {order.status === 'Delivered' &&
-                                            <td><GreenLabel>{order.status}</GreenLabel></td>
-                                        }
-                                        {order.status === 'Canceled' &&
-                                            <td><RedLabel>{order.status}</RedLabel></td>
-                                        }
-                                        {order.status === 'Shipped' &&
-                                            <td><BlueLabel>{order.status}</BlueLabel></td>
-                                        } */}
-                          <OrderStatus order={order.orderStatus} />
+                          <OrderStatus status={order.orderStatus} />
                           <td className="pl-10">
                             <div className="flex space-x-2">
-                              {/* <button>
-                                <svg
-                                  width="16"
-                                  height="16"
-                                  viewBox="0 0 16 16"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <g clip-path="url(#clip0_736_4025)">
-                                    <path
-                                      d="M0.781333 12.7457C0.281202 13.2456 0.000151033 13.9238 0 14.631L0 15.9997H1.36867C2.07585 15.9995 2.75402 15.7185 3.254 15.2183L12.1493 6.323L9.67667 3.85034L0.781333 12.7457Z"
-                                      fill="#A3A9B6"
-                                    />
-                                    <path
-                                      d="M15.4299 0.569995C15.2675 0.407485 15.0747 0.278565 14.8626 0.190606C14.6504 0.102647 14.4229 0.057373 14.1932 0.057373C13.9635 0.057373 13.736 0.102647 13.5239 0.190606C13.3117 0.278565 13.1189 0.407485 12.9565 0.569995L10.6192 2.90799L13.0919 5.38066L15.4299 3.04333C15.5924 2.88099 15.7213 2.68821 15.8093 2.47601C15.8972 2.26382 15.9425 2.03637 15.9425 1.80666C15.9425 1.57696 15.8972 1.34951 15.8093 1.13731C15.7213 0.925114 15.5924 0.732335 15.4299 0.569995Z"
-                                      fill="#A3A9B6"
-                                    />
-                                  </g>
-                                  <defs>
-                                    <clipPath id="clip0_736_4025">
-                                      <rect
-                                        width="16"
-                                        height="16"
-                                        fill="white"
-                                      />
-                                    </clipPath>
-                                  </defs>
-                                </svg>
-                              </button> */}
                               <Link
                                 to={"/order-details"}
                                 onClick={() => {
