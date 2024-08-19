@@ -12,6 +12,7 @@ import TableProductListing from "../components/dashboard_components/TableProduct
 import moment from "moment"
 import { PageContext } from "../context/PageContext"
 
+
 export default function CustomerDetailsPage() {
     const {changePage} = useContext(PageContext)
 

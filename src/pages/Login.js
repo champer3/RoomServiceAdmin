@@ -1,6 +1,8 @@
-import React, { useRef, useState } from "react";
-import axios from 'axios';
-import { initializeSocket } from '../socketService'
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { initializeSocket } from "../socketService";
+// import { PageContext } from "../context/PageContext";
 
 const validate = (data) => {
   return String(data)
@@ -11,12 +13,19 @@ const validate = (data) => {
 };
 
 const LoginPage = () => {
-  const usernameRef = useRef();
+  const [emailIsValid, setEmailIsValid] = useState(false);
+  const [passwordIsValid, setPasswordIsValid] = useState(false);
+  const emailRef = useRef();
   const passwordRef = useRef();
-
-  const changeHandler = () => {};
-
-  const touchHandler = () => {};
+  const navigate = useNavigate();
+  const changeEmailHandler = (event) => {
+    const isValid = validate(event.target.value);
+    setEmailIsValid(isValid);
+  };
+  const changePasswordHandler = (event) => {
+    const isValid = event.target.value.length < 6 ? false : true;
+    setPasswordIsValid(isValid);
+  };
 
   // The data from the form is collected here
   const handleSubmit = async (event) => {
@@ -42,15 +51,25 @@ const LoginPage = () => {
       );
       const authToken = response.data.token;
 
-      localStorage.setItem('token', authToken)
+      localStorage.setItem("token", authToken);
 
-      initializeSocket(authToken)
+      initializeSocket(authToken);
+      if (authToken) {
+        navigate("/dashboard/");
+      }
     } catch (err) {
-      console.error('Login failed:', err.response ? err.response.data : err.message);
+      console.error(
+        "Login failed:",
+        err.response ? err.response.data : err.message
+      );
     }
 
     console.log([email, password]);
   };
+
+  useEffect(()=>{
+    localStorage.setItem("token", "");
+  },[])
   return (
     <div className="bg-green-400 min-h-screen flex flex-col justify-center">
       <h1 className="text-center text-4xl font-bold mb-5">
@@ -63,21 +82,36 @@ const LoginPage = () => {
         >
           <div className="p-3">
             <div className="p-5">
-              <label
-                className="block font-bold text-rs-green"
-                htmlFor="email"
-              >
+              <label className="block font-bold text-rs-green" htmlFor="email">
                 Email
               </label>
-              <input
-                ref={usernameRef}
-                className="border-0 border-b focus:bg-stone-100 focus:ring-0 focus:border-green-700 focus:text-sm focus:border-b-2 w-80"
-                id="username"
-                type="text"
-                placeholder="Enter your username here"
-                onChange={changeHandler}
-                onBlur={touchHandler}
-              ></input>
+              <div className="relative">
+                <span className="absolute inset-y-2 left-0 focus:-translate-y-1">
+                  <svg
+                    class="w-6 h-6 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-width="2"
+                      d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                    />
+                  </svg>
+                </span>
+                <input
+                  ref={emailRef}
+                  className="pl-7 pr-10 py-2 border-0 border-b focus:bg-stone-100 focus:ring-0 focus:border-green-700 focus:text-sm focus:border-b-2 w-80"
+                  id="username"
+                  type="text"
+                  placeholder="Enter your email here"
+                  onChange={changeEmailHandler}
+                ></input>
+              </div>
             </div>
             <div className="p-5">
               <label
@@ -120,9 +154,9 @@ const LoginPage = () => {
           <div className="flex justify-center">
             <button
               type="submit"
-              disabled={!usernameIsValid || !passwordIsValid}
+              disabled={!emailIsValid || !passwordIsValid}
               className={`${
-                !usernameIsValid || !passwordIsValid
+                !emailIsValid || !passwordIsValid
                   ? ""
                   : "transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110"
               } border border-4 border-green-600 bg-green-600 w-40  rounded-full  p-1 text-white font-[700] text-lg hover:text-white hover:bg-green-900 hover:border-green-900 disabled:border-stone-400 disabled:transition-none disabled:animation-none disabled:bg-stone-400 disabled:text-white`}
