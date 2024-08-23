@@ -6,7 +6,7 @@ import Coupons from '../components/Sidepanel/Coupons'
 import Orders from '../components/Sidepanel/Orders'
 import Customers from '../components/Sidepanel/Customers'
 import TopBar from '../components/TopBar';
-import Logo from '../assets/Logo.png'
+import Logo from '../assets/Logo.jpg'
 import { PageContext } from "../context/PageContext";
 
 import { Link } from "react-router-dom"
@@ -18,8 +18,8 @@ export default function SidePanel() {
     return (
         <div className='flex h-full min-w-fit bg-[#F9F9FC]'>
             <div className='bg-white w-[264px]'>
-                <div className="flex space-x-2 px-[24px] py-[20px] items-center ">
-                    <img src={Logo} className="w-[60px] h-[45px]"></img>
+                <div className="flex space-x-2 px-[24px] py-[5px] items-center ">
+                    <img src={Logo} className="w-full h-[90px]"></img>
                     {/* <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="34" height="34" rx="10" fill="#283618" />
                     </svg> */}
