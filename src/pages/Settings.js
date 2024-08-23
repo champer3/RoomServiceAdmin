@@ -12,7 +12,7 @@ function Settings() {
         <h1 className='font-black text-[20px] leading-[30px] tracking-[0.01em] text-[#333333]'>Settings</h1>
       </div>
       <div className='my-3 space-x-8 w-full flex justify-between items-center'>
-        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Settings', link: 'settings'}]} />
+        <Path pages={[{name: 'Dashboard', link: 'dashboard'}, {name: 'Settings', link: 'settings'}]} />
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M13.3333 17.5V15.8333C13.3333 14.2617 13.3333 13.4767 12.845 12.9883C12.3566 12.5 11.5716 12.5 9.99998 12.5H9.16665C7.59498 12.5 6.80998 12.5 6.32165 12.9883C5.83331 13.4767 5.83331 14.2617 5.83331 15.8333V17.5" stroke="white" />
           <path d="M5.83331 6.6665H9.99998" stroke="white" stroke-linecap="round" />

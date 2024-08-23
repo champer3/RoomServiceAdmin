@@ -499,108 +499,152 @@ export const PRODUCT_LIST = [
     },
 ]
 const initialSKU = 302012
-for (let i = 0; i < PRODUCT_LIST.length; i++){
+for (let i = 0; i < PRODUCT_LIST.length; i++) {
     PRODUCT_LIST[i].SKU = initialSKU + i
 }
 
 export const CATEGORIES_LIST = [
     {
+        id: 1,
         image: snacksImg,
+        imageURL: '../assets/snacks.png',
         name: 'Snacks',
         sold: 12100,
         stock: 10,
         dateAdded: new Date(2022, 11, 29),
+        description: "This covers various snacks like chocolate chips, sweets, etc.",
+
     },
     {
+        id: 2,
         image: foodImg,
+        imageURL: '../assets/food.png',
         name: 'Food',
         sold: 59000,
         stock: 204,
         dateAdded: new Date(2022, 11, 24),
+        description: "This covers various food items like rice, potatoes, etc.",
     },
+//     
     {
+        id: 3,
         image: healthImg,
+        imageURL: '../assets/health.png',
         name: 'Health',
         sold: 12500,
         stock: 48,
         dateAdded: new Date(2022, 11, 12),
+        description: "This covers various health items and utilities like herbal tea, multivitamins, etc.",
     },
     {
+        id: 4,
         image: homeImg,
+        imageURL: '../assets/home.png',
         name: 'Home',
         sold: 34800,
         stock: 401,
         dateAdded: new Date(2022, 9, 21),
+        description: "This covers various home goods and appliances like extension cables, cutlery, curtains, etc.",
     },
     {
+        id: 5,
         image: groceriesImg,
+        imageURL: '../assets/groceries.png',
         name: 'Fresh Groceries',
         sold: 60700,
         stock: 120,
         dateAdded: new Date(2022, 9, 21),
+        description: "This covers fresh foods like fruits, vegetables, etc.",
     },
     {
+        id: 6,
         image: iceCreamCategoryImg,
+        imageURL: '../assets/ice cream.png',
         name: 'Ice Cream',
         sold: 23400,
         stock: 432,
         dateAdded: new Date(2022, 9, 21),
+        description: "This covers ice cream products like Ben & Jerry's, Haagen-Dazs, etc.",
     },
     {
+        id: 7,
         image: alcoholImg,
+        imageURL: '../assets/aclohol.png',
         name: 'Alcohol',
         sold: 76000,
         stock: 0,
         dateAdded: new Date(2022, 8, 19),
+        description: "This covers various alcoholic drinks like wine, whiskey, etc.",
     },
     {
+        id: 8,
         image: drinksImg,
+        imageURL: '../assets/drinks.png',
         name: 'Drinks',
         sold: 400,
         stock: 347,
         dateAdded: new Date(2022, 8, 19),
+        description: "This covers various drinks (non-alcoholic)  like soda, fruit juice, etc.",
     },
     {
+        id: 9,
         image: healthImg,
+        imageURL: '../assets/health.png',
         name: 'HealthA',
         sold: 12500,
         stock: 48,
         dateAdded: new Date(2022, 11, 12),
+        description: "This is a dummy category",
     },
     {
+        id: 10,
         image: homeImg,
+        imageURL: '../assets/home.png',
         name: 'HomeB',
         sold: 34800,
         stock: 401,
         dateAdded: new Date(2022, 9, 21),
+        description: "This is a dummy category",
     },
     {
+        id: 11,
         image: groceriesImg,
+        imageURL: '../assets/groceries.png',
         name: 'Fresh GroceriesC',
         sold: 60700,
         stock: 120,
         dateAdded: new Date(2022, 9, 21),
+        description: "This is a dummy category",
     },
     {
+        id: 12,
         image: iceCreamCategoryImg,
+        imageURL: '../assets/ice cream.png',
         name: 'Ice CreamD',
         sold: 23400,
         stock: 432,
         dateAdded: new Date(2022, 9, 21),
+        description: "This is a dummy category",
     },
     {
+        id: 13,
         image: alcoholImg,
+        imageURL: '../assets/alcohol.png',
         name: 'AlcoholE',
         sold: 76000,
         stock: 0,
         dateAdded: new Date(2022, 8, 19),
+        description: "This is a dummy category",
     },
     {
+        id: 14,
         image: drinksImg,
+        imageURL: '../assets/drinks.png',
         name: 'DrinksF',
         sold: 400,
         stock: 347,
         dateAdded: new Date(2022, 8, 19),
+        description: "This is a dummy category",
     },
 ]
 
@@ -1538,7 +1582,7 @@ export const ORDER_LIST = [
     },
 ]
 
-for (let i = 0; i < ORDER_LIST.length; i++){
+for (let i = 0; i < ORDER_LIST.length; i++) {
     ORDER_LIST[i].ID = initialSKU + i
 }
 

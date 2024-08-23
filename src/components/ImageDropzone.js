@@ -1,19 +1,48 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useContext, useState, } from 'react'
 import { useDropzone } from 'react-dropzone'
+import { PageContext } from '../context/PageContext'
+
 
 const styling = 'w-full rounded-lg border border-dashed border-2 border-[#F0F1F3] bg-[#F9F9FC] py-[24px] px-[12px]'
-export default function ImageDropzone({ label, description }) {
-    const [file, setFile] = useState(null)
+export default function ImageDropzone({ description, image }) {
+    const [initialImageRendered, setInitialImageRendered] = useState(false)
+    const { category, file, changeFile } = useContext(PageContext)
+    const initialFile = {
+        name: file ? file.name:category.imageURL.split('/').pop(),
+        type: 'image/*',
+    }
+
+    if (!initialImageRendered) {
+        changeFile(initialFile)
+        setInitialImageRendered(true)
+    }
+
+
+
+
     const onDrop = useCallback(acceptedFiles => {
         if (acceptedFiles?.length) {
-            setFile(Object.assign(acceptedFiles[0], { preview: URL.createObjectURL(acceptedFiles[0]) })); // Create preview URL
+            changeFile(Object.assign(acceptedFiles[0], { preview: URL.createObjectURL(acceptedFiles[0]) })); // Create preview URL
         }
-    }, [])
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: 'image/*', multiple: false })
+    }, [changeFile])
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop,
+        accept: 'image/*',
+        multiple: false,
+    })
     function removeFile() {
         URL.revokeObjectURL(file.preview)
-        setFile(null)
+        changeFile(null)
+
     }
+
+
+
+
+
+
+
+
 
     return (<>
         <div {...getRootProps({
@@ -45,7 +74,7 @@ export default function ImageDropzone({ label, description }) {
                     {file &&
                         <>
                             <div class="relative ml-auto bg-[#E0E2E7] rounded-lg px-2 py-2 mr-auto w-[100px]">
-                                <img className='ml-auto mr-auto object-cover' src={file.preview} alt='' />
+                                <img className='ml-auto mr-auto object-cover' src={file.preview ? file.preview : image ? image : ""} alt='' />
                                 <span className="absolute top-0 right-0 transform -translate-y-[10px]">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <rect width="24" height="24" rx="12" fill="#D3F4EF" />

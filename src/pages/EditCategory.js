@@ -3,15 +3,60 @@ import Input from "../components/Input"
 import TextArea from "../components/TextArea"
 import ImageDropzone from "../components/ImageDropzone"
 import { Link } from "react-router-dom"
+import { PageContext } from "../context/PageContext"
+import { useContext, useRef, useState } from "react"
 
 export default function EditCategoryPage() {
+    const [isDisabled, setIsDisabled] = useState(false)
+    const inputRef = useRef(null)
+    const textAreaRef = useRef(null)
+    const { category, file, updateCategory } = useContext(PageContext)
+    // console.log(file)
+    // console.log(category.id)
+
+    // console.log(category)
+    const [inputValue, setInputValue] = useState({
+        name: category.name,
+        description: category.description,
+    })
+
+
+
+
+
+    const handleInputChange = () => {
+        const newName = inputRef.current.value; // Get the current value from the input
+        const newDescription = textAreaRef.current.value; // Get the current value from the input
+        setIsDisabled(newDescription === '' || newName === '')
+        setInputValue({ name: newName, description: newDescription })
+
+    };
+
+
+
+    function handleSaveChanges() {
+        if (file.path) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64Image = event.target.result; // Base64 encoded image data
+                updateCategory(category.id, base64Image, inputValue.name, inputValue.description);
+            };
+            reader.readAsDataURL(file); // Read the file as data URL (base64)
+        }
+        else {
+            updateCategory(category.id, category.image, inputValue.name, inputValue.description);
+        }
+
+
+    }
+
     return (
         <div className="">
             <div className="ml-4">
                 <div className="flex items-center">
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Edit Category</p>
-                        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Categories', link: 'categories'}, {name: 'Edit Category', link: 'edit-category'}]} />
+                        <Path pages={[{ name: 'Dashboard', link: 'dashboard' }, { name: 'Categories', link: 'categories' }, { name: 'Edit Category', link: 'edit-category' }]} />
                     </div>
                     <div className='flex ml-auto'>
                         <Link to={'/categories'}>
@@ -26,26 +71,28 @@ export default function EditCategoryPage() {
                                         </clipPath>
                                     </defs>
                                 </svg>
-
-                                Cancel
+                                Return
                             </button>
                         </Link>
-                        <button className='flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_578_3728)">
-                                    <path d="M10.0001 12.6667C10.7365 12.6667 11.3334 12.0697 11.3334 11.3333C11.3334 10.597 10.7365 10 10.0001 10C9.26371 10 8.66675 10.597 8.66675 11.3333C8.66675 12.0697 9.26371 12.6667 10.0001 12.6667Z" fill="white" />
-                                    <path d="M17.024 4.748L15.252 2.976C15.0747 2.80147 14.8783 2.64741 14.6667 2.51666V4C14.6644 5.84003 13.1733 7.33113 11.3333 7.33334H8.66666C6.82662 7.33113 5.33553 5.84003 5.33334 4V2C3.49331 2.00222 2.00222 3.49331 2 5.33334V14.6667C2.00222 16.5067 3.49331 17.9978 5.33334 18H14.6667C16.5067 17.9978 17.9978 16.5067 18 14.6667V7.10469C18.0025 6.22028 17.651 5.37166 17.024 4.748ZM10 14C8.52725 14 7.33334 12.8061 7.33334 11.3333C7.33334 9.86059 8.52725 8.66669 10 8.66669C11.4727 8.66669 12.6667 9.86059 12.6667 11.3333C12.6667 12.8061 11.4727 14 10 14Z" fill="white" />
-                                    <path d="M8.66675 5.99997H11.3334C12.438 5.99997 13.3334 5.10453 13.3334 3.99997V2.04266C13.1885 2.01903 13.0421 2.00478 12.8954 2H6.66675V4C6.66675 5.10453 7.56218 5.99997 8.66675 5.99997Z" fill="white" />
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_578_3728">
-                                        <rect width="16" height="16" fill="white" transform="translate(2 2)" />
-                                    </clipPath>
-                                </defs>
-                            </svg>
+                        
+                            <button onClick={handleSaveChanges} disabled={isDisabled || !file} className='flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em] disabled:bg-stone-200 disabled:text-white'>
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g clip-path="url(#clip0_578_3728)">
+                                        <path d="M10.0001 12.6667C10.7365 12.6667 11.3334 12.0697 11.3334 11.3333C11.3334 10.597 10.7365 10 10.0001 10C9.26371 10 8.66675 10.597 8.66675 11.3333C8.66675 12.0697 9.26371 12.6667 10.0001 12.6667Z" fill="white" />
+                                        <path d="M17.024 4.748L15.252 2.976C15.0747 2.80147 14.8783 2.64741 14.6667 2.51666V4C14.6644 5.84003 13.1733 7.33113 11.3333 7.33334H8.66666C6.82662 7.33113 5.33553 5.84003 5.33334 4V2C3.49331 2.00222 2.00222 3.49331 2 5.33334V14.6667C2.00222 16.5067 3.49331 17.9978 5.33334 18H14.6667C16.5067 17.9978 17.9978 16.5067 18 14.6667V7.10469C18.0025 6.22028 17.651 5.37166 17.024 4.748ZM10 14C8.52725 14 7.33334 12.8061 7.33334 11.3333C7.33334 9.86059 8.52725 8.66669 10 8.66669C11.4727 8.66669 12.6667 9.86059 12.6667 11.3333C12.6667 12.8061 11.4727 14 10 14Z" fill="white" />
+                                        <path d="M8.66675 5.99997H11.3334C12.438 5.99997 13.3334 5.10453 13.3334 3.99997V2.04266C13.1885 2.01903 13.0421 2.00478 12.8954 2H6.66675V4C6.66675 5.10453 7.56218 5.99997 8.66675 5.99997Z" fill="white" />
+                                    </g>
+                                    <defs>
+                                        <clipPath id="clip0_578_3728">
+                                            <rect width="16" height="16" fill="white" transform="translate(2 2)" />
+                                        </clipPath>
+                                    </defs>
+                                </svg>
 
-                            <p className='ml-2'>Save Category</p>
-                        </button>
+                                <p className='ml-2'>Save Category</p>
+                            </button>
+                        
+
                     </div>
                 </div>
             </div>
@@ -54,15 +101,15 @@ export default function EditCategoryPage() {
                     <div className="mt-8 rounded-xl bg-white p-4">
                         <p className="mb-3 font-bold text-[18px] leading-[28px] tracking-[0.01em] text-[#333333]">Thumbnail</p>
                         <p className="font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#777980]">Photo</p>
-                        <ImageDropzone description={'Drag and drop image here, or click add image'} />
+                        <ImageDropzone description={'Drag and drop image here, or click add image'} image={category.image} />
                     </div>
                 </div>
                 <div className="w-[70%] p-3">
                     <div className="mt-8 rounded-xl bg-white p-4">
                         <p className="mb-3 font-bold text-[18px] leading-[28px] tracking-[0.01em] text-[#333333]">General Information</p>
-                        <Input label={'Category Name'} placeholder={'Type category name here'} />
+                        <Input ref={inputRef} label={'Category Name'} placeholder={'Type category name here'} text={category.name} onInputChange={handleInputChange} />
                         <div className="mt-3" />
-                        <TextArea label={'Description'} placeholder={'Type category description here'} />
+                        <TextArea ref={textAreaRef} label={'Description'} placeholder={'Type category description here'} text={category.description} onInputChange={handleInputChange} />
                     </div>
                 </div>
             </div>
