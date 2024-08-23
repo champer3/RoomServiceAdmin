@@ -21,12 +21,12 @@ export default function SidePanel() {
       {token.length > 0 && (
         <div className="flex h-full min-w-fit min-h-screen bg-stone-200">
           <div className="bg-white w-[264px]">
-            <div className="flex space-x-2 px-[24px] py-[20px] items-center ">
+            {/* <div className="flex space-x-2 px-[24px] py-[20px] items-center ">
               <img src={Logo} alt="RS Logo" className="w-[60px] h-[45px]"></img>
-              {/* <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="34" height="34" rx="10" fill="#283618" />
-                    </svg> */}
-            </div>
+                    </svg>
+            </div> */}
             <Link to={"/dashboard"} onClick={() => changePage("dashboard")}>
               <Dashboard active={page === "dashboard"} />
             </Link>

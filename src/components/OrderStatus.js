@@ -5,7 +5,7 @@ import React, {
 } from "react";
 import axios from "axios";
 
-const OrderStatus = ({ status }) => {
+const OrderStatus = ({ status, id }) => {
   const [selectedChoice, setSelectedChoice] = useState();
   //   const [selectedStatus, setSelectedStatus] = useState(order);
   //   const [isOpen, setIsOpen] = useState(false);
@@ -35,8 +35,7 @@ const OrderStatus = ({ status }) => {
     };
     try {
       await axios.patch(
-        // `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/login`,
-        `http://10.0.0.173:3000/api/v1/orders/deliver/66bb745d2b976142fbfa3f2e`, // THIS IS A PLACE HOLDER API call
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/deliver/${id}`,
         JSON.stringify(postData),
         {
           headers: {
@@ -78,6 +77,7 @@ const OrderStatus = ({ status }) => {
 
   const handleSelectChange = (event) => {
     setSelectedChoice(event.target.value);
+    updateOrder(event.target.value);
   };
   //   ref={dropdownRef}
   return (

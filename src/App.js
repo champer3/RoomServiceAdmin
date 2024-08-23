@@ -17,6 +17,8 @@ import AddCouponsPage from "./pages/AddCoupons";
 import PageContextProvider from "./context/PageContext";
 import ViewMessage from "./pages/ViewMessage";
 import LoginPage from "./pages/Login";
+import { getSocket, initializeSocket } from "./socketService";
+import { useEffect, useState } from "react";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -46,6 +48,35 @@ const router = createBrowserRouter([
   },
 ]);
 function App() {
+  const token = localStorage.getItem('token')
+  if (token) {
+    initializeSocket(token)
+  }
+  // const [socket] = useState(() => getSocket())
+  const [socket, setSocket] = useState(null);
+  console.log("App component always mounted")
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      initializeSocket(token).then(() => {
+        const socketInstance = getSocket();
+        setSocket(socketInstance);
+      });
+    }
+    // }
+  }, []);
+  useEffect(() => {
+    if (socket) {
+      socket.on('order', (data) => {
+        console.log('Received message:', data);
+        // Handle global state update or perform actions
+      });
+
+      return () => {
+        socket.off('order'); // Correct the event name
+      };
+    }
+  }, [socket]);
   return (
     <PageContextProvider>
       <RouterProvider router={router} />
