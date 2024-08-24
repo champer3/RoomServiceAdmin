@@ -19,6 +19,7 @@ import ViewMessage from "./pages/ViewMessage";
 import LoginPage from "./pages/Login";
 import { getSocket, initializeSocket } from "./socketService";
 import { useEffect, useState } from "react";
+import OrderNotifications from "./pages/OrderNotifications";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
       { path: "/edit-category", element: <EditCategoryPage /> },
       { path: "/orders", element: <OrdersPage /> },
       { path: "/order-details", element: <OrderDetailsPage /> },
+      { path: "/order-notifications", element: <OrderNotifications /> },
       { path: "/customers", element: <CustomersPage /> },
       { path: "/customer-details", element: <CustomerDetailsPage /> },
       { path: "/settings", element: <Settings /> },

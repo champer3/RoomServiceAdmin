@@ -108,13 +108,13 @@ export default function OrdersPage() {
     // const [shownItems, setShownItems] = useState(
 
     // );
-    console.log(
-        orderList &&
-        orderList.slice(
-            (currentPage - 1) * itemsPerPage,
-            currentPage * itemsPerPage
-        )
-    );
+    // console.log(
+    //     orderList &&
+    //     orderList.slice(
+    //         (currentPage - 1) * itemsPerPage,
+    //         currentPage * itemsPerPage
+    //     )
+    // );
     const lastPage = orderList
         ? orderList.length % itemsPerPage === 0
             ? orderList.length / itemsPerPage
@@ -198,6 +198,7 @@ export default function OrdersPage() {
         });
     }
     // orderList && orderList.map((order) => console.log(order.orderStatus));
+    console.log(orderList)
     return (
         <>
             {!orderList && <p>Loading</p>}
@@ -478,7 +479,7 @@ export default function OrdersPage() {
                                                         ${formatNumberWithCommas(order.totalPrice)}
                                                     </td>
                                                     <td className="pl-12 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
-                                                        {order.payment}
+                                                        {order.paymentMothod}
                                                     </td>
                                                     <OrderStatus status={order.orderStatus} id={order.id} />
                                                     <td className="pl-10">
