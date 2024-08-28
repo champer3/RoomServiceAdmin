@@ -56,7 +56,7 @@ export default function OrderInfoCard({
   }
 
   return (
-    <div className="relative bg-white rounded-lg p-5 shadow-lg z-5">
+    <div className="relative bg-white rounded-lg p-5 shadow-lg w-[200px]">
       <OrderModal
         ref={modalRef}
         operation={confirmOperation}
@@ -109,42 +109,36 @@ export default function OrderInfoCard({
       </button>
       <div className="flex items-center justify-center">
         <p className="font-bold text-xl text-center text-amber-700 p-5">
-          Order {id}
+          Order {id.slice(id.length - 5, id.length)}
         </p>
         {status === "Completed" && <GreenLabel>Completed</GreenLabel>}
         {status === "Cancelled" && <RedLabel>Cancelled</RedLabel>}
         {status === "In Progress" && <OrangeLabel>In Progress</OrangeLabel>}
       </div>
       <hr className="p-2 border-dotted border-t-4 border-stone-800 " />
-      <div className="flex">
-        <div className="flex flex-col items-center justify-start p-4">
-          <p className="font-bold">Ordered by</p>
-          <p>{customer}</p>
-          <p className="mt-2 font-bold">In this order</p>
-          {orderDetails.map((order) => {
-            return <p>{order}</p>;
-          })}
-        </div>
-        <div className="border border-stone-800 h-auto mx-auto" />
-        <div className="flex flex-col items-center justify-start p-4">
-          <p className="font-bold">Total Order Price</p>
-          <p>${formatNumberWithCommas(total)}</p>
-          {status === "In Progress" && (
-            <>
-              <p className="mt-2 font-bold">Time Since Order:</p>
-              <p className="animate-pulse font-bold text-red-700 text-lg">
-                {((seconds / 3600) | 0) < 10
-                  ? `0${(seconds / 3600) | 0}h `
-                  : ` ${(seconds / 3600) | 0}h `}
-                :
-                {((seconds / 60) | 0) % 60 < 10
-                  ? ` 0${((seconds / 60) | 0) % 60}m `
-                  : ` ${((seconds / 60) | 0) % 60}m `}
-                : {seconds % 60 < 10 ? `0${seconds % 60}s` : `${seconds % 60}s`}
-              </p>
-            </>
-          )}
-        </div>
+      <div className="flex flex-col justify-center items-center">
+        <p className="font-bold">Ordered by</p>
+        <p>{customer}</p>
+        <p className="mt-2 font-bold">In this order</p>
+        <p>One Fish</p>
+        <p>Two Garri</p>
+        <p className="font-bold">Total Order Price</p>
+        <p>${total}</p>
+        {status === "Ready" && (
+          <>
+            <p className="mt-2 font-bold">Time Since Order:</p>
+            <p className="animate-pulse font-bold text-red-700 text-md">
+              {((seconds / 3600) | 0) < 10
+                ? `0${(seconds / 3600) | 0}h `
+                : ` ${(seconds / 3600) | 0}h `}
+              :
+              {((seconds / 60) | 0) % 60 < 10
+                ? ` 0${((seconds / 60) | 0) % 60}m `
+                : ` ${((seconds / 60) | 0) % 60}m `}
+              : {seconds % 60 < 10 ? `0${seconds % 60}s` : `${seconds % 60}s`}
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
