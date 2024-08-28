@@ -92,7 +92,9 @@ export default function OrdersPage() {
         const socket = getSocket()
         socket.on('order', (data) => {
             console.log('Received message:', data);
-            // Handle global state update or perform actions
+            getAllOrders()
+            .then((data) => data)
+            .then((data) => setOrderList(data.data.data.orders));
         });
 
         return () => {

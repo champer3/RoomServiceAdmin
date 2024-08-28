@@ -1,7 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 import OrderInfoCard from "../components/order_components/OrderInfoCard";
 import TabButton from "../components/TabButton";
+import { getSocket } from "../socketService";
 
+
+const getAllOrders = async () => {
+  const authToken = localStorage.getItem("token");
+  try {
+      const orders = await axios.get(
+          `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders`,
+          {
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${authToken}`,
+              },
+          }
+      );
+      return orders;
+  } catch (err) {
+      console.log(err);
+  }
+};
 
 function findIndexIn2DArray(array, id) {
   for (let i = 0; i < array.length; i++) {
@@ -27,6 +48,34 @@ const ms4 = date4.getTime();
 const ms5 = date5.getTime();
 
 const OrderNotifications = () => {
+  const [orderList, setOrderList] = useState();
+  useEffect(() => {
+      getAllOrders()
+          .then((data) => data)
+          .then((data) => {
+            const today = new Date().toISOString().split('T')[0]
+            const todayOrders = data.data.data.orders.filter(order => order.date.split('T')[0] === today);
+            return setOrderList(todayOrders)
+          });
+  }, []);
+
+  useEffect(() => {
+      const socket = getSocket()
+      socket.on('order', (data) => {
+          console.log('Received message:', data);
+          getAllOrders()
+          .then((data) => data)
+          .then((data) => {
+            const today = new Date().toISOString().split('T')[0]
+            const todayOrders = data.data.data.orders.filter(order => order.date.split('T')[0] === today);
+            return setOrderList(todayOrders)
+          });
+      });
+
+      return () => {
+          socket.off('order'); // Correct the event name
+      };
+  }, []);
   const [filter, setFilter] = useState("all");
   const [dummyData, setDummyData] = useState([
     [
