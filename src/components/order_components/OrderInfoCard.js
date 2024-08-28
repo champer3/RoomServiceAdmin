@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import GreenLabel from "../StatusLabels/GreenLabel";
 import OrangeLabel from "../StatusLabels/OrangeLabel";
 import RedLabel from "../StatusLabels/RedLabel";
+import OrderModal from "../OrderModal";
 
 export default function OrderInfoCard({
   id,
@@ -25,9 +26,12 @@ export default function OrderInfoCard({
   }
 
   const initialWaitingTime = ((Date.now() - time) / 1000) | 0;
+
   const [seconds, setSeconds] = useState(initialWaitingTime);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [confirmOperation, setConfirmOperation] = useState();
 
+  const modalRef = useRef();
   const intervalRef = useRef();
 
   useEffect(() => {
@@ -44,27 +48,50 @@ export default function OrderInfoCard({
     clearInterval(intervalRef.current);
     intervalRef.current = null;
     setIsMenuOpen(false);
-    onComplete(id, "Completed");
   };
 
+  function handleOpenModal(operation) {
+    setConfirmOperation(operation);
+    modalRef.current.showModal();
+  }
+
   return (
-    <div className="relative bg-white rounded-lg p-5 shadow-lg">
+    <div className="relative bg-white rounded-lg p-5 shadow-lg z-5">
+      <OrderModal
+        ref={modalRef}
+        operation={confirmOperation}
+        onConfirm={() => {
+          onComplete(
+            id,
+            confirmOperation === "cancel" ? "Cancelled" : "Completed"
+          );
+          setIsMenuOpen(false);
+        }}
+      />
       {isMenuOpen && (
-        <div className="absolute border border-stone-200 z-50 top-3 right-9 w-30 px-1 py-2 shadow-xl bg-stone-100 flex flex-col">
+        <div className="absolute border border-stone-200 top-3 right-9 w-30 px-1 py-2 shadow-xl bg-stone-100 flex flex-col">
           <button
-            onClick={stopTimer}
+            onClick={() => {
+              handleOpenModal("complete");
+              stopTimer();
+            }}
             className="p-1 hover:bg-stone-200 text-sm font-bold"
           >
             Complete Order
           </button>
           <button
-            onClick={() => {
-              onComplete(id, "Cancelled");
-              setIsMenuOpen(false);
-            }}
+            onClick={() => handleOpenModal("cancel")}
             className="p-1 hover:bg-stone-200 text-sm font-bold"
           >
             Cancel Order
+          </button>
+          <button
+            className="p-1 hover:bg-stone-200 text-sm font-bold"
+            onClick={() => {
+              setIsMenuOpen(false);
+            }}
+          >
+            Close Options
           </button>
         </div>
       )}
