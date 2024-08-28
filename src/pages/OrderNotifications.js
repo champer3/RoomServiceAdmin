@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import OrderInfoCard from "../components/order_components/OrderInfoCard";
+import TabButton from "../components/TabButton";
+
 
 function findIndexIn2DArray(array, id) {
   for (let i = 0; i < array.length; i++) {
@@ -25,6 +27,7 @@ const ms4 = date4.getTime();
 const ms5 = date5.getTime();
 
 const OrderNotifications = () => {
+  const [filter, setFilter] = useState("all");
   const [dummyData, setDummyData] = useState([
     [
       {
@@ -82,35 +85,67 @@ const OrderNotifications = () => {
       return newState;
     });
   };
-  console.log(dummyData);
+
   return (
-    <>
-      <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">Recent Order Activity</h1>
+    <div>
+      <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">
+        Recent Order Activity
+      </h1>
+      <div className="w-[330px] border border-[#E0E2E7] bg-white rounded-lg p-1">
+        <TabButton
+          handleSelect={() => setFilter("all")}
+          isSelected={filter === "all"}
+        >
+          All
+        </TabButton>
+        <TabButton
+          handleSelect={() => setFilter("In Progress")}
+          isSelected={filter === "In Progress"}
+        >
+          In Progress
+        </TabButton>
+        <TabButton
+          handleSelect={() => setFilter("Completed")}
+          isSelected={filter === "Completed"}
+        >
+          Completed
+        </TabButton>
+        <TabButton
+          handleSelect={() => setFilter("Cancelled")}
+          isSelected={filter === "Cancelled"}
+        >
+          Cancelled
+        </TabButton>
+      </div>
       <table className="mx-auto w-full">
         {dummyData.map((orderRow, index) => {
           return (
-            <tr key={index}>
-              {orderRow.map((order, index) => {
-                return (
-                  <td className="w-auto p-2">
-                    <OrderInfoCard
-                      key={index}
-                      id={order.id}
-                      customer={order.customer}
-                      time={order.time}
-                      status={order.status}
-                      orderDetails={order.orderDetails}
-                      total={order.total}
-                      onComplete={handleFinishOrder}
-                    />
-                  </td>
-                );
-              })}
+            <tr className="" key={index}>
+              {orderRow
+                .filter((order) => {
+                  return filter === "all" ? true : order.status === filter;
+                })
+                .map((order, index) => {
+                  return (
+                    <td className="w-auto p-2">
+                      <OrderInfoCard
+                        key={index}
+                        id={order.id}
+                        customer={order.customer}
+                        time={order.time}
+                        status={order.status}
+                        orderDetails={order.orderDetails}
+                        total={order.total}
+                        onComplete={handleFinishOrder}
+                      />
+                    </td>
+                  );
+                })}
             </tr>
           );
         })}
       </table>
-    </>
+    </div>
   );
 };
 
