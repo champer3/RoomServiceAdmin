@@ -56,25 +56,28 @@ const OrderNotifications = () => {
         const todayOrders = data.data.data.orders.filter(
           (order) => order.date.split("T")[0] === today
         );
-        return setOrderList(() => {
-          let j = 1;
-          const result = [];
-          let row = [];
-          for (let i = 0; i < todayOrders.length; i++) {
-            if (i <= j * 3 && i >= (j - 1) * 3) {
-              row.push(todayOrders[i]);
-            }
-            if (row.length === 3) {
-              result.push(row);
-              row = [];
-              j += 1;
-            }
-          }
-          if (row) {
-            result.push(row);
-          }
-          return result;
-        });
+        return setOrderList(
+          todayOrders
+          //   () => {
+          //   let j = 1;
+          //   const result = [];
+          //   let row = [];
+          //   for (let i = 0; i < todayOrders.length; i++) {
+          //     if (i <= j * 3 && i >= (j - 1) * 3) {
+          //       row.push(todayOrders[i]);
+          //     }
+          //     if (row.length === 3) {
+          //       result.push(row);
+          //       row = [];
+          //       j += 1;
+          //     }
+          //   }
+          //   if (row) {
+          //     result.push(row);
+          //   }
+          //   return result;
+          // }
+        );
       });
   }, []);
 
@@ -89,20 +92,23 @@ const OrderNotifications = () => {
           const todayOrders = data.data.data.orders.filter(
             (order) => order.date.split("T")[0] === today
           );
-          return setOrderList(() => {
-            let j = 1;
-            const result = [];
-            let row = [];
-            for (let i = 0; i < todayOrders.length; i++) {
-              if (i < j * 3 && i > (j - 1) * 3) row.push(todayOrders[i]);
-              if (row.length === 3) {
-                result.push(row);
-                row = [];
-                j += 1;
-              }
-            }
-            return result;
-          });
+          return setOrderList(
+            todayOrders
+            //   () => {
+            //   let j = 1;
+            //   const result = [];
+            //   let row = [];
+            //   for (let i = 0; i < todayOrders.length; i++) {
+            //     if (i < j * 3 && i > (j - 1) * 3) row.push(todayOrders[i]);
+            //     if (row.length === 3) {
+            //       result.push(row);
+            //       row = [];
+            //       j += 1;
+            //     }
+            //   }
+            //   return result;
+            // }
+          );
         });
     });
 
@@ -203,7 +209,25 @@ const OrderNotifications = () => {
               Cancelled
             </TabButton>
           </div>
-          <table className="mx-auto w-full">
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-5 gap-2">
+            {orderList.map((order, index) => {
+              return (
+                <div key={index}>
+                  <OrderInfoCard
+                    key={index}
+                    id={order.id}
+                    customer={order.userName}
+                    time={new Date(order.date).getTime()}
+                    status={order.orderStatus}
+                    orderDetails={order.orderDetails}
+                    total={order.totalPrice}
+                    onComplete={handleFinishOrder}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          {/* <table className="mx-auto w-full">
             <tbody>
               {orderList.map((orderRow, index) => {
                 return (
@@ -234,7 +258,7 @@ const OrderNotifications = () => {
                 );
               })}
             </tbody>
-          </table>
+          </table> */}
         </div>
       )}
     </>
