@@ -14,6 +14,7 @@ import GreenLabel from "../components/StatusLabels/GreenLabel";
 // import GreyLabel from "../components/StatusLabels/GreyLabel";
 import { PageContext } from "../context/PageContext";
 import axios from "axios";
+import { center } from "@cloudinary/url-gen/qualifiers/textAlignment";
 
 function formatNumberWithCommas(number) {
   const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString(
@@ -26,13 +27,16 @@ function formatNumberWithCommas(number) {
 
   return formattedNumber;
 }
+function capitalizeWords(str) {
+  return str.toLowerCase().split(' ').map(word => {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+}
 
 function formatDate(dateObject) {
   return moment(dateObject).format("D MMM YYYY");
 }
 
-// With this function you can access all the products in the database
-// Todo: We need to implement something in the backend that only sends out 20 products at a time, for buffer reasons
 const getAllProducts = async () => {
   try {
     const products = await axios.get(
@@ -43,7 +47,7 @@ const getAllProducts = async () => {
         },
       }
     );
-
+    console.log(products)
     return products;
   } catch (err) {
     console.log(err);
@@ -61,22 +65,13 @@ export default function ProductsPage() {
       });
   }, [allTab]);
 
-  // console.log(allProducts);
-  // console.log(allProducts ? "Has been populated" : "Still empty");
   const itemsPerPage = 5;
   const [activePage, setActivePage] = useState("all");
   const [selectedRows, setSelectedRows] = useState([]);
   const [activeColumn, setActiveColumn] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // const [shownItems, setShownItems] = useState(
-  //   productList
-  //     ? productList.slice(
-  //         (currentPage - 1) * itemsPerPage,
-  //         currentPage * itemsPerPage
-  //       )
-  //     : null
-  // );
+
 
   const lastPage = productList
     ? productList.length % itemsPerPage === 0
@@ -125,6 +120,25 @@ export default function ProductsPage() {
       //     return [...prevList];
       //   });
     }
+  }
+  async function deleteProduct(id){
+    try {
+      const response = await axios.delete(`https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products/${id}`,
+          {
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MmY5MTQ1ZGEzYmQ3ZmUzMTU5YzU1MyIsImlhdCI6MTcyNTAzNDYxOCwiZXhwIjoxNzI1ODk4NjE4fQ.xcFoMC9joIY-ChhTZZBGsvyfGtgz-SSQxYDnMe_4kVI'}`,
+              },
+
+          });
+
+      if (response.data.status === 'success') {
+        console.log('Successfully deleted product')
+        window.location.reload();
+      }
+  } catch (error) {
+      console.error('Error deleting product:', error);
+  }
   }
 
   function handleSelectTabButton(page) {
@@ -339,6 +353,8 @@ export default function ProductsPage() {
                       descend={() => handleDescendingSort("dateAdded")}
                     />
                   </th>
+                  <th className='pl-6 w-[100px]'><TableHead heading={'Action'} /></th>
+                
                 </tr>
                 <tbody>
                   {productList
@@ -351,15 +367,15 @@ export default function ProductsPage() {
                         <tr
                           key={index}
                           className={`${
-                            selectedRows.indexOf(product.id) !== -1
+                            selectedRows.indexOf(product._id) !== -1
                               ? "bg-stone-100"
                               : ""
                           } border-b`}
                         >
                           <th className="w-[30px] pt-3">
-                            {selectedRows.indexOf(product.id) === -1 ? (
+                            {selectedRows.indexOf(product._id) === -1 ? (
                               <button
-                                onClick={() => handleIsSelected(product.id)}
+                                onClick={() => handleIsSelected(product._id)}
                                 className="ml-4"
                               >
                                 <svg
@@ -383,7 +399,7 @@ export default function ProductsPage() {
                               </button>
                             ) : (
                               <button
-                                onClick={() => handleIsRemoved(product.id)}
+                                onClick={() => handleIsRemoved(product._id)}
                                 className="ml-4"
                               >
                                 <svg
@@ -409,22 +425,22 @@ export default function ProductsPage() {
                               </button>
                             )}
                           </th>
-                          <td className="flex ml-5 py-2">
+                          <td className="flex justify-center items-center ml-5 py-2 ">
                             <img
-                              src={product.image}
+                              src={product.images ?  product.images[0] : ''}
                               alt=""
                               width={44}
                               height={44}
                             />
                             <div className="pl-2 w-[150px] items-center ">
                               <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333] text-container line-clamp-2">
-                                {product.name}
+                                {capitalizeWords(product.title)}
                               </p>
                             </div>
                           </td>
                           <td className="pl-6">
                             <p className=" font-semibold text-[14px] text-[#BC6C25] leading-[20px] tracking[0.005em]">
-                              {product.id.slice(0, 5)}
+                              {product._id.slice(0, 5)}
                             </p>
                           </td>
                           <td className=" p-0">
@@ -458,10 +474,35 @@ export default function ProductsPage() {
                               {formatDate(product.dateAdded)}
                             </p>
                           </td>
+                          <td className="pl-3">
+                                    <div className="flex space-x-2 items-center">
+                                        <Link to={`/edit-product/${product._id}`}>
+                                            <button> {/* edit*/}
+                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <g clip-path="url(#clip0_578_3577)">
+                                                        <path d="M0.781333 12.7458C0.281202 13.2458 0.000151033 13.9239 0 14.6311L0 15.9998H1.36867C2.07585 15.9996 2.75402 15.7186 3.254 15.2184L12.1493 6.32313L9.67667 3.85046L0.781333 12.7458Z" fill="#A3A9B6" />
+                                                        <path d="M15.4299 0.570117C15.2675 0.407607 15.0747 0.278687 14.8626 0.190728C14.6504 0.102769 14.4229 0.0574951 14.1932 0.0574951C13.9635 0.0574951 13.736 0.102769 13.5239 0.190728C13.3117 0.278687 13.1189 0.407607 12.9565 0.570117L10.6192 2.90812L13.0919 5.38078L15.4299 3.04345C15.5924 2.88111 15.7213 2.68833 15.8093 2.47614C15.8972 2.26394 15.9425 2.03649 15.9425 1.80678C15.9425 1.57708 15.8972 1.34963 15.8093 1.13743C15.7213 0.925236 15.5924 0.732457 15.4299 0.570117Z" fill="#A3A9B6" />
+                                                    </g>
+                                                    <defs>
+                                                        <clipPath id="clip0_578_3577">
+                                                            <rect width="16" height="16" fill="white" />
+                                                        </clipPath>
+                                                    </defs>
+                                                </svg>
+                                            </button>
+                                        </Link>
+
+                                        <button onClick={()=>deleteProduct(product._id)}> {/* delete  */}
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M14 2.66666H11.9334C11.6144 1.11572 10.2501 0.002 8.66669 0H7.33334C5.74994 0.002 4.38562 1.11572 4.06669 2.66666H2.00003C1.63184 2.66666 1.33337 2.96513 1.33337 3.33331C1.33337 3.7015 1.63184 4 2.00003 4H2.66669V12.6667C2.66891 14.5067 4.16 15.9978 6.00003 16H10C11.8401 15.9978 13.3312 14.5067 13.3334 12.6667V4H14C14.3682 4 14.6667 3.70153 14.6667 3.33334C14.6667 2.96516 14.3682 2.66666 14 2.66666ZM7.33337 11.3333C7.33337 11.7015 7.0349 12 6.66672 12C6.2985 12 6.00003 11.7015 6.00003 11.3333V7.33334C6.00003 6.96516 6.2985 6.66669 6.66669 6.66669C7.03487 6.66669 7.33334 6.96516 7.33334 7.33334V11.3333H7.33337ZM10 11.3333C10 11.7015 9.70156 12 9.33337 12C8.96519 12 8.66672 11.7015 8.66672 11.3333V7.33334C8.66672 6.96516 8.96519 6.66669 9.33337 6.66669C9.70156 6.66669 10 6.96516 10 7.33334V11.3333ZM5.44737 2.66666C5.73094 1.86819 6.48606 1.33434 7.33337 1.33331H8.66672C9.51403 1.33434 10.2692 1.86819 10.5527 2.66666H5.44737Z" fill="#A3A9B6" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
                         </tr>
                       );
                     })}
-                  {productList.length === 0 && (
+                  {!(productList.length === 0) && (
                     <tr>
                       <th colSpan={8}>
                         <div className="rounded-b-xl w-full p-4 items-center flex">

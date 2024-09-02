@@ -73,10 +73,10 @@ export default function CustomerInfoCard({
               </svg>
             )}
           </button>
-          <p className="font-semibold ml-auto mr-auto text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">
+          <p className="font-semibold ml-auto mr-auto text-[14px] leading-[20px] tracking-[0.005em] text-center text-[#333333]">
             {name}
           </p>
-          <button className="ml-auto">
+          <button>
             <svg
               width="16"
               height="16"

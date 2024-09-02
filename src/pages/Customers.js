@@ -23,12 +23,17 @@ const getAllUsers = async () => {
         },
       }
     );
+    console.log(users)
     return users;
   } catch (err) {
     console.log(err);
   }
 };
-
+function capitalizeWords(str) {
+  return str.toLowerCase().split(' ').map(word => {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+}
 export default function CustomersPage() {
   const [activePage, setActivePage] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -89,7 +94,7 @@ export default function CustomersPage() {
           return (
             <td className="p-2">
               <CustomerInfoCard
-                name={`${item.firstName} ${item.lastName.slice(0, 1)}`}
+                name={capitalizeWords(`${item.firstName.slice(0, 8)} ${item.lastName.slice(0, 7)}`)}
                 status={item.active}
                 labelColor={
                   item.status && item.status.toLowerCase() === "active"
@@ -117,7 +122,6 @@ export default function CustomersPage() {
     }
     return res;
   }
-  console.log(totalItems);
   return (
     <>
       {!totalItems && <p>Loading ...</p>}

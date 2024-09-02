@@ -12,6 +12,7 @@ import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import Settings from "./pages/Settings";
 import CouponsPage from "./pages/Coupons";
+import EditProductPage from "./pages/EditProduct";
 import Messages from "./pages/Messages";
 import AddCouponsPage from "./pages/AddCoupons";
 import PageContextProvider from "./context/PageContext";
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
       { path: "/add-products", element: <AddProjectsPage /> },
       { path: "/categories", element: <CategoriesPage /> },
       { path: "/add-category", element: <AddCategoryPage /> },
+      { path: "/edit-product/:productId", element: <EditProductPage /> },
       { path: "/edit-category", element: <EditCategoryPage /> },
       { path: "/orders", element: <OrdersPage /> },
       { path: "/order-details", element: <OrderDetailsPage /> },
