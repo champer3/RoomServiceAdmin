@@ -56,7 +56,7 @@ export default function OrderInfoCard({
   }
 
   return (
-    <div className="relative bg-white rounded-lg p-5 shadow-lg z-5">
+    <div className="relative bg-yellow-100 rounded-lg p-2 shadow-lg w-[200px] animate-pulse">
       <OrderModal
         ref={modalRef}
         operation={confirmOperation}
@@ -108,43 +108,37 @@ export default function OrderInfoCard({
         <span className="block w-1 bg-stone-500 h-1 rounded-full" />
       </button>
       <div className="flex items-center justify-center">
-        <p className="font-bold text-xl text-center text-amber-700 p-5">
-          Order {id}
+        <p className="font-bold text-xl text-center text-amber-700">
+          Order {id.slice(id.length - 5, id.length)}
         </p>
         {status === "Completed" && <GreenLabel>Completed</GreenLabel>}
         {status === "Cancelled" && <RedLabel>Cancelled</RedLabel>}
         {status === "In Progress" && <OrangeLabel>In Progress</OrangeLabel>}
       </div>
-      <hr className="p-2 border-dotted border-t-4 border-stone-800 " />
-      <div className="flex">
-        <div className="flex flex-col items-center justify-start p-4">
-          <p className="font-bold">Ordered by</p>
-          <p>{customer}</p>
-          <p className="mt-2 font-bold">In this order</p>
-          {orderDetails.map((order) => {
-            return <p>{order}</p>;
-          })}
-        </div>
-        <div className="border border-stone-800 h-auto mx-auto" />
-        <div className="flex flex-col items-center justify-start p-4">
-          <p className="font-bold">Total Order Price</p>
-          <p>${formatNumberWithCommas(total)}</p>
-          {status === "In Progress" && (
-            <>
-              <p className="mt-2 font-bold">Time Since Order:</p>
-              <p className="animate-pulse font-bold text-red-700 text-lg">
-                {((seconds / 3600) | 0) < 10
-                  ? `0${(seconds / 3600) | 0}h `
-                  : ` ${(seconds / 3600) | 0}h `}
-                :
-                {((seconds / 60) | 0) % 60 < 10
-                  ? ` 0${((seconds / 60) | 0) % 60}m `
-                  : ` ${((seconds / 60) | 0) % 60}m `}
-                : {seconds % 60 < 10 ? `0${seconds % 60}s` : `${seconds % 60}s`}
-              </p>
-            </>
-          )}
-        </div>
+      <hr className=" border-dotted border-t border-stone-800 " />
+      <div className="flex flex-col justify-center items-center">
+        <p className="font-bold text-[12px]">Ordered by</p>
+        <p className="text-sm">{customer}</p>
+        <p className="mt-1 font-bold text-[12px]">In this order</p>
+        <p className="text-sm">One Fish</p>
+        <p className="text-sm">Two Garri</p>
+        <p className="font-bold text-[12px]">Total Order Price</p>
+        <p className="text-sm">${total}</p>
+        {status === "Ready" && (
+          <>
+            <p className="mt-1 font-bold text-[12px]">Time Since Order:</p>
+            <p className="font-bold text-red-700 text-md text-sm">
+              {((seconds / 3600) | 0) < 10
+                ? `0${(seconds / 3600) | 0}h `
+                : ` ${(seconds / 3600) | 0}h `}
+              :
+              {((seconds / 60) | 0) % 60 < 10
+                ? ` 0${((seconds / 60) | 0) % 60}m `
+                : ` ${((seconds / 60) | 0) % 60}m `}
+              : {seconds % 60 < 10 ? `0${seconds % 60}s` : `${seconds % 60}s`}
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
