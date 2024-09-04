@@ -101,7 +101,7 @@ export default function CustomersPage() {
                     ? "green"
                     : "red"
                 }
-                leftData={item.orders && formatNumberWithCommas(item.orders)}
+                leftData={ formatNumberWithCommas(item.order.length)}
                 leftDetail={"Orders"}
                 rightData={item.spent && formatNumberWithCommas(item.spent)}
                 rightDetail={"Spent"}

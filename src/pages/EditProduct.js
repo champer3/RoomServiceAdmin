@@ -11,6 +11,7 @@ import { Link } from "react-router-dom"
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { PageContext } from "../context/PageContext"
+import Logo from '../assets/Logo.png'
 
 export default function AddProjectsPage() {
     const [product, setProduct] = useState({
@@ -30,6 +31,7 @@ export default function AddProjectsPage() {
         "title": ""
     })
     const { productId } = useParams();
+    const [message, setMessage] = useState() 
     const getProduct = async () => {
         try {
           const product = await axios.get(
@@ -65,7 +67,7 @@ export default function AddProjectsPage() {
 
     const handleRemoveFile = (fileToRemove, e) => {
         e.preventDefault()
-        setFiles(files.filter(file => file.name !== fileToRemove.name));
+        setFiles(files.filter(file => (file.name ?? file) !== (fileToRemove.name ?? fileToRemove)));
     };
     
     const handleInputChange = (field) => (e) => {
@@ -204,14 +206,18 @@ const handleRemoveNutrient = (nutrient) => {
                 console.error('Error uploading image:', error);
             }}
         }
-        setProduct({...product, ["images"]: uploadedImageUrls})
         return uploadedImageUrls;
     };
+    useEffect(()=>{
+        setTimeout(()=>{setMessage()}, 4000)
+    }, [message])
     const handleSubmit = async () => {
         try {
-            await uploadImages(files);
-            console.log(product)
-            const response = await axios.patch(`https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products/${productId}`, JSON.stringify(product),
+            const uploadedImageUrls = await uploadImages(files);
+    
+            const updatedProduct = { ...product, images: uploadedImageUrls };
+    
+            const response = await axios.patch(`https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products/${productId}`, JSON.stringify(updatedProduct),
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -221,14 +227,27 @@ const handleRemoveNutrient = (nutrient) => {
                 });
 
             if (response.data.status === 'success') {
+                setMessage({'status': 'Success', 'text': 'Product edited successfully!', 'color': 'success'})
             }
         } catch (error) {
             console.error('Error editing product:', error);
+            setMessage({'status': 'Error', 'text': 'Error editing product', 'color': 'warning'})
+     
         }
     };
 
     return (
         <>
+         { message && <div class={`bg-${message.color} toast text-white absolute show  right-0`} role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="toast-header">
+    <img src={Logo} class="rounded me-2 w-4 h-4" alt="..." />
+    <strong class="me-auto">{message.status}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+  <div class="toast-body">
+{message.text}
+  </div>
+</div>}
             {changePage('products')}
             <div className="ml-4">
                 <div className="flex items-center">

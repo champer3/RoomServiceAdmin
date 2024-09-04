@@ -24,8 +24,10 @@ export default function OrderInfoCard({
 
     return formattedNumber;
   }
-
-  const initialWaitingTime = ((Date.now() - time) / 1000) | 0;
+  useEffect(()=>{console.log(time)},[])
+  
+  const now = new Date();
+  const initialWaitingTime = Math.floor((now - time) / 1000);
 
   const [seconds, setSeconds] = useState(initialWaitingTime);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -128,14 +130,7 @@ export default function OrderInfoCard({
           <>
             <p className="mt-1 font-bold text-[12px]">Time Since Order:</p>
             <p className="font-bold text-red-700 text-md text-sm">
-              {((seconds / 3600) | 0) < 10
-                ? `0${(seconds / 3600) | 0}h `
-                : ` ${(seconds / 3600) | 0}h `}
-              :
-              {((seconds / 60) | 0) % 60 < 10
-                ? ` 0${((seconds / 60) | 0) % 60}m `
-                : ` ${((seconds / 60) | 0) % 60}m `}
-              : {seconds % 60 < 10 ? `0${seconds % 60}s` : `${seconds % 60}s`}
+            {Math.floor(seconds / 3600)}h : {Math.floor((seconds % 3600) / 60)}m : {seconds % 60}s
             </p>
           </>
         )}

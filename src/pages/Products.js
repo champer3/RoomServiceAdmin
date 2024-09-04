@@ -14,7 +14,7 @@ import GreenLabel from "../components/StatusLabels/GreenLabel";
 // import GreyLabel from "../components/StatusLabels/GreyLabel";
 import { PageContext } from "../context/PageContext";
 import axios from "axios";
-import { center } from "@cloudinary/url-gen/qualifiers/textAlignment";
+import Logo from '../assets/Logo.png'
 
 function formatNumberWithCommas(number) {
   const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString(
@@ -70,8 +70,7 @@ export default function ProductsPage() {
   const [selectedRows, setSelectedRows] = useState([]);
   const [activeColumn, setActiveColumn] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
-
+  const [message, setMessage] = useState() 
 
   const lastPage = productList
     ? productList.length % itemsPerPage === 0
@@ -131,13 +130,13 @@ export default function ProductsPage() {
               },
 
           });
-
-      if (response.data.status === 'success') {
-        console.log('Successfully deleted product')
-        window.location.reload();
-      }
+        setMessage({'status': 'Success', 'text': 'Successfully deleted product', 'color': 'success'})
+        setProductList((prevState) => {
+          return prevState.filter((item) => item.id != id);
+        })
   } catch (error) {
       console.error('Error deleting product:', error);
+      setMessage({'status': 'Error', 'text': 'Error deleting product', 'color': 'warning'})
   }
   }
 
@@ -165,6 +164,9 @@ export default function ProductsPage() {
       return [...prevState, row];
     });
   }
+  useEffect(()=>{
+    setTimeout(()=>{setMessage()}, 4000)
+}, [message])
 
   function handleIsRemoved(row) {
     setSelectedRows((prevState) => {
@@ -178,6 +180,16 @@ export default function ProductsPage() {
       {!productList && <p>Loading...</p>}
       {productList && (
         <>
+         { message && <div class={`bg-${message.color} toast text-white absolute show  right-0`} role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="toast-header">
+    <img src={Logo} class="rounded me-2 w-4 h-4" alt="..." />
+    <strong class="me-auto">{message.status}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+  <div class="toast-body">
+{message.text}
+  </div>
+</div>}
           {changePage("products")}
           <div className="ml-4">
             <div className="flex items-center">

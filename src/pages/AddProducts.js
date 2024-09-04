@@ -6,10 +6,11 @@ import Select from "../components/Select"
 import GreenLabel from "../components/StatusLabels/GreenLabel"
 import GreyLabel from "../components/StatusLabels/GreyLabel"
 import OrangeLabel from "../components/StatusLabels/OrangeLabel"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import axios from 'axios';
 import { PageContext } from "../context/PageContext"
+import Logo from '../assets/Logo.png'
 
 export default function AddProjectsPage() {
     const [product, setProduct] = useState({
@@ -34,7 +35,7 @@ export default function AddProjectsPage() {
     const [variation, setVariation] = useState('');
     const [optionName, setOptionName] = useState('');
     const [valueInput, setValueInput] = useState('');
-
+    const [message, setMessage] = useState() 
 
 
     const handleFilesChange = (newFiles) => {
@@ -174,31 +175,74 @@ const handleRemoveNutrient = (nutrient) => {
                 console.error('Error uploading image:', error);
             }
         }
-        setProduct({...product, ["images"]: uploadedImageUrls})
         return uploadedImageUrls;
     };
     const handleSubmit = async () => {
         try {
-            await uploadImages(files);
-            console.log(product)
-            const response = await axios.post('https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products', JSON.stringify(product),
+            // Wait for the images to be uploaded and get their URLs
+            const uploadedImageUrls = await uploadImages(files);
+    
+            // Update the product object with the uploaded image URLs
+            const updatedProduct = { ...product, images: uploadedImageUrls };
+    
+            // Post the updated product object
+            const response = await axios.post(
+                'https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products',
+                JSON.stringify(updatedProduct),
                 {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MmY5MTQ1ZGEzYmQ3ZmUzMTU5YzU1MyIsImlhdCI6MTcyNTAzNDYxOCwiZXhwIjoxNzI1ODk4NjE4fQ.xcFoMC9joIY-ChhTZZBGsvyfGtgz-SSQxYDnMe_4kVI'}`,
                     },
-
-                });
-
+                }
+            );
+    
             if (response.data.status === 'success') {
+                // toast.success("Product added successfully!");
+                setProduct({
+                "availability": false,
+                "category": "",
+                "components": [],
+                "description" : "",
+                "extra": false,
+                "images": [],
+                "instructions" : false,
+                "nutrients" : [],
+                "oldPrice": 0,
+                "options": [],
+                "price": 0,
+                "related": [],
+                "stock": 0,
+                "title": ""
+            })
+            setMessage({'status': 'Success', 'text': 'Product added successfully!', 'color': 'success'})
+            setVariation('')
+            setFiles([])
+            setOptionName('')
+            setNutrientInput('')
+            setRelatedInput('')
+            setValueInput('')
             }
         } catch (error) {
             console.error('Error adding product:', error);
+            setMessage({'status': 'Error', 'text': 'Error adding product', 'color': 'warning'})
         }
     };
-
+    useEffect(()=>{
+        setTimeout(()=>{setMessage()}, 4000)
+    }, [message])
     return (
         <>
+          { message && <div class={`bg-${message.color} toast text-white absolute show  right-0`} role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="toast-header">
+    <img src={Logo} class="rounded me-2 w-4 h-4" alt="..." />
+    <strong class="me-auto">{message.status}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+  <div class="toast-body">
+{message.text}
+  </div>
+</div>}
             {changePage('products')}
             <div className="ml-4">
                 <div className="flex items-center">
@@ -239,6 +283,7 @@ const handleRemoveNutrient = (nutrient) => {
                     </div>
                 </div>
             </div>
+         
             <div className="flex">
                 <div className='w-[70%] p-3'>
                     <div className="mt-8 rounded-xl bg-white p-4">

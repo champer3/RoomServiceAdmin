@@ -36,7 +36,7 @@ export default function ImageDropzone({ description, files, onFilesChange, onRem
                                     />
                                     <button
                                         className="absolute top-[-16px] right-[-12px]  bg-red-500 text-white rounded-full p-1"
-                                        onClick={(e) => onRemoveFile(file,e)}
+                                        onClick={(e) =>{ e.stopPropagation();onRemoveFile(file,e)}}
                                     >
                                         <i class="fa-solid fa-xl fa-circle-xmark"></i>
                                     </button>
