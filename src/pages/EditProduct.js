@@ -9,6 +9,7 @@ import OrangeLabel from "../components/StatusLabels/OrangeLabel"
 import { useContext, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 import { PageContext } from "../context/PageContext"
 import Logo from '../assets/Logo.png'
 
@@ -29,13 +30,35 @@ export default function AddProjectsPage() {
         "stock": 0,
         "title": ""
     })
+    const { productId } = useParams();
+    const [message, setMessage] = useState() 
+    const getProduct = async () => {
+        try {
+          const product = await axios.get(
+            `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products/${productId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          setProduct(product.data.data.product)
+          setFiles(product.data.data.product.images)
+          console.log(product.data.data.product)
+          return product;
+        } catch (err) {
+          console.log(err);
+        }
+      };
+    useEffect(()=>{getProduct()},[])
+    
     const authToken = localStorage.getItem("token");
     const { changePage } = useContext(PageContext)
     const [files, setFiles] = useState([]);
     const [variation, setVariation] = useState('');
     const [optionName, setOptionName] = useState('');
     const [valueInput, setValueInput] = useState('');
-    const [message, setMessage] = useState() 
+
 
 
     const handleFilesChange = (newFiles) => {
@@ -44,7 +67,7 @@ export default function AddProjectsPage() {
 
     const handleRemoveFile = (fileToRemove, e) => {
         e.preventDefault()
-        setFiles(files.filter(file => file.name !== fileToRemove.name));
+        setFiles(files.filter(file => (file.name ?? file) !== (fileToRemove.name ?? fileToRemove)));
     };
     
     const handleInputChange = (field) => (e) => {
@@ -149,6 +172,13 @@ const handleRemoveNutrient = (nutrient) => {
     const handleImageChange = (e) => {
         setImage(e.target.files[0]);
     };
+    function isValidURL(str) {
+        if (typeof str !== 'string') {
+          str = String(str);
+        }
+        
+        return str.startsWith("http://") || str.startsWith("https://");
+      }
 
     const uploadImages = async (images) => {
         if (!images || images.length === 0) {
@@ -159,6 +189,7 @@ const handleRemoveNutrient = (nutrient) => {
         const uploadedImageUrls = [];
 
         for (const image of images) {
+            if (isValidURL(image)){ uploadedImageUrls.push(image) ;  console.log('Image URL:', image)}else{
             const formData = new FormData();
             formData.append('file', image);
             formData.append('upload_preset', 'my_unsigned_preset'); // Replace with your preset
@@ -173,67 +204,41 @@ const handleRemoveNutrient = (nutrient) => {
                 console.log('Image URL:', response.data.secure_url);
             } catch (error) {
                 console.error('Error uploading image:', error);
-            }
+            }}
         }
         return uploadedImageUrls;
     };
+    useEffect(()=>{
+        setTimeout(()=>{setMessage()}, 4000)
+    }, [message])
     const handleSubmit = async () => {
         try {
-            // Wait for the images to be uploaded and get their URLs
             const uploadedImageUrls = await uploadImages(files);
     
-            // Update the product object with the uploaded image URLs
             const updatedProduct = { ...product, images: uploadedImageUrls };
     
-            // Post the updated product object
-            const response = await axios.post(
-                'https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products',
-                JSON.stringify(updatedProduct),
+            const response = await axios.patch(`https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products/${productId}`, JSON.stringify(updatedProduct),
                 {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MmY5MTQ1ZGEzYmQ3ZmUzMTU5YzU1MyIsImlhdCI6MTcyNTAzNDYxOCwiZXhwIjoxNzI1ODk4NjE4fQ.xcFoMC9joIY-ChhTZZBGsvyfGtgz-SSQxYDnMe_4kVI'}`,
                     },
-                }
-            );
-    
+
+                });
+
             if (response.data.status === 'success') {
-                // toast.success("Product added successfully!");
-                setProduct({
-                "availability": false,
-                "category": "",
-                "components": [],
-                "description" : "",
-                "extra": false,
-                "images": [],
-                "instructions" : false,
-                "nutrients" : [],
-                "oldPrice": 0,
-                "options": [],
-                "price": 0,
-                "related": [],
-                "stock": 0,
-                "title": ""
-            })
-            setMessage({'status': 'Success', 'text': 'Product added successfully!', 'color': 'success'})
-            setVariation('')
-            setFiles([])
-            setOptionName('')
-            setNutrientInput('')
-            setRelatedInput('')
-            setValueInput('')
+                setMessage({'status': 'Success', 'text': 'Product edited successfully!', 'color': 'success'})
             }
         } catch (error) {
-            console.error('Error adding product:', error);
-            setMessage({'status': 'Error', 'text': 'Error adding product', 'color': 'warning'})
+            console.error('Error editing product:', error);
+            setMessage({'status': 'Error', 'text': 'Error editing product', 'color': 'warning'})
+     
         }
     };
-    useEffect(()=>{
-        setTimeout(()=>{setMessage()}, 4000)
-    }, [message])
+
     return (
         <>
-          { message && <div class={`bg-${message.color} toast text-white absolute show  right-0`} role="alert" aria-live="assertive" aria-atomic="true">
+         { message && <div class={`bg-${message.color} toast text-white absolute show  right-0`} role="alert" aria-live="assertive" aria-atomic="true">
   <div class="toast-header">
     <img src={Logo} class="rounded me-2 w-4 h-4" alt="..." />
     <strong class="me-auto">{message.status}</strong>
@@ -247,8 +252,8 @@ const handleRemoveNutrient = (nutrient) => {
             <div className="ml-4">
                 <div className="flex items-center">
                     <div>
-                        <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Add Product</p>
-                        <Path pages={[{ name: 'Dashboard', link: 'dashboard' }, { name: 'Product List', link: 'products' }, { name: 'Add Product', link: 'add-products' }]} />
+                        <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Edit Product</p>
+                        <Path pages={[{ name: 'Dashboard', link: 'dashboard' }, { name: 'Product List', link: 'products' }, { name: 'Edit Product', link: `/edit-product/${productId}` }]} />
                     </div>
                     <div className='flex ml-auto'>
                         <Link to={'/products'}>
@@ -268,22 +273,12 @@ const handleRemoveNutrient = (nutrient) => {
                             </button>
                         </Link>
                         <button onClick={handleSubmit} className='flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]'>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_499_3320)">
-                                    <path d="M17.3333 9.33333H10.6667V2.66667C10.6667 2.48986 10.5964 2.32029 10.4714 2.19526C10.3464 2.07024 10.1768 2 10 2V2C9.82319 2 9.65362 2.07024 9.5286 2.19526C9.40357 2.32029 9.33333 2.48986 9.33333 2.66667V9.33333H2.66667C2.48986 9.33333 2.32029 9.40357 2.19526 9.5286C2.07024 9.65362 2 9.82319 2 10V10C2 10.1768 2.07024 10.3464 2.19526 10.4714C2.32029 10.5964 2.48986 10.6667 2.66667 10.6667H9.33333V17.3333C9.33333 17.5101 9.40357 17.6797 9.5286 17.8047C9.65362 17.9298 9.82319 18 10 18C10.1768 18 10.3464 17.9298 10.4714 17.8047C10.5964 17.6797 10.6667 17.5101 10.6667 17.3333V10.6667H17.3333C17.5101 10.6667 17.6797 10.5964 17.8047 10.4714C17.9298 10.3464 18 10.1768 18 10C18 9.82319 17.9298 9.65362 17.8047 9.5286C17.6797 9.40357 17.5101 9.33333 17.3333 9.33333Z" fill="white" />
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_499_3320">
-                                        <rect width="16" height="16" fill="white" transform="translate(2 2)" />
-                                    </clipPath>
-                                </defs>
-                            </svg>
-                            <p className='ml-2'>Add Product</p>
+                          
+                            <p className='ml-2'>Edit Product</p>
                         </button>
                     </div>
                 </div>
             </div>
-         
             <div className="flex">
                 <div className='w-[70%] p-3'>
                     <div className="mt-8 rounded-xl bg-white p-4">

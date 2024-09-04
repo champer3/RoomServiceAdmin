@@ -30,7 +30,7 @@ export default function AddCouponsPage() {
                 <div className="flex items-center">
                     <div>
                         <p className='text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]'>Add Coupon</p>
-                        <Path pages={[{name: 'Dashboard', link: ''}, {name: 'Coupons', link: 'coupons'}, {name: 'Add Coupons', link: 'add-coupons'}]} />
+                        <Path pages={[{name: 'Dashboard', link: 'dashboard'}, {name: 'Coupons', link: 'coupons'}, {name: 'Add Coupons', link: 'add-coupons'}]} />
                     </div>
                     <div className='flex ml-auto'>
                         <Link to={'/coupons'}>
