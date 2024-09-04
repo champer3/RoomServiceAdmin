@@ -71,102 +71,100 @@ const LoginPage = () => {
     localStorage.setItem("token", "");
   },[])
   return (
-    <div className="bg-green-400 min-h-screen flex flex-col justify-center">
-      <h1 className="text-center text-4xl font-bold mb-5">
-        Welcome to RoomService Admin!
-      </h1>
-      <div className="max-w-sm mx-auto">
-        <form
-          className="w-full drop-shadow-2xl flex flex-col bg-white items-center rounded-2xl p-4"
-          onSubmit={handleSubmit}
-        >
-          <div className="p-3">
-            <div className="p-5">
-              <label className="block font-bold text-rs-green" htmlFor="email">
-                Email
-              </label>
-              <div className="relative">
-                <span className="absolute inset-y-2 left-0 focus:-translate-y-1">
-                  <svg
-                    class="w-6 h-6 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-width="2"
-                      d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                    />
-                  </svg>
-                </span>
-                <input
-                  ref={emailRef}
-                  className="pl-7 pr-10 py-2 border-0 border-b focus:bg-stone-100 focus:ring-0 focus:border-green-700 focus:text-sm focus:border-b-2 w-80"
-                  id="username"
-                  type="text"
-                  placeholder="Enter your email here"
-                  onChange={changeEmailHandler}
-                ></input>
-              </div>
-            </div>
-            <div className="p-5">
-              <label
-                className="block font-bold text-rs-green focus:scale-105"
-                htmlFor="password"
-              >
-                Password
-              </label>
-              <div className="relative">
-                <span className="absolute inset-y-2 left-0 focus:-translate-y-1">
-                  <svg
-                    className="w-6 h-6 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 14v3m-3-6V7a3 3 0 1 1 6 0v4m-8 0h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z"
-                    />
-                  </svg>
-                </span>
-                <input
-                  ref={passwordRef}
-                  className="pl-7 pr-10 py-2 border-0 border-b focus:bg-stone-100 focus:ring-0 focus:border-green-700 focus:text-sm focus:border-b-2 w-80"
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password here"
-                  onChange={changePasswordHandler}
-                ></input>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              disabled={!emailIsValid || !passwordIsValid}
-              className={`${
-                !emailIsValid || !passwordIsValid
-                  ? ""
-                  : "transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110"
-              } border border-4 border-green-600 bg-green-600 w-40  rounded-full  p-1 text-white font-[700] text-lg hover:text-white hover:bg-green-900 hover:border-green-900 disabled:border-stone-400 disabled:transition-none disabled:animation-none disabled:bg-stone-400 disabled:text-white`}
+<div className="bg-gradient-to-b from-green-500 to-green-700 min-h-screen flex flex-col justify-center items-center">
+  <h1 className="text-center text-white text-6xl font-bold mb-8 tracking-widest">
+    RoomService Admin.
+  </h1>
+  <div className="w-full max-w-lg bg-white bg-opacity-80 shadow-lg rounded-3xl p-10">
+    <form
+      className="w-full flex flex-col items-center"
+      onSubmit={handleSubmit}
+    >
+      <div className="w-full mb-6">
+        <label className="block font-bold text-green-700 text-base mb-2 tracking-wide" htmlFor="email">
+          Email
+        </label>
+        <div className="relative w-full">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+            <svg
+              className="w-6 h-6 text-green-600"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
             >
-              Login
-            </button>
-          </div>
-        </form>
+              <path
+                stroke="currentColor"
+                stroke-width="2"
+                d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+              />
+            </svg>
+          </span>
+          <input
+            ref={emailRef}
+            className="w-full pl-10 pr-4 py-3 border-2 border-green-400 rounded-full focus:outline-none focus:border-green-600 focus:bg-green-50 transition duration-200"
+            id="email"
+            type="email"
+            placeholder="Enter your email"
+            onChange={changeEmailHandler}
+          />
+        </div>
       </div>
-    </div>
+
+      <div className="w-full mb-6">
+        <label className="block font-bold text-green-700 text-base mb-2 tracking-wide" htmlFor="password">
+          Password
+        </label>
+        <div className="relative w-full">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+            <svg
+              className="w-6 h-6 text-green-600"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 14v3m-3-6V7a3 3 0 1 1 6 0v4m-8 0h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z"
+              />
+            </svg>
+          </span>
+          <input
+            ref={passwordRef}
+            className="w-full pl-10 pr-4 py-3 border-2 border-green-400 rounded-full focus:outline-none focus:border-green-600 focus:bg-green-50 transition duration-200"
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            onChange={changePasswordHandler}
+          />
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={!emailIsValid || !passwordIsValid}
+        className={`${
+          !emailIsValid || !passwordIsValid
+            ? "bg-green-300 cursor-not-allowed"
+            : "bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 transition duration-300"
+        } text-white font-bold w-full py-3 rounded-full shadow-lg focus:outline-none`}
+      >
+        Login
+      </button>
+    </form>
+  </div>
+</div>
+
+// Ayoyemi Hamzat
+
   );
 };
 
