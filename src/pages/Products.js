@@ -441,6 +441,7 @@ export default function ProductsPage() {
                             <img
                               src={product.images ?  product.images[0] : ''}
                               alt=""
+                              style={{backgroundColor: 'white'}}
                               width={44}
                               height={44}
                             />
