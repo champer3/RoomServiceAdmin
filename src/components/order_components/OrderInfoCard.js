@@ -24,8 +24,10 @@ export default function OrderInfoCard({
 
     return formattedNumber;
   }
-  useEffect(()=>{console.log(time)},[])
-  
+  useEffect(() => {
+    console.log(time);
+  }, []);
+
   const now = new Date();
   const initialWaitingTime = Math.floor((now - time) / 1000);
 
@@ -58,23 +60,12 @@ export default function OrderInfoCard({
   }
 
   return (
-    <div className="relative bg-yellow-100 rounded-lg p-2 shadow-lg w-[200px] animate-pulse">
-      <OrderModal
-        ref={modalRef}
-        operation={confirmOperation}
-        onConfirm={() => {
-          onComplete(
-            id,
-            confirmOperation === "cancel" ? "Cancelled" : "Completed"
-          );
-          setIsMenuOpen(false);
-        }}
-      />
+    <div className="relative">
       {isMenuOpen && (
-        <div className="absolute border border-stone-200 top-3 right-9 w-30 px-1 py-2 shadow-xl bg-stone-100 flex flex-col">
+        <div className="absolute animate-none border border-stone-200 -top-3 -right-9 w-30 px-1 py-2 shadow-xl bg-stone-100 flex flex-col z-50">
           <button
             onClick={() => {
-              handleOpenModal("complete");
+              onComplete(id, "Completed");
               stopTimer();
             }}
             className="p-1 hover:bg-stone-200 text-sm font-bold"
@@ -82,10 +73,22 @@ export default function OrderInfoCard({
             Complete Order
           </button>
           <button
-            onClick={() => handleOpenModal("cancel")}
+            onClick={() => {
+              onComplete(id, "Cancelled");
+              stopTimer();
+            }}
             className="p-1 hover:bg-stone-200 text-sm font-bold"
           >
             Cancel Order
+          </button>
+          <button
+            onClick={() => {
+              onComplete(id, "Ready");
+              stopTimer();
+            }}
+            className="p-1 hover:bg-stone-200 text-sm font-bold"
+          >
+            Reset
           </button>
           <button
             className="p-1 hover:bg-stone-200 text-sm font-bold"
@@ -97,43 +100,49 @@ export default function OrderInfoCard({
           </button>
         </div>
       )}
-      <button
-        onClick={() => {
-          setIsMenuOpen((prevState) => !prevState);
+      <div
+        onDoubleClick={() => {
+          onComplete(id, "Completed");
+          stopTimer();
         }}
-        className={`${
-          status === "Completed" || status === "Cancelled" ? "hidden" : ""
-        } absolute right-5 flex flex-col justify-between h-4`}
+        className="relative bg-yellow-100 rounded-lg p-2 shadow-lg w-[200px] animate-pulse"
       >
-        <span className="block w-1 bg-stone-500 h-1 rounded-full" />
-        <span className="block w-1 bg-stone-500 h-1 rounded-full" />
-        <span className="block w-1 bg-stone-500 h-1 rounded-full" />
-      </button>
-      <div className="flex items-center justify-center">
-        <p className="font-bold text-xl text-center text-amber-700">
-          Order {id.slice(id.length - 5, id.length)}
-        </p>
-        {status === "Completed" && <GreenLabel>Completed</GreenLabel>}
-        {status === "Cancelled" && <RedLabel>Cancelled</RedLabel>}
-        {status === "In Progress" && <OrangeLabel>In Progress</OrangeLabel>}
-      </div>
-      <hr className=" border-dotted border-t border-stone-800 " />
-      <div className="flex flex-col justify-center items-center">
-        <p className="font-bold text-[12px]">Ordered by</p>
-        <p className="text-sm">{customer}</p>
-        <p className="mt-1 font-bold text-[12px]">In this order</p>
-        <p className="text-sm">One Fish</p>
-        <p className="text-sm">Two Garri</p>
-        <p className="font-bold text-[12px]">Total Order Price</p>
-        <p className="text-sm">${total}</p>
-        {status === "Ready" && (
-          <>
-            <p className="mt-1 font-bold text-[12px]">Time Since Order:</p>
-            <p className="font-bold text-red-700 text-md text-sm">
-            {Math.floor(seconds / 3600)}h : {Math.floor((seconds % 3600) / 60)}m : {seconds % 60}s
-            </p>
-          </>
-        )}
+        <button
+          onClick={() => {
+            setIsMenuOpen((prevState) => !prevState);
+          }}
+          className={`${
+            status === "Completed" || status === "Cancelled" ? "hidden" : ""
+          } absolute right-5 flex flex-col justify-between h-4`}
+        >
+          <span className="block w-1 bg-stone-500 h-1 rounded-full" />
+          <span className="block w-1 bg-stone-500 h-1 rounded-full" />
+          <span className="block w-1 bg-stone-500 h-1 rounded-full" />
+        </button>
+        <div className="flex items-center justify-center">
+          <p className="font-bold text-xl text-center text-amber-700">
+            Order {id.slice(id.length - 5, id.length)}
+          </p>
+        </div>
+        <hr className=" border-dotted border-t border-stone-800 " />
+        <div className="flex flex-col justify-center items-center">
+          <p className="font-bold text-[12px]">Ordered by</p>
+          <p className="text-sm">{customer}</p>
+          <p className="mt-1 font-bold text-[12px]">In this order</p>
+          <p className="text-sm">One Fish</p>
+          <p className="text-sm">Two Garri</p>
+          <p className="font-bold text-[12px]">Total Order Price</p>
+          <p className="text-sm">${total}</p>
+          {status === "Ready" && (
+            <>
+              <p className="mt-1 font-bold text-[12px]">Time Since Order:</p>
+              <p className="font-bold text-red-700 text-md text-sm">
+                {Math.floor(seconds / 3600)}h :{" "}
+                {Math.floor((seconds % 3600) / 60)}m : {seconds % 60}s
+              </p>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
