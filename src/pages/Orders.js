@@ -476,7 +476,7 @@ export default function OrdersPage() {
                                                         {formatDate(order.date)}
                                                     </td>
                                                     <td className="pl-8 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
-                                                        {order.customer}
+                                                        {order.userName}
                                                     </td>
                                                     <td className="text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
                                                         ${formatNumberWithCommas(order.totalPrice)}
