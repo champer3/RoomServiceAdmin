@@ -39,7 +39,7 @@ const getAllOrders = async () => {
       return orderDate >= startOfDay && orderDate < new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
     });
     
-    return todaysOrders;
+    return todaysOrders.reverse();
   } catch (err) {
     console.log(err);
     return [];
