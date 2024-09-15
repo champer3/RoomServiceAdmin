@@ -11,12 +11,7 @@ const updateStatus = async (id, newStatus) => {
     const orders = await axios.patch(
       `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
       JSON.stringify({
-        orderStatus:
-          newStatus === "Completed"
-            ? "Delivered"
-            : newStatus === "Cancelled"
-            ? "Canceled"
-            : "Ready",
+        orderStatus: newStatus,
       }),
       {
         headers: {
@@ -51,15 +46,23 @@ const getAllOrders = async () => {
       today.getMonth(),
       today.getDate()
     );
+    const targetMidnight = new Date();
+    targetMidnight.setHours(0, 0, 0, 0);
 
     const todaysOrders = orders.data.data.orders.filter((order) => {
       const orderDate = new Date(order.date);
-      return (
-        orderDate >= startOfDay &&
-        orderDate < new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
-      );
+      orderDate.setHours(orderDate.getHours() + 6);
+      orderDate.setHours(0, 0, 0, 0);
+      return orderDate.getTime() === targetMidnight.getTime();
     });
-
+    // const todaysOrders = orders.data.data.orders.filter((order) => {
+    //   const orderDate = new Date(order.date);
+    //   return (
+    //     orderDate >= startOfDay &&
+    //     orderDate < new Date(startOfDay.getTime())
+    //     // orderDate < new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
+    //   );
+    // });
     return todaysOrders.reverse();
   } catch (err) {
     console.log(err);
@@ -69,12 +72,13 @@ const getAllOrders = async () => {
 
 const OrderNotifications = () => {
   const [orderList, setOrderList] = useState([]);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("Ordered");
   const [flag, setFlag] = useState(true);
 
   useEffect(() => {
     const fetchOrders = async () => {
       const orders = await getAllOrders();
+      console.log(orders);
       setOrderList(orders);
     };
     fetchOrders();
@@ -99,13 +103,14 @@ const OrderNotifications = () => {
 
   return (
     <>
+      {/* {orderList.length <= 0 && <p>Loading...</p>} */}
       {orderList.length > 0 && (
         <div>
           <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">
             Recent Order Activity
           </h1>
-          {/* ['Ordered', 'Preparing', 'Out for Delivery', 'Delivered'] */}
-          <div className="w-[330px] border border-[#E0E2E7] bg-white rounded-lg p-1">
+          <div className="w- border border-[#E0E2E7] bg-white rounded-lg p-1">
+            {/* ['Ordered', 'Preparing', 'Out for Delivery', 'Delivered'] */}
             <TabButton
               handleSelect={() => setFilter("Ordered")}
               isSelected={filter === "Ordered"}

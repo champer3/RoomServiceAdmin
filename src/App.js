@@ -22,11 +22,20 @@ import { getSocket, initializeSocket } from "./socketService";
 import { useEffect, useState } from "react";
 import OrderNotifications from "./pages/OrderNotifications";
 import DriverOrdersPage from "./pages/DriverOrdersPage";
-import DriversHomePage from "./pages/DriversHome";
+import DriversSidePanel from "./pages/DriversSidePanel";
+import DriversDashboard from "./pages/DriversDashboard";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
+  },
+  {
+    path: "/drivers",
+    element: <DriversSidePanel />,
+    children: [
+      { path: "/drivers/drivers-dashboard", element: <DriversDashboard /> },
+      { path: "/drivers/drivers-order/:orderId", element: <DriverOrdersPage /> },
+    ],
   },
   {
     path: "/",
@@ -50,8 +59,6 @@ const router = createBrowserRouter([
       { path: "/add-coupons", element: <AddCouponsPage /> },
       { path: "/messages", element: <Messages /> },
       { path: "/viewmessage", element: <ViewMessage /> },
-      { path: "/drivers-order", element: <DriverOrdersPage /> },
-      { path: "/drivers", element: <DriversHomePage /> },
     ],
   },
 ]);

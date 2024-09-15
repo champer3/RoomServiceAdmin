@@ -50,17 +50,17 @@ const LoginPage = () => {
           },
         }
       );
-      const authRole = response.data.data.user.role
+      const authRole = response.data.data.user.role;
       const authToken = response.data.token;
 
       localStorage.setItem("token", authToken);
-      localStorage.setItem("role", authRole)
+      localStorage.setItem("role", authRole);
       initializeSocket(authToken);
       if (authRole === "admin") {
         navigate("/dashboard/");
       }
       if (authRole === "driver") {
-        navigate("/drivers/");
+        navigate("/drivers/drivers-dashboard");
       }
     } catch (err) {
       setIsLoggingIn(false);
@@ -75,6 +75,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     localStorage.setItem("token", "");
+    localStorage.setItem("role", "");
   }, []);
   return (
     <div className="bg-gradient-to-b from-green-500 to-green-700 min-h-screen flex flex-col justify-center items-center">

@@ -47,14 +47,14 @@ const icon = (
   </svg>
 );
 
-export default function SidePanel() {
+export default function DriversSidePanel() {
   const { page, changePage } = useContext(PageContext);
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role")
+  const role = localStorage.getItem("role");
 
   return (
     <>
-      {role !== "admin" && <Navigate to={"/"}></Navigate>}
+      {role !== "driver" && <Navigate to={"/"}></Navigate>}
       {token.length > 0 && (
         <div className="flex h-full min-w-fit min-h-screen bg-stone-200">
           <div className="bg-white w-[264px]">
@@ -64,33 +64,8 @@ export default function SidePanel() {
                         <rect width="34" height="34" rx="10" fill="#283618" />
                     </svg> */}
             </div>
-            <Link to={"/dashboard"} onClick={() => changePage("dashboard")}>
-              <Dashboard active={page === "dashboard"} />
-            </Link>
-            <Link to={"/products"} onClick={() => changePage("products")}>
-              <Products active={page === "products"} />
-            </Link>
-            <Link to={"/categories"} onClick={() => changePage("categories")}>
-              <Categories active={page === "categories"} />
-            </Link>
-            <Link to={"/coupons"} onClick={() => changePage("coupons")}>
-              <Coupons active={page === "coupons"} />
-            </Link>
-            <Link to={"/orders"} onClick={() => changePage("orders")}>
-              <Orders active={page === "orders"} />
-            </Link>
-            <Link
-              to={"/order-notifications"}
-              onClick={() => changePage("notifications")}
-            >
-              <PanelBar
-                active={page === "notifications"}
-                title={"Notifications"}
-                icon={icon}
-              />
-            </Link>
-            <Link to={"/customers"} onClick={() => changePage("customers")}>
-              <Customers active={page === "customers"} />
+            <Link to={"/drivers/drivers-dashboard"} onClick={() => changePage("drivers-home")}>
+              <Dashboard active={page === "drivers-home"} />
             </Link>
             <Link
               to={"/"}
@@ -124,7 +99,6 @@ export default function SidePanel() {
             </Link>
           </div>
           <div className="px-8 pb-8 w-full ">
-            <TopBar messages={11} notifications={11} />
             <Outlet />
           </div>
         </div>

@@ -35,17 +35,9 @@ function formatNumberWithCommas(number) {
 }
 
 function formatDate(dateObject) {
-  const mongoDate = new Date(dateObject); // Replace this with the actual MongoDB date
-
-  // Extract date parts
-  const day = mongoDate.getDate(); // Get day (1-31)
-  const month = mongoDate.getMonth() + 1; // Get month (0-11, so add 1 to get 1-12)
-  const year = mongoDate.getFullYear(); // Get full year (e.g., 2024)
-
-  // Format as d/mm/yyyy
-  const formattedDate = `${day}/${month < 10 ? "0" : ""}${month}/${year}`;
-  return formattedDate
+    return moment(dateObject).format("D MMM YYYY");
 }
+
 // With this function you can access all the orders in the database
 // Todo: We need to implement something in the backend that only sends out 20 orders at a time, for buffer reasons
 const getAllOrders = async () => {
