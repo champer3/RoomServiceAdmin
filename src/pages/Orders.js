@@ -203,7 +203,7 @@ export default function OrdersPage() {
         });
     }
     // orderList && orderList.map((order) => console.log(order.orderStatus));
-    console.log(orderList)
+    // console.log(orderList)
     return (
         <>
             {!orderList && <p>Loading</p>}
@@ -392,7 +392,7 @@ export default function OrdersPage() {
                                             descend={() => handleDescendingSort("status")}
                                         />
                                     </th>
-                                    <th className="pl-6 w-[100px]">
+                                    <th className="pl-6 w-[100px] pr-2">
                                         <TableHead heading={"Action"} />
                                     </th>
                                 </tr>
@@ -492,7 +492,7 @@ export default function OrdersPage() {
                                                             <Link
                                                                 to={"/order-details"}
                                                                 onClick={() => {
-                                                                    viewOrder(order.order_datails);
+                                                                    viewOrder(order);
                                                                 }}
                                                             >
                                                                 <button>
@@ -520,16 +520,17 @@ export default function OrdersPage() {
                                             );
                                         })}
                                     <tr>
-                                        <th colSpan={8}>
+                                        <th colSpan={9}>
                                             <div className="rounded-b-xl w-full p-4 items-center flex">
-                                                <p className="font-semibold text-[14px] text-customGrey leading-[20px] tracking-[0.005em]">
-                                                    Showing {(currentPage - 1) * itemsPerPage + 1}-
+                                                <p className="font-semibold text-sm text-customGrey leading-[20px] tracking-[0.005em]">
+                                                    {(currentPage - 1) * itemsPerPage + 1}-
                                                     {(currentPage - 1) * itemsPerPage + itemsPerPage >
                                                         orderList.length
                                                         ? orderList.length
                                                         : (currentPage - 1) * itemsPerPage +
-                                                        itemsPerPage}{" "}
-                                                    from {orderList.length}
+                                                        itemsPerPage}
+                                                         {/* of {" "}
+                                                    {orderList.length} */}
                                                 </p>
                                                 <div className="ml-auto flex space-x-2">
                                                     <button

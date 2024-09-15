@@ -9,30 +9,10 @@ import { ORDER_DETAILS_LIST } from "../assets/data";
 import { useContext } from "react";
 import { PageContext } from "../context/PageContext";
 import YellowLabel from "../components/StatusLabels/YellowLabel";
-import axios from "axios";
 
 function formatDate(dateObject) {
   return moment(dateObject).format("D MMM YYYY");
 }
-
-const getOrder = async (id) => {
-  const authToken = localStorage.getItem("token");
-  try {
-      const orders = await axios.get(
-          `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
-          {
-              headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${authToken}`,
-              },
-          }
-      );
-      console.log(orders)
-      return orders;
-  } catch (err) {
-      console.log(err);
-  }
-};
 
 function formatNumberWithCommas(number) {
   const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString(
@@ -46,10 +26,7 @@ function formatNumberWithCommas(number) {
   return formattedNumber;
 }
 
-export default function OrderDetailsPage() {
-  let subTotal = 0;
-  let VAT = 0;
-  let deliveryFee = 5;
+export default function DriverOrdersPage() {
 
   const { order, changePage } = useContext(PageContext);
 
@@ -153,7 +130,7 @@ export default function OrderDetailsPage() {
       </div>
 
       <div className="flex w-full justify-between mt-4 items-start p-5">
-        <div className="lg:w-[60%] w-[50%] space-y-4 bg-white p-[24px] rounded-lg shadow-lg">
+        <div className="w-[60%] space-y-4 bg-white p-[24px] rounded-lg shadow-lg">
           <div className="flex">
             <div className="w-full flex space-x-3 justify-between">
               <p className="text-[#333333] font-semibold text-[18px] leading-[28px] tracking-[0.01em]">
@@ -276,7 +253,7 @@ export default function OrderDetailsPage() {
                 </defs>
               </svg>
             </div>
-            <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333] text-clamp">
+            <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">
               Shipping Address
             </p>
             <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">
@@ -320,7 +297,7 @@ export default function OrderDetailsPage() {
             </p>
           </div>
         </div>
-        <div className="lg:w-[30%] w-[40%]">
+        <div className="w-[30%]">
           <div className="bg-white w-full rounded-lg shadow-lg p-3">
             <div className="rounded-lg w-full bg-white px-2 py-2 items-center flex">
               <p className="mr-2 font-semibold text-[20px] leading-[30px] tracking-[0.01em]">

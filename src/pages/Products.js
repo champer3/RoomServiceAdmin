@@ -132,7 +132,7 @@ export default function ProductsPage() {
           });
         setMessage({'status': 'Success', 'text': 'Successfully deleted product', 'color': 'success'})
         setProductList((prevState) => {
-          return prevState.filter((item) => item.id != id);
+          return prevState.filter((item) => item.id !== id);
         })
   } catch (error) {
       console.error('Error deleting product:', error);

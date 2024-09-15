@@ -13,6 +13,7 @@ const validate = (data) => {
 };
 
 const LoginPage = () => {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [emailIsValid, setEmailIsValid] = useState(false);
   const [passwordIsValid, setPasswordIsValid] = useState(false);
   const emailRef = useRef();
@@ -30,7 +31,7 @@ const LoginPage = () => {
   // The data from the form is collected here
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+    setIsLoggingIn(true);
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
 
@@ -49,122 +50,152 @@ const LoginPage = () => {
           },
         }
       );
+      const authRole = response.data.data.user.role
       const authToken = response.data.token;
 
       localStorage.setItem("token", authToken);
-
+      localStorage.setItem("role", authRole)
       initializeSocket(authToken);
-      if (authToken) {
+      if (authRole === "admin") {
         navigate("/dashboard/");
       }
+      if (authRole === "driver") {
+        navigate("/drivers/");
+      }
     } catch (err) {
+      setIsLoggingIn(false);
       console.error(
         "Login failed:",
         err.response ? err.response.data : err.message
       );
     }
 
-    console.log([email, password]);
+    // console.log([email, password]);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     localStorage.setItem("token", "");
-  },[])
+  }, []);
   return (
-<div className="bg-gradient-to-b from-green-500 to-green-700 min-h-screen flex flex-col justify-center items-center">
-  <h1 className="text-center text-white text-6xl font-bold mb-8 tracking-widest">
-    RoomService Admin.
-  </h1>
-  <div className="w-full max-w-lg bg-white bg-opacity-80 shadow-lg rounded-3xl p-10">
-    <form
-      className="w-full flex flex-col items-center"
-      onSubmit={handleSubmit}
-    >
-      <div className="w-full mb-6">
-        <label className="block font-bold text-green-700 text-base mb-2 tracking-wide" htmlFor="email">
-          Email
-        </label>
-        <div className="relative w-full">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-            <svg
-              className="w-6 h-6 text-green-600"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
+    <div className="bg-gradient-to-b from-green-500 to-green-700 min-h-screen flex flex-col justify-center items-center">
+      <h1 className="text-center text-white text-6xl font-bold mb-8 tracking-widest">
+        RoomService Admin.
+      </h1>
+      <div className="w-full max-w-lg bg-white bg-opacity-80 shadow-lg rounded-3xl p-10">
+        <form
+          className="w-full flex flex-col items-center"
+          onSubmit={handleSubmit}
+        >
+          <div className="w-full mb-6">
+            <label
+              className="block font-bold text-green-700 text-base mb-2 tracking-wide"
+              htmlFor="email"
             >
-              <path
-                stroke="currentColor"
-                stroke-width="2"
-                d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+              Email
+            </label>
+            <div className="relative w-full">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <svg
+                  className="w-6 h-6 text-green-600"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-width="2"
+                    d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                </svg>
+              </span>
+              <input
+                ref={emailRef}
+                className="w-full pl-10 pr-4 py-3 border-2 border-green-400 rounded-full focus:outline-none focus:ring-green-600 focus:border-green-600 focus:bg-green-50 transition duration-200"
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                onChange={changeEmailHandler}
               />
-            </svg>
-          </span>
-          <input
-            ref={emailRef}
-            className="w-full pl-10 pr-4 py-3 border-2 border-green-400 rounded-full focus:outline-none focus:border-green-600 focus:bg-green-50 transition duration-200"
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            onChange={changeEmailHandler}
-          />
-        </div>
-      </div>
+            </div>
+          </div>
 
-      <div className="w-full mb-6">
-        <label className="block font-bold text-green-700 text-base mb-2 tracking-wide" htmlFor="password">
-          Password
-        </label>
-        <div className="relative w-full">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-            <svg
-              className="w-6 h-6 text-green-600"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
+          <div className="w-full mb-6">
+            <label
+              className="block font-bold text-green-700 text-base mb-2 tracking-wide"
+              htmlFor="password"
             >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 14v3m-3-6V7a3 3 0 1 1 6 0v4m-8 0h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z"
+              Password
+            </label>
+            <div className="relative w-full">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <svg
+                  className="w-6 h-6 text-green-600"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 14v3m-3-6V7a3 3 0 1 1 6 0v4m-8 0h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z"
+                  />
+                </svg>
+              </span>
+              <input
+                ref={passwordRef}
+                className="w-full pl-10 pr-4 py-3 border-2 border-green-400 rounded-full focus:outline-none focus:ring-green-600 focus:border-green-600 focus:bg-green-50 transition duration-200"
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                onChange={changePasswordHandler}
               />
-            </svg>
-          </span>
-          <input
-            ref={passwordRef}
-            className="w-full pl-10 pr-4 py-3 border-2 border-green-400 rounded-full focus:outline-none focus:border-green-600 focus:bg-green-50 transition duration-200"
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            onChange={changePasswordHandler}
-          />
-        </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={!emailIsValid || !passwordIsValid}
+            className={`${
+              !emailIsValid || !passwordIsValid
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 transition duration-300"
+            } text-white font-bold w-full py-3 rounded-full shadow-lg focus:outline-none`}
+          >
+            {!isLoggingIn ? (
+              "Login"
+            ) : (
+              <div className="">
+                <svg
+                  className="mx-auto animate-spin"
+                  width="30px"
+                  height="30px"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C14.8273 3 17.35 4.30367 19 6.34267"
+                    stroke="#ffffff"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+            )}
+          </button>
+        </form>
       </div>
+    </div>
 
-      <button
-        type="submit"
-        disabled={!emailIsValid || !passwordIsValid}
-        className={`${
-          !emailIsValid || !passwordIsValid
-            ? "bg-green-300 cursor-not-allowed"
-            : "bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 transition duration-300"
-        } text-white font-bold w-full py-3 rounded-full shadow-lg focus:outline-none`}
-      >
-        Login
-      </button>
-    </form>
-  </div>
-</div>
-
-// Ayoyemi Hamzat
-
+    // Ayoyemi Hamzat
   );
 };
 

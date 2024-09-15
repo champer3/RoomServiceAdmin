@@ -15,17 +15,7 @@ export default function PageContextProvider({ children }) {
   const [categoryImageCheck, setCategoryImageCheck] = useState(false);
   const [currentPage, setCurrentPage] = useState("empty");
   const [categoriesList, setCategories] = useState(CATEGORIES_LIST);
-  const [currentOrder, setCurrentOrder] = useState({
-    id: "#302011",
-    status: "Processing",
-    dateAdded: "12 Dec 2022",
-    paymentMethod: "Visa",
-    shippingMethod: "Flat Shipping",
-    customer: "Josh Adam",
-    customerEmail: "joshadam@gmail.com",
-    customerPhone: "909 427 2910",
-    customerAddress: "1833 Bel Meadow Drive, Fontana, California 92335, USA",
-  });
+  const [currentOrder, setCurrentOrder] = useState({});
   const [currentCategory, setCurrentCategory] = useState({
     id: 1,
     image: snackImg,
