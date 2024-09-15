@@ -22,6 +22,9 @@ const OrderStatus = ({ status, id }) => {
 
   const statusOptions = [
     { label: "Processing", value: "Processing", color: "bg-orange-400" },
+    { label: "Preparing", value: "Preparing", color: "bg-orange-400" },
+    { label: "Ordered", value: "Ordered", color: "bg-yellow-400" },
+    { label: "Out for Delivery", value: "Out for Delivery", color: "bg-blue-400" },
     { label: "Delivered", value: "Delivered", color: "bg-green-200" },
     { label: "Ready", value: "Ready", color: "bg-yellow-200" },
     { label: "Canceled", value: "Canceled", color: "bg-red-200" },

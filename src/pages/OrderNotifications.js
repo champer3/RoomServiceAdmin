@@ -11,7 +11,12 @@ const updateStatus = async (id, newStatus) => {
     const orders = await axios.patch(
       `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
       JSON.stringify({
-        orderStatus: newStatus === "Completed" ? "Delivered" : newStatus === "Cancelled" ? "Canceled" : "Ready",
+        orderStatus:
+          newStatus === "Completed"
+            ? "Delivered"
+            : newStatus === "Cancelled"
+            ? "Canceled"
+            : "Ready",
       }),
       {
         headers: {
@@ -54,7 +59,7 @@ const getAllOrders = async () => {
         orderDate < new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
       );
     });
-    
+
     return todaysOrders.reverse();
   } catch (err) {
     console.log(err);
@@ -94,24 +99,36 @@ const OrderNotifications = () => {
 
   return (
     <>
-      {orderList.length <= 0 && <p>Loading...</p>}
       {orderList.length > 0 && (
         <div>
           <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">
             Recent Order Activity
           </h1>
+          {/* ['Ordered', 'Preparing', 'Out for Delivery', 'Delivered'] */}
           <div className="w-[330px] border border-[#E0E2E7] bg-white rounded-lg p-1">
             <TabButton
-              handleSelect={() => setFilter("Ready")}
-              isSelected={filter === "Ready"}
+              handleSelect={() => setFilter("Ordered")}
+              isSelected={filter === "Ordered"}
             >
-              In Progress
+              Ordered
+            </TabButton>
+            <TabButton
+              handleSelect={() => setFilter("Preparing")}
+              isSelected={filter === "Preparing"}
+            >
+              Preparing
+            </TabButton>
+            <TabButton
+              handleSelect={() => setFilter("Out for Delivery")}
+              isSelected={filter === "Out for Delivery"}
+            >
+              Out for Delivery
             </TabButton>
             <TabButton
               handleSelect={() => setFilter("Delivered")}
               isSelected={filter === "Delivered"}
             >
-              Completed
+              Delivered
             </TabButton>
             <TabButton
               handleSelect={() => setFilter("Canceled")}

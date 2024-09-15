@@ -50,6 +50,7 @@ const icon = (
 export default function SidePanel() {
   const { page, changePage } = useContext(PageContext);
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
   return (
     <>
       {token.length === 0 && <Navigate to={"/"}></Navigate>}
@@ -62,34 +63,50 @@ export default function SidePanel() {
                         <rect width="34" height="34" rx="10" fill="#283618" />
                     </svg> */}
             </div>
-            <Link to={"/dashboard"} onClick={() => changePage("dashboard")}>
-              <Dashboard active={page === "dashboard"} />
-            </Link>
-            <Link to={"/products"} onClick={() => changePage("products")}>
-              <Products active={page === "products"} />
-            </Link>
-            <Link to={"/categories"} onClick={() => changePage("categories")}>
-              <Categories active={page === "categories"} />
-            </Link>
-            <Link to={"/coupons"} onClick={() => changePage("coupons")}>
-              <Coupons active={page === "coupons"} />
-            </Link>
-            <Link to={"/orders"} onClick={() => changePage("orders")}>
-              <Orders active={page === "orders"} />
-            </Link>
-            <Link
-              to={"/order-notifications"}
-              onClick={() => changePage("notifications")}
-            >
-              <PanelBar
-                active={page === "notifications"}
-                title={"Notifications"}
-                icon={icon}
-              />
-            </Link>
-            <Link to={"/customers"} onClick={() => changePage("customers")}>
-              <Customers active={page === "customers"} />
-            </Link>
+            {role === "driver" && (
+              <Link
+                to={"/drivers"}
+                onClick={() => changePage("drivers-dashboard")}
+              >
+                <Dashboard active={page === "drivers-dashboard"} />
+              </Link>
+            )}
+
+            {role === "admin" && (
+              <>
+                <Link to={"/dashboard"} onClick={() => changePage("dashboard")}>
+                  <Dashboard active={page === "dashboard"} />
+                </Link>
+                <Link to={"/products"} onClick={() => changePage("products")}>
+                  <Products active={page === "products"} />
+                </Link>
+                <Link
+                  to={"/categories"}
+                  onClick={() => changePage("categories")}
+                >
+                  <Categories active={page === "categories"} />
+                </Link>
+                <Link to={"/coupons"} onClick={() => changePage("coupons")}>
+                  <Coupons active={page === "coupons"} />
+                </Link>
+                <Link to={"/orders"} onClick={() => changePage("orders")}>
+                  <Orders active={page === "orders"} />
+                </Link>
+                <Link
+                  to={"/order-notifications"}
+                  onClick={() => changePage("notifications")}
+                >
+                  <PanelBar
+                    active={page === "notifications"}
+                    title={"Notifications"}
+                    icon={icon}
+                  />
+                </Link>
+                <Link to={"/customers"} onClick={() => changePage("customers")}>
+                  <Customers active={page === "customers"} />
+                </Link>
+              </>
+            )}
             <Link
               to={"/"}
               className="hover:bg-red-800 text-red-500 flex items-center space-x-2 justify-left hover:text-stone-100 w-[264px] h-[48] px-[24px] py-[12px] leading-[20px] font-semibold text-14px tracking-[0.005em]"
@@ -122,7 +139,7 @@ export default function SidePanel() {
             </Link>
           </div>
           <div className="px-8 pb-8 w-full ">
-            <TopBar messages={11} notifications={11} />
+            {role === "admin" && <TopBar messages={11} notifications={11} />}
             <Outlet />
           </div>
         </div>

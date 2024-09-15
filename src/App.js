@@ -21,6 +21,8 @@ import LoginPage from "./pages/Login";
 import { getSocket, initializeSocket } from "./socketService";
 import { useEffect, useState } from "react";
 import OrderNotifications from "./pages/OrderNotifications";
+import DriverOrdersPage from "./pages/DriverOrdersPage";
+import DriversHomePage from "./pages/DriversHome";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -48,19 +50,21 @@ const router = createBrowserRouter([
       { path: "/add-coupons", element: <AddCouponsPage /> },
       { path: "/messages", element: <Messages /> },
       { path: "/viewmessage", element: <ViewMessage /> },
+      { path: "/drivers-order", element: <DriverOrdersPage /> },
+      { path: "/drivers", element: <DriversHomePage /> },
     ],
   },
 ]);
 function App() {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem("token");
   if (token) {
-    initializeSocket(token)
+    initializeSocket(token);
   }
   // const [socket] = useState(() => getSocket())
   const [socket, setSocket] = useState(null);
-  console.log("App component always mounted")
+  console.log("App component always mounted");
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       initializeSocket(token).then(() => {
         const socketInstance = getSocket();
@@ -71,13 +75,13 @@ function App() {
   }, []);
   useEffect(() => {
     if (socket) {
-      socket.on('order', (data) => {
-        console.log('Received message:', data);
+      socket.on("order", (data) => {
+        console.log("Received message:", data);
         // Handle global state update or perform actions
       });
 
       return () => {
-        socket.off('order'); // Correct the event name
+        socket.off("order"); // Correct the event name
       };
     }
   }, [socket]);
