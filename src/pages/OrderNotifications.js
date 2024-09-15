@@ -69,7 +69,7 @@ const getAllOrders = async () => {
 
 const OrderNotifications = () => {
   const [orderList, setOrderList] = useState([]);
-  const [filter, setFilter] = useState("Ready");
+  const [filter, setFilter] = useState("all");
   const [flag, setFlag] = useState(true);
 
   useEffect(() => {
