@@ -35,6 +35,8 @@ function formatNumberWithCommas(number) {
 }
 
 function formatDate(dateObject) {
+    console.log(dateObject)
+
     return moment(dateObject).format("D MMM YYYY");
 }
 

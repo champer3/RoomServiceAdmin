@@ -82,7 +82,7 @@ const OrderStatus = ({ status, id }) => {
   //   ref={dropdownRef}
   return (
     <td className="p-2 relative w-80">
-      <select
+      {/* <select
         value={selectedChoice || status}
         onChange={handleSelectChange}
         className={`block w-full px-4 py-2 pr-8 text-stone-900 font-bold ${
@@ -101,7 +101,7 @@ const OrderStatus = ({ status, id }) => {
             {option.label}
           </option>
         ))}
-      </select>
+      </select> */}
       {/* <div className="inline-block"> */}
       {/* <button */}
       {/* className={`w-full max-w-xs p-2 border-0 border-gray-300 rounded-md text-gray-900 focus:outline-none ${selectedOption?.color} flex items-center justify-between`} */}

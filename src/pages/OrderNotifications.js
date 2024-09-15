@@ -46,15 +46,23 @@ const getAllOrders = async () => {
       today.getMonth(),
       today.getDate()
     );
+    const targetMidnight = new Date();
+    targetMidnight.setHours(0, 0, 0, 0);
 
-    const todaysOrders = orders.data.data.orders.filter((order) => {
+    const todaysOrders = orders.data.data.orders.filter(order => {
       const orderDate = new Date(order.date);
-      return (
-        orderDate >= startOfDay &&
-        orderDate < new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
-      );
+      orderDate.setHours(orderDate.getHours() + 6);
+      orderDate.setHours(0, 0, 0, 0);
+      return orderDate.getTime() === targetMidnight.getTime();
     });
-    
+    // const todaysOrders = orders.data.data.orders.filter((order) => {
+    //   const orderDate = new Date(order.date);
+    //   return (
+    //     orderDate >= startOfDay &&
+    //     orderDate < new Date(startOfDay.getTime())
+    //     // orderDate < new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
+    //   );
+    // });
     return todaysOrders.reverse();
   } catch (err) {
     console.log(err);
@@ -70,6 +78,7 @@ const OrderNotifications = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       const orders = await getAllOrders();
+      console.log(orders)
       setOrderList(orders);
     };
     fetchOrders();
@@ -94,7 +103,8 @@ const OrderNotifications = () => {
 
   return (
     <>
-      {orderList.length <= 0 && <p>Loading...</p>}
+      {/* {orderList.length <= 0 && <p>Loading...</p>} */}
+      {console.log(orderList)}
       {orderList.length > 0 && (
         <div>
           <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">
