@@ -88,7 +88,7 @@ export default function OrdersPage() {
       .then((data) => data)
       .then((data) => setOrderList(data.data.data.orders));
   }, [allTab]);
-
+ console.log(orderList)
   useEffect(() => {
     const socket = getSocket();
     socket.on("order", (data) => {
@@ -469,7 +469,7 @@ export default function OrdersPage() {
                           <td className="">
                             <TableProductListing
                               image={order.image}
-                              mainProduct={order.name}
+                              mainProduct={order?.orderDetails[0]?.productName}
                               remProducts={order.extra}
                             />
                           </td>
@@ -483,7 +483,7 @@ export default function OrdersPage() {
                             ${formatNumberWithCommas(order.totalPrice)}
                           </td>
                           <td className="pl-12 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
-                            {order.paymentMothod}
+                            {order.paymentMethod}
                           </td>
                           <OrderStatus
                             status={order.orderStatus}
