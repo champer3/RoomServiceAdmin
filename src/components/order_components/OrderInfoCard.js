@@ -71,7 +71,7 @@ export default function OrderInfoCard({
           </button>
           <button
             onClick={() => {
-              onComplete(id, "Canceled");
+              onComplete(id, "Cancelled");
               stopTimer();
             }}
             className="p-1 hover:bg-stone-200 text-sm font-bold"

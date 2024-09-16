@@ -4,6 +4,14 @@ import axios from "axios";
 import OrderInfoCard from "../components/order_components/OrderInfoCard";
 import TabButton from "../components/TabButton";
 import { getSocket } from "../socketService";
+
+const emitOrderInDeliveryMessage = () => {
+  const socket = getSocket()
+  if (socket) {
+    console.log("Tried to emit the message")
+    socket.emit('orderInDelivery', 'Your Order is being delivered');
+  }
+};
 import { PageContext } from "../context/PageContext";
 
 const getAllOrders = async () => {
@@ -50,6 +58,53 @@ const getAllOrders = async () => {
 };
 
 const OrderNotifications = () => {
+  // This is for the Epson Printer API
+  const [printer, setPrinter] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const printerIP = '192.168.1.100'; // Replace with your printer's IP address
+  const connectPrinter = () => {
+    const ePosDev = new window.epson.ePOSDevice();
+
+    ePosDev.connect(printerIP, 8008, (deviceObj, errorCode) => {
+      if (deviceObj === null) {
+        console.error('Connection failed:', errorCode);
+        return;
+      }
+
+      const createdPrinter = ePosDev.createDevice('local_printer', ePosDev.DEVICE_TYPE_PRINTER);
+
+      if (createdPrinter === null) {
+        console.error('Failed to create printer object');
+        return;
+      }
+
+      setPrinter(createdPrinter);
+      setIsConnected(true);
+    });
+  };
+  const printReceipt = () => {
+    if (!printer) {
+      console.error('Printer is not connected');
+      return;
+    }
+
+    printer.addTextAlign(printer.ALIGN_CENTER);
+    printer.addText('Hello, this is a test receipt!\n');
+    printer.addFeedLine(1); // Add a line feed
+    printer.addCut(printer.CUT_FEED); // Cut the paper after printing
+
+    printer.send(() => {
+      console.log('Receipt printed successfully!');
+    }, (errorCode) => {
+      console.error('Print error:', errorCode);
+    });
+  };
+
+  // Connect to the printer when the component mounts
+  useEffect(() => {
+    connectPrinter();
+  }, []); 
+  // ....... Epson Printer End ....................
   const [orderList, setOrderList] = useState([]);
   const [filter, setFilter] = useState("Ordered");
   // const { flag, setFlag } = useContext(PageContext);
@@ -91,6 +146,7 @@ const OrderNotifications = () => {
   useEffect(() => {
     const socket = getSocket();
     socket.on("order", async (data) => {
+      printReceipt() // For Epson receipt. Might work or might not
       const orders = await getAllOrders();
       setOrderList(orders);
     });
