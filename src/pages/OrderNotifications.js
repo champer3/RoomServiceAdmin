@@ -1,18 +1,17 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import axios from "axios";
-
+import { PageContext } from "../context/PageContext";
 import OrderInfoCard from "../components/order_components/OrderInfoCard";
 import TabButton from "../components/TabButton";
 import { getSocket } from "../socketService";
 
 const emitOrderInDeliveryMessage = () => {
-  const socket = getSocket()
+  const socket = getSocket();
   if (socket) {
-    console.log("Tried to emit the message")
-    socket.emit('orderInDelivery', 'Your Order is being delivered');
+    console.log("Tried to emit the message");
+    socket.emit("orderInDelivery", "Your Order is being delivered");
   }
 };
-import { PageContext } from "../context/PageContext";
 
 const getAllOrders = async () => {
   const authToken = localStorage.getItem("token");
@@ -61,20 +60,23 @@ const OrderNotifications = () => {
   // This is for the Epson Printer API
   const [printer, setPrinter] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-  const printerIP = '192.168.1.100'; // Replace with your printer's IP address
+  const printerIP = "192.168.1.100"; // Replace with your printer's IP address
   const connectPrinter = () => {
     const ePosDev = new window.epson.ePOSDevice();
 
     ePosDev.connect(printerIP, 8008, (deviceObj, errorCode) => {
       if (deviceObj === null) {
-        console.error('Connection failed:', errorCode);
+        console.error("Connection failed:", errorCode);
         return;
       }
 
-      const createdPrinter = ePosDev.createDevice('local_printer', ePosDev.DEVICE_TYPE_PRINTER);
+      const createdPrinter = ePosDev.createDevice(
+        "local_printer",
+        ePosDev.DEVICE_TYPE_PRINTER
+      );
 
       if (createdPrinter === null) {
-        console.error('Failed to create printer object');
+        console.error("Failed to create printer object");
         return;
       }
 
@@ -82,28 +84,31 @@ const OrderNotifications = () => {
       setIsConnected(true);
     });
   };
-  const printReceipt = () => {
+  const printReceipt = useCallback(() => {
     if (!printer) {
-      console.error('Printer is not connected');
+      console.error("Printer is not connected");
       return;
     }
 
     printer.addTextAlign(printer.ALIGN_CENTER);
-    printer.addText('Hello, this is a test receipt!\n');
+    printer.addText("Hello, this is a test receipt!\n");
     printer.addFeedLine(1); // Add a line feed
     printer.addCut(printer.CUT_FEED); // Cut the paper after printing
 
-    printer.send(() => {
-      console.log('Receipt printed successfully!');
-    }, (errorCode) => {
-      console.error('Print error:', errorCode);
-    });
-  };
+    printer.send(
+      () => {
+        console.log("Receipt printed successfully!");
+      },
+      (errorCode) => {
+        console.error("Print error:", errorCode);
+      }
+    );
+  }, [printer]);
 
   // Connect to the printer when the component mounts
-  useEffect(() => {
-    connectPrinter();
-  }, []); 
+  // useEffect(() => {
+  //   connectPrinter();
+  // }, []);
   // ....... Epson Printer End ....................
   const [orderList, setOrderList] = useState([]);
   const [filter, setFilter] = useState("Ordered");
@@ -140,13 +145,12 @@ const OrderNotifications = () => {
       setOrderList(orders);
     };
     fetchOrders();
-    console.log(flag);
   }, [flag]);
 
   useEffect(() => {
     const socket = getSocket();
     socket.on("order", async (data) => {
-      printReceipt() // For Epson receipt. Might work or might not
+      printReceipt(); // For Epson receipt. Might work or might not
       const orders = await getAllOrders();
       setOrderList(orders);
     });
@@ -154,7 +158,7 @@ const OrderNotifications = () => {
     return () => {
       socket.off("order");
     };
-  }, []);
+  }, [printReceipt]);
 
   const handleFinishOrder = (id, newStatus) => {
     updateStatus(id, newStatus);
@@ -168,7 +172,7 @@ const OrderNotifications = () => {
           <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">
             Recent Order Activity
           </h1>
-          <div className="w-[67%] border border-[#E0E2E7] bg-white rounded-lg p-1">
+          <div className="w-[52%] border border-[#E0E2E7] bg-white rounded-lg p-1">
             {/* ['Ordered', 'Preparing', 'Out for Delivery', 'Delivered'] */}
             <TabButton
               handleSelect={() => setFilter("Ordered")}

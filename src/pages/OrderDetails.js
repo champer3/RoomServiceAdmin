@@ -15,6 +15,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 
 const drivers = [
+  "testuser1@rs.com",
   "testuser11@rs.com",
   "testuser12@rs.com",
   "testuser13@rs.com",
@@ -64,8 +65,10 @@ export default function OrderDetailsPage() {
 
   const updateOrder = async (id, email) => {
     let driverID;
+    let assigned;
     const authToken = localStorage.getItem("token");
     // https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/
+    //find driver
     try {
       const driver = await axios.get(
         `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
@@ -78,6 +81,7 @@ export default function OrderDetailsPage() {
       );
       // Do something with successful status update
       driverID = driver.data.data.user[0].id;
+      assigned = driver.data.data.user[0].assignedOrder;
     } catch (err) {
       console.log(err);
       setMessage({
@@ -87,7 +91,7 @@ export default function OrderDetailsPage() {
       });
       return;
     }
-
+    // patch order
     try {
       const order = await axios.patch(
         `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
@@ -114,6 +118,26 @@ export default function OrderDetailsPage() {
         text: "Error assigning driver",
         color: "warning",
       });
+      return;
+    }
+    // patch driver
+    try {
+      const user = await axios.patch(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
+        JSON.stringify({
+          assignedOrder: [...assigned, id],
+        }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      // Do something with successful status update
+      console.log("success");
+    } catch (err) {
+      console.log(err);
       return;
     }
   };

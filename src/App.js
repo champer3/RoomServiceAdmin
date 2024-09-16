@@ -33,7 +33,7 @@ const router = createBrowserRouter([
     path: "/drivers",
     element: <DriversSidePanel />,
     children: [
-      { path: "/drivers/drivers-dashboard", element: <DriversDashboard /> },
+      { path: "/drivers/drivers-dashboard/", element: <DriversDashboard /> },
       { path: "/drivers/drivers-order/:orderId", element: <DriverOrdersPage /> },
     ],
   },

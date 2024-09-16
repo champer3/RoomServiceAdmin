@@ -64,8 +64,11 @@ export default function DriversSidePanel() {
                         <rect width="34" height="34" rx="10" fill="#283618" />
                     </svg> */}
             </div>
-            <Link to={"/drivers/drivers-dashboard"} onClick={() => changePage("drivers-home")}>
-              <Dashboard active={page === "drivers-home"} />
+            <Link
+              to={"/drivers/drivers-dashboard"}
+              onClick={() => changePage("drivers-home")}
+            >
+              <Dashboard active={true} />
             </Link>
             <Link
               to={"/"}

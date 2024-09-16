@@ -49,7 +49,7 @@ function formatNumberWithCommas(number) {
 }
 
 export default function DriverOrdersPage() {
-  const { setFlag } = useContext(PageContext);
+  const { driverEmail } = useContext(PageContext);
   const [files, setFiles] = useState([]);
   const [idFile, setIdFile] = useState([]);
   const [order, setOrder] = useState();
@@ -73,7 +73,48 @@ export default function DriverOrdersPage() {
       // Do something with successful status update
     } catch (err) {
       console.log(err);
-      return [];
+      return;
+    }
+    let assigned;
+    try {
+      const driver = await axios.get(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${driverEmail}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      // Do something with successful status update
+      assigned = driver.data.data.user[0].assignedOrder;
+    } catch (err) {
+      console.log(err);
+      return;
+    }
+
+    const newAssigned = assigned.filter((order) => order !== id);
+    console.log(newAssigned)
+    // console.log(newAssigned);
+    // console.log(assigned);
+    try {
+      const user = await axios.patch(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${driverEmail}`,
+        JSON.stringify({
+          assignedOrder: [...newAssigned],
+        }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      // Do something with successful status update
+      console.log("success");
+    } catch (err) {
+      console.log(err);
+      return;
     }
   };
 

@@ -10,6 +10,7 @@ export const PageContext = createContext({
 });
 
 export default function PageContextProvider({ children }) {
+  const [driverEmail, setDriverEmail] = useState("");
   const [flag, setFlag] = useState(false);
   const [authUser, setAuthUser] = useState(false);
   const [file, setFile] = useState(null);
@@ -77,6 +78,8 @@ export default function PageContextProvider({ children }) {
     changeUserAuthStatus: setAuthUser,
     flag: flag,
     setFlag: setFlag,
+    driverEmail: driverEmail,
+    setDriverEmail: setDriverEmail,
   };
 
   return (

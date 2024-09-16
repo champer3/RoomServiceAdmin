@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { initializeSocket } from "../socketService";
-// import { PageContext } from "../context/PageContext";
+import { PageContext } from "../context/PageContext";
 
 const validate = (data) => {
   return String(data)
@@ -13,6 +13,7 @@ const validate = (data) => {
 };
 
 const LoginPage = () => {
+  const { setDriverEmail } = useContext(PageContext);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [emailIsValid, setEmailIsValid] = useState(false);
   const [passwordIsValid, setPasswordIsValid] = useState(false);
@@ -60,6 +61,7 @@ const LoginPage = () => {
         navigate("/dashboard/");
       }
       if (authRole === "driver") {
+        setDriverEmail(email);
         navigate("/drivers/drivers-dashboard");
       }
     } catch (err) {
