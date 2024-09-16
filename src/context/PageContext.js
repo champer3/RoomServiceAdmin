@@ -10,6 +10,7 @@ export const PageContext = createContext({
 });
 
 export default function PageContextProvider({ children }) {
+  const [flag, setFlag] = useState(false);
   const [authUser, setAuthUser] = useState(false);
   const [file, setFile] = useState(null);
   const [categoryImageCheck, setCategoryImageCheck] = useState(false);
@@ -74,6 +75,8 @@ export default function PageContextProvider({ children }) {
     changeCategoryImageCheck: handleChangeCategoryImageCheck,
     isAuthUser: authUser,
     changeUserAuthStatus: setAuthUser,
+    flag: flag,
+    setFlag: setFlag,
   };
 
   return (

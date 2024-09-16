@@ -1,31 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 
 import OrderInfoCard from "../components/order_components/OrderInfoCard";
 import TabButton from "../components/TabButton";
 import { getSocket } from "../socketService";
-
-const updateStatus = async (id, newStatus) => {
-  const authToken = localStorage.getItem("token");
-  try {
-    const orders = await axios.patch(
-      `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
-      JSON.stringify({
-        orderStatus: newStatus,
-      }),
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
-    );
-    // Do something with successful status update
-  } catch (err) {
-    console.log(err);
-    return [];
-  }
-};
+import { PageContext } from "../context/PageContext";
 
 const getAllOrders = async () => {
   const authToken = localStorage.getItem("token");
@@ -73,15 +52,40 @@ const getAllOrders = async () => {
 const OrderNotifications = () => {
   const [orderList, setOrderList] = useState([]);
   const [filter, setFilter] = useState("Ordered");
-  const [flag, setFlag] = useState(true);
+  // const { flag, setFlag } = useContext(PageContext);
+  const [flag, setFlag] = useState(false);
+
+  const updateStatus = async (id, newStatus) => {
+    const authToken = localStorage.getItem("token");
+    try {
+      const orders = await axios.patch(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+        JSON.stringify({
+          orderStatus: newStatus,
+        }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      // Do something with successful status update
+      setFlag((prevState) => !prevState);
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
       const orders = await getAllOrders();
-      console.log(orders);
+      // console.log(orders);
       setOrderList(orders);
     };
     fetchOrders();
+    console.log(flag);
   }, [flag]);
 
   useEffect(() => {
@@ -98,7 +102,6 @@ const OrderNotifications = () => {
 
   const handleFinishOrder = (id, newStatus) => {
     updateStatus(id, newStatus);
-    setFlag((prevState) => !prevState);
   };
 
   return (
@@ -109,7 +112,7 @@ const OrderNotifications = () => {
           <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">
             Recent Order Activity
           </h1>
-          <div className="w- border border-[#E0E2E7] bg-white rounded-lg p-1">
+          <div className="w-[67%] border border-[#E0E2E7] bg-white rounded-lg p-1">
             {/* ['Ordered', 'Preparing', 'Out for Delivery', 'Delivered'] */}
             <TabButton
               handleSelect={() => setFilter("Ordered")}

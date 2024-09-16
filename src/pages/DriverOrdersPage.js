@@ -49,10 +49,34 @@ function formatNumberWithCommas(number) {
 }
 
 export default function DriverOrdersPage() {
+  const { setFlag } = useContext(PageContext);
   const [files, setFiles] = useState([]);
   const [idFile, setIdFile] = useState([]);
   const [order, setOrder] = useState();
   const { orderId } = useParams();
+
+  const updateStatus = async (id, newStatus) => {
+    const authToken = localStorage.getItem("token");
+    try {
+      const orders = await axios.patch(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+        JSON.stringify({
+          orderStatus: newStatus,
+        }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      // Do something with successful status update
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
+  };
+
   useEffect(() => {
     getOrder(orderId).then((data) => setOrder(data));
   }, [orderId]);
@@ -88,6 +112,11 @@ export default function DriverOrdersPage() {
 
     return formattedNumber;
   }
+
+  const handleFinishOrder = (id, newStatus) => {
+    updateStatus(id, newStatus);
+    // setFlag((prevState) => !prevState);
+  };
 
   return (
     order && (
@@ -308,7 +337,10 @@ export default function DriverOrdersPage() {
               onRemoveFile={handleRemoveIDFile}
             />
           </div>
-          <button className="mx-auto rounded-lg p-1 w-40 border bg-rs-green text-white font-bold">
+          <button
+            onClick={() => handleFinishOrder(order.id, "Delivered")}
+            className="mx-auto rounded-lg p-1 w-40 border bg-rs-green text-white font-bold"
+          >
             Complete Order
           </button>
         </div>

@@ -6,11 +6,20 @@ import RedLabel from "../components/StatusLabels/RedLabel";
 import BlueLabel from "../components/StatusLabels/BlueLabel";
 import TableHead from "../components/dashboard_components/TableHead";
 import { ORDER_DETAILS_LIST } from "../assets/data";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { PageContext } from "../context/PageContext";
+import Logo from "../assets/Logo.png";
+
 import YellowLabel from "../components/StatusLabels/YellowLabel";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+
+const drivers = [
+  "testuser11@rs.com",
+  "testuser12@rs.com",
+  "testuser13@rs.com",
+  "testuser14@rs.com",
+];
 
 function formatDate(dateObject) {
   return moment(dateObject).format("D MMM YYYY");
@@ -48,29 +57,107 @@ function formatNumberWithCommas(number) {
 }
 
 export default function OrderDetailsPage() {
+  const [message, setMessage] = useState();
+  const optionsRef = useRef();
   const [order, setOrder] = useState();
   const { orderId } = useParams();
+
+  const updateOrder = async (id, email) => {
+    let driverID;
+    const authToken = localStorage.getItem("token");
+    // https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/
+    try {
+      const driver = await axios.get(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      // Do something with successful status update
+      driverID = driver.data.data.user[0].id;
+    } catch (err) {
+      console.log(err);
+      setMessage({
+        status: "Error",
+        text: `Error finding driver with this email ${email}`,
+        color: "warning",
+      });
+      return;
+    }
+
+    try {
+      const order = await axios.patch(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+        JSON.stringify({
+          driver: driverID,
+        }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      // Do something with successful status update
+      setMessage({
+        status: "Success",
+        text: "Driver assigned successfully!",
+        color: "success",
+      });
+    } catch (err) {
+      console.log(err);
+      setMessage({
+        status: "Error",
+        text: "Error assigning driver",
+        color: "warning",
+      });
+      return;
+    }
+  };
 
   useEffect(() => {
     getOrder(orderId).then((data) => setOrder(data));
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setMessage();
+    }, 4000);
+  }, [message]);
+
   const { changePage } = useContext(PageContext);
 
-  function formatNumberWithCommas(number) {
-    const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString(
-      "en-US",
-      {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }
-    );
-
-    return formattedNumber;
-  }
+  const handleAssignDriver = () => {
+    updateOrder(order.id, optionsRef.current.value);
+  };
+  // console.log(order);
 
   return (
     order && (
       <>
+        {message && (
+          <div
+            class={`bg-${message.color} toast text-white absolute show  right-0`}
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
+            <div class="toast-header">
+              <img src={Logo} class="rounded me-2 w-4 h-4" alt="..." />
+              <strong class="me-auto">{message.status}</strong>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="toast"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="toast-body">{message.text}</div>
+          </div>
+        )}
         {changePage("orders")}
         <div className="items-center">
           <p className="text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]">
@@ -84,7 +171,7 @@ export default function OrderDetailsPage() {
                 { name: "Order Details", link: "order-details" },
               ]}
             />
-            <button className="flex ml-auto border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]">
+            {/* <button className="flex ml-auto border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]">
               <svg
                 className="mr-2"
                 width="16"
@@ -110,8 +197,8 @@ export default function OrderDetailsPage() {
                 </defs>
               </svg>
               Export
-            </button>
-            <button className="flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]">
+            </button> */}
+            {/* <button className="flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]">
               <svg
                 width="20"
                 height="20"
@@ -138,10 +225,9 @@ export default function OrderDetailsPage() {
               </svg>
 
               <p className="ml-2">Invoice</p>
-            </button>
+            </button> */}
           </div>
         </div>
-
         <div className="flex w-full justify-between mt-4 items-start p-5">
           <div className="lg:w-[60%] w-[50%] space-y-4 bg-white p-[24px] rounded-lg shadow-lg">
             <div className="flex">
@@ -347,14 +433,21 @@ export default function OrderDetailsPage() {
             <p className="mr-2 font-semibold text-[20px] leading-[30px] tracking-[0.01em]">
               Assign Driver
             </p>
-            <select className="rounded-lg">
-              <option>Driver A</option>
-              <option>Driver B</option>
-              <option>Driver C</option>
-              <option>Driver D</option>
+
+            <select ref={optionsRef} className="rounded-lg">
+              {drivers.map((driver, index) => {
+                return (
+                  <option key={index} value={driver}>
+                    {driver}
+                  </option>
+                );
+              })}
             </select>
           </div>
-          <button className="mx-auto rounded-lg p-1 w-40 border bg-rs-green text-white font-bold">
+          <button
+            onClick={handleAssignDriver}
+            className="mx-auto rounded-lg p-1 w-40 border bg-rs-green text-white font-bold"
+          >
             Assign Driver
           </button>
         </div>
