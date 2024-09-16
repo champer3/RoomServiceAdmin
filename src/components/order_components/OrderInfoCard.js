@@ -62,7 +62,7 @@ export default function OrderInfoCard({
         <div className="absolute animate-none border border-stone-200 -top-3 -right-9 w-30 px-1 py-2 shadow-xl bg-stone-100 flex flex-col z-50">
           <button
             onClick={() => {
-              onComplete(id, "Delivered");
+              onComplete(id, "Out for Delivery");
               stopTimer();
             }}
             className="p-1 hover:bg-stone-200 text-sm font-bold"
@@ -71,7 +71,7 @@ export default function OrderInfoCard({
           </button>
           <button
             onClick={() => {
-              onComplete(id, "Canceled");
+              onComplete(id, "Cancelled");
               stopTimer();
             }}
             className="p-1 hover:bg-stone-200 text-sm font-bold"
@@ -99,7 +99,7 @@ export default function OrderInfoCard({
       )}
       <div
         onDoubleClick={() => {
-          onComplete(id, "Delivered");
+          onComplete(id, "Out for Delivery");
           stopTimer();
         }}
         className="relative bg-yellow-100 rounded-lg p-2 shadow-lg w-[200px] animate-pulse"
@@ -130,7 +130,7 @@ export default function OrderInfoCard({
           <p className="text-sm">Two Garri</p>
           <p className="font-bold text-[12px]">Total Order Price</p>
           <p className="text-sm">${total}</p>
-          {status === "Ready" && (
+          {status === "Ordered" && (
             <>
               <p className="mt-1 font-bold text-[12px]">Time Since Order:</p>
               <p className="font-bold text-red-700 text-md text-sm">
