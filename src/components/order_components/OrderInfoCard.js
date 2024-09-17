@@ -132,8 +132,13 @@ export default function OrderInfoCard({
           <p className="font-bold text-[12px]">Ordered by</p>
           <p className="text-sm">{customer}</p>
           <p className="mt-1 font-bold text-[12px]">In this order</p>
-          <p className="text-sm">One Fish</p>
-          <p className="text-sm">Two Garri</p>
+          {orderDetails.map((order, index) => {
+            return (
+              <p key={index} className="text-sm">
+                {order.productName}
+              </p>
+            );
+          })}
           <p className="font-bold text-[12px]">Total Order Price</p>
           <p className="text-sm">${total}</p>
           {status === "Ordered" && (

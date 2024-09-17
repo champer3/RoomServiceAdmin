@@ -163,7 +163,7 @@ const OrderNotifications = () => {
   const handleFinishOrder = (id, newStatus) => {
     updateStatus(id, newStatus);
   };
-
+console.log(orderList)
   return (
     <>
       {orderList.length > 0 && (
