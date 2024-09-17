@@ -467,11 +467,21 @@ export default function OrdersPage() {
                             {order.id.slice(-8)}
                           </td>
                           <td className="">
-                            <TableProductListing
-                              image={order.image}
-                              mainProduct={order?.orderDetails[0]?.productName}
-                              remProducts={order.extra}
-                            />
+                          <div className="flex  h-[80px] py-[18px] px-[22px] flex-column">
+            <div className="pl-2 w-[106px] items-center ">
+                <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333] text-container whitespace-nowrap truncate">{order?.orderDetails?.map((product) => product.productName).join(", ")}</p>
+            </div>
+            <div className="flex pl-2">
+        {order?.orderDetails?.map((product) => JSON.parse(product.dressing[0]).images[0])?.map((imgSrc, index) => (
+          <img
+            key={index}
+            src={imgSrc}
+            alt={`Dressing ${index}`}
+            className="h-[30px] w-[30px] object-cover rounded-full mr-2"
+          />
+        ))}
+      </div>
+        </div>
                           </td>
                           <td className="pl-8 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]">
                             {formatDate(order.date)}
