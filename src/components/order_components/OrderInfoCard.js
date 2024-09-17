@@ -64,7 +64,7 @@ export default function OrderInfoCard({
     setConfirmOperation(operation);
     modalRef.current.showModal();
   }
-  let color;
+  let color = "#ffc107";
   if (seconds > 800){
     color = '#A52A2A'
   }else if (seconds > 600){
@@ -120,7 +120,7 @@ export default function OrderInfoCard({
         }} className="w-[200px]"><div className={`card  shadow-sm ${
           status === "Ordered" ? "" : "bg-yellow-100"
         } `}>
-  <div class={`card-header `} style={count % 2 == 0 ? {backgroundColor:  '#ffc107' } : {backgroundColor: color, color: 'white'}}>
+  <div class={`card-header `} style={count % 2 == 0 ? {backgroundColor:  '#ffc107' } : {backgroundColor: color, color: color == '#ffc107' ? 'black' : 'white'  }}>
     <div className="justify-between flex">
     <p className="text-sm">
             #{index}
