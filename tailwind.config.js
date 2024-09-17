@@ -41,7 +41,6 @@ module.exports = {
     require('@tailwindcss/forms')({
       focus: false,
     }),
-    require('tailwind-scrollbar')({ nocompatible: true }),
   ],
 }
 
