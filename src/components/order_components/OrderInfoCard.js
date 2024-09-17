@@ -67,7 +67,7 @@ export default function OrderInfoCard({
   let color = "#ffc107";
   if (seconds > 900){
     color = '#A52A2A'
-  }else if (seconds > 400){
+  }else if (seconds > 480){
     color = '#BC6C25'
   }
   return (
