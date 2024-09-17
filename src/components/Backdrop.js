@@ -4,7 +4,7 @@ const Backdrop = ({ onClick }) => {
   const content = (
     <div
       onClick={onClick}
-      className="fixed min-h-screen w-[100%] bg-[#000000] opacity-10"
+      className="fixed min-h-screen w-[100%]  opacity-10 z-50"
     ></div>
   );
   return ReactDOM.createPortal(

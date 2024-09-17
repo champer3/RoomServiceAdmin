@@ -8,6 +8,7 @@ import TableHead from "../components/dashboard_components/TableHead";
 import { ORDER_DETAILS_LIST } from "../assets/data";
 import { useContext, useEffect, useState } from "react";
 import { PageContext } from "../context/PageContext";
+import { useNavigate } from "react-router-dom";
 import ImageDropzone from "../components/ImageDropzone";
 import YellowLabel from "../components/StatusLabels/YellowLabel";
 import axios from "axios";
@@ -49,6 +50,7 @@ function formatNumberWithCommas(number) {
 }
 
 export default function DriverOrdersPage() {
+  const navigate = useNavigate();
   const { driverEmail } = useContext(PageContext);
   const [files, setFiles] = useState([]);
   const [idFile, setIdFile] = useState([]);
@@ -97,7 +99,7 @@ export default function DriverOrdersPage() {
     }
 
     const newAssigned = assigned.filter((order) => order !== id);
-    console.log(newAssigned)
+    console.log(newAssigned);
     // console.log(newAssigned);
     // console.log(assigned);
     try {
@@ -114,7 +116,7 @@ export default function DriverOrdersPage() {
         }
       );
       // Do something with successful status update
-      console.log("success");
+      navigate("/drivers/drivers-dashboard/");
     } catch (err) {
       console.log(err);
       return;
@@ -382,7 +384,9 @@ export default function DriverOrdersPage() {
             />
           </div>
           <button
-            onClick={() => handleFinishOrder(order.id, "Delivered")}
+            onClick={() => {
+              handleFinishOrder(order.id, "Delivered");
+            }}
             className="mx-auto rounded-lg p-1 w-40 border bg-rs-green text-white font-bold"
           >
             Complete Order

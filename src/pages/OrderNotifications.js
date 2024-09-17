@@ -191,25 +191,17 @@ const OrderNotifications = () => {
 
   return (
     <>
-      {/* {orderList.length <= 0 && <p>Loading...</p>} */}
       {orderList.length > 0 && (
         <div>
           <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">
             Recent Order Activity
           </h1>
-          <div className="w-[52%] border border-[#E0E2E7] bg-white rounded-lg p-1">
-            {/* ['Ordered', 'Preparing', 'Out for Delivery', 'Delivered'] */}
+          <span className="bg-white p-1 rounded-lg flex w-[43%] items-center">
             <TabButton
               handleSelect={() => setFilter("Ordered")}
               isSelected={filter === "Ordered"}
             >
               Ordered
-            </TabButton>
-            <TabButton
-              handleSelect={() => setFilter("Preparing")}
-              isSelected={filter === "Preparing"}
-            >
-              Preparing
             </TabButton>
             <TabButton
               handleSelect={() => setFilter("Out for Delivery")}
@@ -235,7 +227,7 @@ const OrderNotifications = () => {
             >
               All
             </TabButton>
-          </div>
+          </span>
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             {orderList
               .filter((order) =>

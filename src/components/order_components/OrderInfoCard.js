@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import Backdrop from "../Backdrop";
 import GreenLabel from "../StatusLabels/GreenLabel";
 import OrangeLabel from "../StatusLabels/OrangeLabel";
 import RedLabel from "../StatusLabels/RedLabel";
@@ -59,43 +60,46 @@ export default function OrderInfoCard({
   return (
     <div className="relative">
       {isMenuOpen && (
-        <div className="absolute animate-none border border-stone-200 -top-3 -right-9 w-30 px-1 py-2 shadow-xl bg-stone-100 flex flex-col z-50">
-          <button
-            onClick={() => {
-              onComplete(id, "Out for Delivery");
-              stopTimer();
-            }}
-            className="p-1 hover:bg-stone-200 text-sm font-bold"
-          >
-            Complete Order
-          </button>
-          <button
-            onClick={() => {
-              onComplete(id, "Cancelled");
-              stopTimer();
-            }}
-            className="p-1 hover:bg-stone-200 text-sm font-bold"
-          >
-            Cancel Order
-          </button>
-          <button
-            onClick={() => {
-              onComplete(id, "Ordered");
-              stopTimer();
-            }}
-            className="p-1 hover:bg-stone-200 text-sm font-bold"
-          >
-            Reset
-          </button>
-          <button
-            className="p-1 hover:bg-stone-200 text-sm font-bold text-red-500"
-            onClick={() => {
-              setIsMenuOpen(false);
-            }}
-          >
-            Close Options
-          </button>
-        </div>
+        <>
+          <Backdrop onClick={() => setIsMenuOpen(false)} />
+          <div className="absolute animate-none border border-stone-200 -top-3 -right-9 w-30 px-1 py-2 shadow-xl bg-stone-100 flex flex-col z-50">
+            <button
+              onClick={() => {
+                onComplete(id, "Out for Delivery");
+                stopTimer();
+              }}
+              className="p-1 hover:bg-stone-200 text-sm font-bold"
+            >
+              Complete Order
+            </button>
+            <button
+              onClick={() => {
+                onComplete(id, "Cancelled");
+                stopTimer();
+              }}
+              className="p-1 hover:bg-stone-200 text-sm font-bold"
+            >
+              Cancel Order
+            </button>
+            <button
+              onClick={() => {
+                onComplete(id, "Ordered");
+                stopTimer();
+              }}
+              className="p-1 hover:bg-stone-200 text-sm font-bold"
+            >
+              Reset
+            </button>
+            <button
+              className="p-1 hover:bg-stone-200 text-sm font-bold"
+              onClick={() => {
+                setIsMenuOpen(false);
+              }}
+            >
+              Close Options
+            </button>
+          </div>
+        </>
       )}
       <div
         onDoubleClick={() => {

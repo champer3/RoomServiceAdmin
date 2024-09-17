@@ -15,11 +15,11 @@ export default function TabButton({
     <button
       onClick={handleSelect}
       disabled={disabled}
-      className={`px-[12px] ${
+      className={`${
         isSelected
-          ? "text-[#ffffff] font-semibold"
+          ? "text-[#ffffff] font-bold"
           : "text-customGrey font-bold"
-      } py-[6px] text-[14px]  leading-[20px] rounded-lg tracking-[0.005em]
+      } py-[6px] px-[12px] text-[14px]  leading-[20px] rounded-lg tracking-[0.005em]
         ${isSelected ? bg : ""}`}
     >
       {children}

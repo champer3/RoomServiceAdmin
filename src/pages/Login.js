@@ -14,6 +14,7 @@ const validate = (data) => {
 
 const LoginPage = () => {
   const { setDriverEmail } = useContext(PageContext);
+  const [loginFail, setLoginFail] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [emailIsValid, setEmailIsValid] = useState(false);
   const [passwordIsValid, setPasswordIsValid] = useState(false);
@@ -66,6 +67,7 @@ const LoginPage = () => {
       }
     } catch (err) {
       setIsLoggingIn(false);
+      setLoginFail(true);
       console.error(
         "Login failed:",
         err.response ? err.response.data : err.message
@@ -162,7 +164,9 @@ const LoginPage = () => {
               />
             </div>
           </div>
-
+          {loginFail && (
+            <p className="text-red-500 font-bold">Login failed. Try again</p>
+          )}
           <button
             type="submit"
             disabled={!emailIsValid || !passwordIsValid}
