@@ -115,14 +115,15 @@ const OrderNotifications = () => {
   // const { flag, setFlag } = useContext(PageContext);
   const [flag, setFlag] = useState(false);
 
-  const updateStatus = async (id, newStatus) => {
+  const updateStatus = async (id, orderStatus) => {
     const authToken = localStorage.getItem("token");
+    const postData = {
+      orderStatus,
+    };
     try {
-      const orders = await axios.patch(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
-        JSON.stringify({
-          orderStatus: newStatus,
-        }),
+      await axios.patch(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/deliver/${id}`,
+        JSON.stringify(postData),
         {
           headers: {
             "Content-Type": "application/json",
@@ -130,13 +131,36 @@ const OrderNotifications = () => {
           },
         }
       );
-      // Do something with successful status update
       setFlag((prevState) => !prevState);
     } catch (err) {
       console.log(err);
-      return [];
     }
   };
+  // const updateStatus = async (id, newStatus) => {
+  //   const authToken = localStorage.getItem("token");
+  //   try {
+  //     const order = await axios.patch(
+  //       `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+  //       JSON.stringify({
+  //         orderStatus: newStatus,
+  //       }),
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${authToken}`,
+  //         },
+  //       }
+  //     );
+  //     if (order) {
+
+  //     }
+  //     // Do something with successful status update
+  //     setFlag((prevState) => !prevState);
+  //   } catch (err) {
+  //     console.log(err);
+  //     return [];
+  //   }
+  // };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -150,7 +174,7 @@ const OrderNotifications = () => {
   useEffect(() => {
     const socket = getSocket();
     socket.on("order", async (data) => {
-      printReceipt(); // For Epson receipt. Might work or might not
+      // printReceipt(); // For Epson receipt. Might work or might not
       const orders = await getAllOrders();
       setOrderList(orders);
     });
@@ -161,30 +185,23 @@ const OrderNotifications = () => {
   }, [printReceipt]);
 
   const handleFinishOrder = (id, newStatus) => {
+    console.log("Inside Handlefinish Order", newStatus)
     updateStatus(id, newStatus);
   };
 
   return (
     <>
-      {/* {orderList.length <= 0 && <p>Loading...</p>} */}
       {orderList.length > 0 && (
         <div>
           <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">
             Recent Order Activity
           </h1>
-          <div className="w-[52%] border border-[#E0E2E7] bg-white rounded-lg p-1">
-            {/* ['Ordered', 'Preparing', 'Out for Delivery', 'Delivered'] */}
+          <span className="bg-white p-1 rounded-lg flex w-[43%] items-center">
             <TabButton
               handleSelect={() => setFilter("Ordered")}
               isSelected={filter === "Ordered"}
             >
               Ordered
-            </TabButton>
-            <TabButton
-              handleSelect={() => setFilter("Preparing")}
-              isSelected={filter === "Preparing"}
-            >
-              Preparing
             </TabButton>
             <TabButton
               handleSelect={() => setFilter("Out for Delivery")}
@@ -210,7 +227,7 @@ const OrderNotifications = () => {
             >
               All
             </TabButton>
-          </div>
+          </span>
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             {orderList
               .filter((order) =>
