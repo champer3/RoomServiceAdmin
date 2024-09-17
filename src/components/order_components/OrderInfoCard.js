@@ -22,8 +22,11 @@ export default function OrderInfoCard({
   customer,
   orderDetails,
   time,
+  instructions,
   total,
+  count,
   status,
+  index,
   onComplete,
 }) {
   const now = new Date();
@@ -35,7 +38,12 @@ export default function OrderInfoCard({
 
   const modalRef = useRef();
   const intervalRef = useRef();
-
+  useEffect(() => {
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => {
+      return new window.bootstrap.Popover(popoverTriggerEl);
+    });
+  }, []);
   useEffect(() => {
     if (status !== "Out for Delivery" && status !== "Cancelled") {
       intervalRef.current = setInterval(() => {
@@ -56,7 +64,12 @@ export default function OrderInfoCard({
     setConfirmOperation(operation);
     modalRef.current.showModal();
   }
-
+  let color;
+  if (seconds > 800){
+    color = '#A52A2A'
+  }else if (seconds > 600){
+    color = '#BC6C25'
+  }
   return (
     <div className="relative">
       {isMenuOpen && (
@@ -101,63 +114,67 @@ export default function OrderInfoCard({
           </div>
         </>
       )}
-      <div
-        onDoubleClick={() => {
+      <div   onDoubleClick={() => {
           onComplete(id, "Ready for Delivery");
           stopTimer();
-        }}
-        className={`relative bg-yellow-100 rounded-lg p-2 shadow-lg w-[200px] ${
-          status === "Ordered" ? "animate-pulse" : ""
-        } `}
-      >
-        <button
+        }} className="w-[200px]"><div className={`card  shadow-sm ${
+          status === "Ordered" ? "" : "bg-yellow-100"
+        } `}>
+  <div class={`card-header `} style={count % 2 == 0 ? {backgroundColor:  '#ffc107' } : {backgroundColor: color, color: 'white'}}>
+    <div className="justify-between flex">
+    <p className="text-sm">
+            #{index}
+          </p>
+          {status === "Ordered"  && (
+            <div className="flex justify-between gap-1">
+              <p className="text-sm">
+                {Math.floor(seconds / 3600) < 10?`0${Math.floor(seconds / 3600)}`:Math.floor(seconds / 3600)}:{""}{Math.floor((seconds % 3600) / 60) < 10?`0${Math.floor((seconds % 3600) / 60)}`:Math.floor((seconds % 3600) / 60)}:{seconds % 60 < 10 ? `0${seconds % 60}` : seconds % 60}
+              </p>
+             
+            </div>
+            
+          )} <button
           onClick={() => {
             setIsMenuOpen((prevState) => !prevState);
           }}
           className={`${
             status === "Completed" || status === "Cancelled" ? "hidden" : ""
-          } absolute right-5 flex flex-col justify-between h-4`}
+          }  right-5 flex flex-col justify-between h-4`}
         >
-          <span className="block w-1 bg-stone-500 h-1 rounded-full" />
-          <span className="block w-1 bg-stone-500 h-1 rounded-full" />
-          <span className="block w-1 bg-stone-500 h-1 rounded-full" />
+          <span className="block w-1 bg-dark h-1 rounded-full" />
+          <span className="block w-1 bg-dark h-1 rounded-full" />
+          <span className="block w-1 bg-dark h-1 rounded-full" />
         </button>
-        <div className="flex items-center justify-center">
-          <p className="font-bold text-xl text-center text-amber-700">
-            Order {id.slice(id.length - 5, id.length)}
-          </p>
-        </div>
-        <hr className=" border-dotted border-t border-stone-800 " />
-        <div className="flex flex-col justify-center items-center">
-          <p className="font-bold text-[12px]">Ordered by</p>
-          <p className="text-sm">{customer}</p>
-          <p className="mt-1 font-bold text-[12px]">In this order</p>
-          {orderDetails.map((order, index) => {
-            return (
-              <p key={index} className="text-sm">
-                {order.productName}
+          </div>
+    <div className="justify-between flex">
+    <p className="text-sm font-bold">{customer}</p>
+          {instructions.length > 0 &&  <button type="button" class="bg-white rounded-lg p-[3px]" data-bs-toggle="popover" data-bs-title="Instructions" data-bs-content={instructions}><svg width={'14px'} height={'14px'} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#0dcaf0" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0-24 0 0-48 24 0 48 0 24 0 0 24 0 88 8 0 24 0 0 48-24 0-80 0-24 0 0-48 24 0zm72-144l-64 0 0-64 64 0 0 64z"/></svg></button>}
+    </div>
+  </div>
+  {orderDetails.map((order, index) => <div key={index} class="card-body m-0 p-[3px]">
+              <div  className="flex justify-between items-center">
+                <div className="w-[8%] flex items-center">{status === "Ready for Delivery" && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#507615" class="fa-secondary" d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zm126.1 0L160 222.1c.3 .3 .6 .6 1 1c5.3 5.3 10.7 10.7 16 16c15.7 15.7 31.4 31.4 47 47c37-37 74-74 111-111c5.3-5.3 10.7-10.7 16-16c.3-.3 .6-.6 1-1L385.9 192c-.3 .3-.6 .6-1 1l-16 16L241 337l-17 17-17-17-64-64c-5.3-5.3-10.7-10.7-16-16l-1-1z"/><path fill="#5c9a2c" opacity=".4" class="fa-primary" d="M385 193L241 337l-17 17-17-17-80-80L161 223l63 63L351 159 385 193z"/></svg>}</div>
+                <div><p className="text-sm ">{order?.dressing?.length}</p></div>
+                <div className="w-[75%]"><p className="text-sm ">
+                {order.productName} {order.component ?'('+order.component+')': ''}
               </p>
-            );
-          })}
-          <p className="font-bold text-[12px]">Total Order Price</p>
-          <p className="text-sm">${total}</p>
-          {status === "Ordered" && (
-            <>
-              <p className="mt-1 font-bold text-[12px]">Time Since Order:</p>
-              <p className="font-bold text-red-700 text-md text-sm">
-                {Math.floor(seconds / 3600) < 10
-                  ? `0${Math.floor(seconds / 3600)}`
-                  : Math.floor(seconds / 3600)}
-                h :{" "}
-                {Math.floor((seconds % 3600) / 60) < 10
-                  ? `0${Math.floor((seconds % 3600) / 60)}`
-                  : Math.floor((seconds % 3600) / 60)}
-                m : {seconds % 60 < 10 ? `0${seconds % 60}` : seconds % 60}s
-              </p>
-            </>
-          )}
-        </div>
-      </div>
+              </div>
+              </div>
+              {order?.flavor?.map((product) => <div  className="flex justify-between items-center px-3">
+                <div></div>
+                <div className="w-[75%]">{JSON.parse(product).values.length > 0 && <p className="text-[10px] text-secondary italic">{JSON.parse(product).name} : {JSON.parse(product).values.map(val=>val.name).join(', ')}</p>}
+              </div>
+              </div>)}
+              {order?.sides?.map((product) => <div  className="flex justify-between items-center">
+                <div className="w-[8%] flex items-center">{status === "Ready for Delivery" && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#507615" class="fa-secondary" d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zm126.1 0L160 222.1c.3 .3 .6 .6 1 1c5.3 5.3 10.7 10.7 16 16c15.7 15.7 31.4 31.4 47 47c37-37 74-74 111-111c5.3-5.3 10.7-10.7 16-16c.3-.3 .6-.6 1-1L385.9 192c-.3 .3-.6 .6-1 1l-16 16L241 337l-17 17-17-17-64-64c-5.3-5.3-10.7-10.7-16-16l-1-1z"/><path fill="#5c9a2c" opacity=".4" class="fa-primary" d="M385 193L241 337l-17 17-17-17-80-80L161 223l63 63L351 159 385 193z"/></svg>}</div>
+                <div></div>
+                <div className="w-[75%]"><p className="text-[12px] text-secondary italic">
+                {JSON.parse(product).name}
+              </p></div>
+              </div>)}
+  </div> )}
+</div></div>
+      
     </div>
   );
 }

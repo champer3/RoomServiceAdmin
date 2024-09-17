@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
 import axios from "axios";
 import { PageContext } from "../context/PageContext";
 import OrderInfoCard from "../components/order_components/OrderInfoCard";
@@ -84,6 +84,15 @@ const OrderNotifications = () => {
       setIsConnected(true);
     });
   };
+  const [seconds, setSeconds] = useState(0); 
+  const intervalRef = useRef();
+  useEffect(() => {
+      intervalRef.current = setInterval(() => {
+        setSeconds((prevState) => prevState + 1);
+      }, 1000);
+
+    return () => clearInterval(intervalRef.current);
+  }, [seconds]);
   const printReceipt = useCallback(() => {
     if (!printer) {
       console.error("Printer is not connected");
@@ -234,25 +243,26 @@ console.log(orderList)
               All
             </TabButton>
           </span>
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="d-flex flex-column gap-3" style={{height: '100vh', flexWrap: 'wrap', width: 'fit-content'}}>
             {orderList
               .filter((order) =>
                 filter === "all" ? true : order.orderStatus === filter
               )
               .map((order, index) => {
                 return (
-                  <div key={index}>
                     <OrderInfoCard
                       key={index}
                       id={order.id}
+                      index = {orderList.length - index}
                       customer={order.userName}
                       time={new Date(order.date)}
+                      count = {seconds}
                       status={order.orderStatus}
+                      instructions={order.orderInstruction}
                       orderDetails={order.orderDetails}
                       total={order.totalPrice.toFixed(2)}
                       onComplete={handleFinishOrder}
                     />
-                  </div>
                 );
               })}
           </div>
