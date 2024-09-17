@@ -88,7 +88,7 @@ export default function OrdersPage() {
       .then((data) => data)
       .then((data) => setOrderList(data.data.data.orders));
   }, [allTab]);
-  console.log(orderList);
+  // console.log(orderList);
   useEffect(() => {
     const socket = getSocket();
     socket.on("order", (data) => {

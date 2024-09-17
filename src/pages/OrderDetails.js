@@ -45,6 +45,19 @@ const getOrder = async (id) => {
   }
 };
 
+function arrayToObject(arrays) {
+  let result = [];
+
+  arrays.forEach((innerArray) => {
+    const res = {};
+    const [key, ...values] = innerArray;
+    res[key] = values;
+    result = [...result, { ...res }];
+  });
+
+  return result;
+}
+
 function formatNumberWithCommas(number) {
   const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString(
     "en-US",
@@ -59,6 +72,7 @@ function formatNumberWithCommas(number) {
 
 export default function OrderDetailsPage() {
   const [assignedDriver, setAssignedDriver] = useState("");
+  const [options, setOptions] = useState();
   const [flag, setFlag] = useState(false);
   const [message, setMessage] = useState();
   const optionsRef = useRef();
@@ -156,7 +170,7 @@ export default function OrderDetailsPage() {
 
   useEffect(() => {
     getOrder(orderId).then((data) => setOrder(data));
-  }, [flag]);
+  }, [flag, orderId]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -170,7 +184,9 @@ export default function OrderDetailsPage() {
     updateOrder(order.id, optionsRef.current.value);
   };
 
-  // console.log(order);
+  if (order) {
+    console.log(order);
+  }
 
   return (
     order && (
@@ -210,8 +226,8 @@ export default function OrderDetailsPage() {
             />
           </div>
         </div>
-        <div className="flex w-full justify-between mt-4 items-start p-5">
-          <div className="lg:w-[60%] w-[50%] space-y-4 bg-white p-[24px] rounded-lg shadow-lg">
+        <div className="w-full flex flex-col items-center space-y-3 lg:space-y-0 lg:flex-row lg:items-start lg:justify-between space-x-4 mt-4 p-5">
+          <div className="lg:w-[50%] w-[100%] bg-white rounded-lg shadow-md p-3">
             <div className="flex">
               <div className="w-full flex space-x-3 justify-between">
                 <p className="text-[#333333] font-semibold text-[18px] leading-[28px] tracking-[0.01em]">
@@ -337,7 +353,7 @@ export default function OrderDetailsPage() {
               <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">
                 Shipping Address
               </p>
-              <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333] w-20 lg:w-full text-right truncate">
+              <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333] lg:w-full text-right">
                 {order.shippingAddress}
               </p>
             </div>
@@ -378,8 +394,7 @@ export default function OrderDetailsPage() {
               </p>
             </div>
           </div>
-          <div className="lg:w-[30%] w-[40%]">
-            <div className="bg-white w-full rounded-lg shadow-lg p-3">
+          <div className="lg:w-[50%] w-[100%] bg-white w-full rounded-lg shadow-md p-3">
               <div className="rounded-lg w-full bg-white px-2 py-2 items-center flex">
                 <p className="mr-2 font-semibold text-[20px] leading-[30px] tracking-[0.01em]">
                   Order List
@@ -396,18 +411,63 @@ export default function OrderDetailsPage() {
                   Price($)
                 </p>
               </div>
+              <div className="w-full items-center  px-2">
+                {arrayToObject(
+                  order?.orderDetails?.map((product) =>
+                    product.flavor.reduce(
+                      (total, item) => {
+                        return total.concat(
+                          Object.entries(JSON.parse(item)).map(
+                            ([key, values]) => {
+                              // Check if values is an array
+                              if (Array.isArray(values)) {
+                                // Join the names from the array if it's valid
+                                return `${key}: ${values
+                                  .map((value) => value.name)
+                                  .join(", ")}`;
+                              } else {
+                                // If not an array, simply return the key-value pair
+                                return `${key}: ${values}`;
+                              }
+                            }
+                          )
+                        );
+                      },
+                      [product.productName]
+                    )
+                  )
+                ).map((item, index) => (
+                  <div key={index} className="flex flex-col">
+                    <p className="text-sm font-[600]">
+                      {order.orderDetails[index].productName}
+                    </p>
+                    {item[order.orderDetails[index].productName]
+                      .filter(
+                        (inst) =>
+                          inst.slice(0, 4) === "name" ||
+                          inst.slice(0, 5) === "value"
+                      )
+                      .map((i, ind) => {
+                        return i.slice(0, 4) === "name" ? (
+                          <p className="ml-5 text-sm font-bold">{i.slice(6)}</p>
+                        ) : (
+                          <p className="ml-5 text-sm">{i.slice(7)}</p>
+                        );
+                      })}
+                  </div>
+                ))}
+              </div>
               <div className="w-full flex items-center  px-2">
-                <p className="font-bold text-[14px] text-left w-full leading-[20px] tracking-[0.005em] text-[#333333]">
+                <p className="font-[800] text-[14px] text-left w-full leading-[20px] tracking-[0.005em] text-[#333333]">
                   Order Total
                 </p>
                 <p className="font-bold text-[14px] text-center w-full leading-[20px] tracking-[0.005em] text-[#333333]">
                   -
                 </p>
-                <p className="font-bold text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
+                <p className="font-[800] text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
                   {formatNumberWithCommas(order.totalPrice)}
                 </p>
               </div>
-            </div>
           </div>
         </div>
         <div className="bg-white rounded-lg p-[24px] w-[90%] mx-auto shadow-lg flex flex-col space-y-2">
