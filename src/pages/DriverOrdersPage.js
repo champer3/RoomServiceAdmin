@@ -58,12 +58,15 @@ export default function DriverOrdersPage() {
   const { orderId } = useParams();
 
   const updateStatus = async (id, newStatus) => {
+    console.log("id", id)
+    console.log("newStatus", newStatus)
     const authToken = localStorage.getItem("token");
+    console.log("authToken", authToken)
     try {
-      const orders = await axios.patch(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+      await axios.patch(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/deliver/${id}`,
         JSON.stringify({
-          orderStatus: newStatus,
+          orderStatus: newStatus
         }),
         {
           headers: {

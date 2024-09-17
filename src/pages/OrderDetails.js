@@ -349,7 +349,7 @@ export default function OrderDetailsPage() {
                 Payment Method
               </p>
               <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">
-                {order.paymentMothod}
+                {order.paymentMethod}
               </p>
             </div>
             <div className="w-full flex items-center">

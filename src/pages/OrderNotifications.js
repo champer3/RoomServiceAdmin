@@ -115,14 +115,15 @@ const OrderNotifications = () => {
   // const { flag, setFlag } = useContext(PageContext);
   const [flag, setFlag] = useState(false);
 
-  const updateStatus = async (id, newStatus) => {
+  const updateStatus = async (id, orderStatus) => {
     const authToken = localStorage.getItem("token");
+    const postData = {
+      orderStatus,
+    };
     try {
-      const orders = await axios.patch(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
-        JSON.stringify({
-          orderStatus: newStatus,
-        }),
+      await axios.patch(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/deliver/${id}`,
+        JSON.stringify(postData),
         {
           headers: {
             "Content-Type": "application/json",
@@ -130,13 +131,36 @@ const OrderNotifications = () => {
           },
         }
       );
-      // Do something with successful status update
       setFlag((prevState) => !prevState);
     } catch (err) {
       console.log(err);
-      return [];
     }
   };
+  // const updateStatus = async (id, newStatus) => {
+  //   const authToken = localStorage.getItem("token");
+  //   try {
+  //     const order = await axios.patch(
+  //       `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+  //       JSON.stringify({
+  //         orderStatus: newStatus,
+  //       }),
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${authToken}`,
+  //         },
+  //       }
+  //     );
+  //     if (order) {
+
+  //     }
+  //     // Do something with successful status update
+  //     setFlag((prevState) => !prevState);
+  //   } catch (err) {
+  //     console.log(err);
+  //     return [];
+  //   }
+  // };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -150,7 +174,7 @@ const OrderNotifications = () => {
   useEffect(() => {
     const socket = getSocket();
     socket.on("order", async (data) => {
-      printReceipt(); // For Epson receipt. Might work or might not
+      // printReceipt(); // For Epson receipt. Might work or might not
       const orders = await getAllOrders();
       setOrderList(orders);
     });
@@ -161,6 +185,7 @@ const OrderNotifications = () => {
   }, [printReceipt]);
 
   const handleFinishOrder = (id, newStatus) => {
+    console.log("Inside Handlefinish Order", newStatus)
     updateStatus(id, newStatus);
   };
 console.log(orderList)
