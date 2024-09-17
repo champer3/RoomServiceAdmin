@@ -65,9 +65,9 @@ export default function OrderInfoCard({
     modalRef.current.showModal();
   }
   let color = "#ffc107";
-  if (seconds > 800){
+  if (seconds > 900){
     color = '#A52A2A'
-  }else if (seconds > 600){
+  }else if (seconds > 400){
     color = '#BC6C25'
   }
   return (
