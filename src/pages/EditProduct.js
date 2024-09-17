@@ -221,7 +221,7 @@ const handleRemoveNutrient = (nutrient) => {
                 {
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MmY5MTQ1ZGEzYmQ3ZmUzMTU5YzU1MyIsImlhdCI6MTcyNTAzNDYxOCwiZXhwIjoxNzI1ODk4NjE4fQ.xcFoMC9joIY-ChhTZZBGsvyfGtgz-SSQxYDnMe_4kVI'}`,
+                        Authorization: `Bearer ${authToken}`,
                     },
 
                 });
