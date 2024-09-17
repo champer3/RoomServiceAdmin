@@ -88,7 +88,7 @@ export default function OrderInfoCard({
             Reset
           </button>
           <button
-            className="p-1 hover:bg-stone-200 text-sm font-bold"
+            className="p-1 hover:bg-stone-200 text-sm font-bold text-red-500"
             onClick={() => {
               setIsMenuOpen(false);
             }}
