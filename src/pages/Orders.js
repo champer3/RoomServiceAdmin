@@ -504,7 +504,7 @@ export default function OrdersPage() {
                           <td className="pl-12 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
                             {order.paymentMethod}
                           </td>
-                          <td className="w-80">
+                          <td className="w-[15%]">
                             <div className="flex justify-start items-center">
                               {order.orderStatus === "Ordered" && (
                                 <OrangeLabel>{order.orderStatus}</OrangeLabel>

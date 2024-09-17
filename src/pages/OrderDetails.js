@@ -83,8 +83,76 @@ export default function OrderDetailsPage() {
     let driverID;
     let assigned;
     const authToken = localStorage.getItem("token");
+    // console.log(oldEmail ? oldEmail : "No old driver");
     // https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/
-    //find driver
+    //find old driver; in case of new assignment
+    if (true) {
+      // get old driver
+      let oldDriver;
+      // to find old driver's email from order 
+      try {
+        const order = await axios.get(
+          `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        oldDriver = order.data.data.order.driver;
+        console.log(oldDriver);
+      } catch (err) {
+        console.log(err);
+      }
+
+      // get old driver's current assigned order
+      let assigned;
+      try {
+        const driver = await axios.get(
+          `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        // Do something with successful status update
+        assigned = driver.data.data.user[0].assignedOrder;
+      } catch (err) {
+        console.log(err);
+        return;
+      }
+
+      // remove order from old driver's assigned orders
+      const newAssigned = assigned.filter((order) => order !== id);
+      // console.log(newAssigned);
+      // // console.log(newAssigned);
+      // // console.log(assigned);
+      // console.log(oldDriver);
+
+      // patch old Driver to not include order anymore
+      try {
+        const user = await axios.patch(
+          `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${oldDriver}`,
+          JSON.stringify({
+            assignedOrder: [...newAssigned],
+          }),
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+      //   // Do something with successful status update
+      } catch (err) {
+        console.log(err);
+        return;
+      }
+    }
+    //find new driver
     try {
       const driver = await axios.get(
         `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
@@ -113,7 +181,7 @@ export default function OrderDetailsPage() {
       const order = await axios.patch(
         `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
         JSON.stringify({
-          driver: driverID,
+          driver: email,
           orderStatus: "Out for Delivery",
         }),
         {
@@ -184,9 +252,9 @@ export default function OrderDetailsPage() {
     updateOrder(order.id, optionsRef.current.value);
   };
 
-  if (order) {
-    console.log(order);
-  }
+  // if (order) {
+  //   console.log(order);
+  // }
 
   return (
     order && (
@@ -395,79 +463,79 @@ export default function OrderDetailsPage() {
             </div>
           </div>
           <div className="lg:w-[50%] w-[100%] bg-white w-full rounded-lg shadow-md p-3">
-              <div className="rounded-lg w-full bg-white px-2 py-2 items-center flex">
-                <p className="mr-2 font-semibold text-[20px] leading-[30px] tracking-[0.01em]">
-                  Order List
-                </p>
-              </div>
-              <div className="w-full flex items-center px-2">
-                <p className="font-[800] text-[14px] text-left w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                  Item
-                </p>
-                <p className="font-[800] text-[14px] text-center w-full  leading-[20px] tracking-[0.005em] text-[#333333]">
-                  Quantity
-                </p>
-                <p className="font-[800] text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                  Price($)
-                </p>
-              </div>
-              <div className="w-full items-center  px-2">
-                {arrayToObject(
-                  order?.orderDetails?.map((product) =>
-                    product.flavor.reduce(
-                      (total, item) => {
-                        return total.concat(
-                          Object.entries(JSON.parse(item)).map(
-                            ([key, values]) => {
-                              // Check if values is an array
-                              if (Array.isArray(values)) {
-                                // Join the names from the array if it's valid
-                                return `${key}: ${values
-                                  .map((value) => value.name)
-                                  .join(", ")}`;
-                              } else {
-                                // If not an array, simply return the key-value pair
-                                return `${key}: ${values}`;
-                              }
+            <div className="rounded-lg w-full bg-white px-2 py-2 items-center flex">
+              <p className="mr-2 font-semibold text-[20px] leading-[30px] tracking-[0.01em]">
+                Order List
+              </p>
+            </div>
+            <div className="w-full flex items-center px-2">
+              <p className="font-[800] text-[14px] text-left w-full leading-[20px] tracking-[0.005em] text-[#333333]">
+                Item
+              </p>
+              <p className="font-[800] text-[14px] text-center w-full  leading-[20px] tracking-[0.005em] text-[#333333]">
+                Quantity
+              </p>
+              <p className="font-[800] text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
+                Price($)
+              </p>
+            </div>
+            <div className="w-full items-center  px-2">
+              {arrayToObject(
+                order?.orderDetails?.map((product) =>
+                  product.flavor.reduce(
+                    (total, item) => {
+                      return total.concat(
+                        Object.entries(JSON.parse(item)).map(
+                          ([key, values]) => {
+                            // Check if values is an array
+                            if (Array.isArray(values)) {
+                              // Join the names from the array if it's valid
+                              return `${key}: ${values
+                                .map((value) => value.name)
+                                .join(", ")}`;
+                            } else {
+                              // If not an array, simply return the key-value pair
+                              return `${key}: ${values}`;
                             }
-                          )
-                        );
-                      },
-                      [product.productName]
-                    )
+                          }
+                        )
+                      );
+                    },
+                    [product.productName]
                   )
-                ).map((item, index) => (
-                  <div key={index} className="flex flex-col">
-                    <p className="text-sm font-[600]">
-                      {order.orderDetails[index].productName}
-                    </p>
-                    {item[order.orderDetails[index].productName]
-                      .filter(
-                        (inst) =>
-                          inst.slice(0, 4) === "name" ||
-                          inst.slice(0, 5) === "value"
-                      )
-                      .map((i, ind) => {
-                        return i.slice(0, 4) === "name" ? (
-                          <p className="ml-5 text-sm font-bold">{i.slice(6)}</p>
-                        ) : (
-                          <p className="ml-5 text-sm">{i.slice(7)}</p>
-                        );
-                      })}
-                  </div>
-                ))}
-              </div>
-              <div className="w-full flex items-center  px-2">
-                <p className="font-[800] text-[14px] text-left w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                  Order Total
-                </p>
-                <p className="font-bold text-[14px] text-center w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                  -
-                </p>
-                <p className="font-[800] text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                  {formatNumberWithCommas(order.totalPrice)}
-                </p>
-              </div>
+                )
+              ).map((item, index) => (
+                <div key={index} className="flex flex-col">
+                  <p className="text-sm font-[600]">
+                    {order.orderDetails[index].productName}
+                  </p>
+                  {item[order.orderDetails[index].productName]
+                    .filter(
+                      (inst) =>
+                        inst.slice(0, 4) === "name" ||
+                        inst.slice(0, 5) === "value"
+                    )
+                    .map((i, ind) => {
+                      return i.slice(0, 4) === "name" ? (
+                        <p className="ml-5 text-sm font-bold">{i.slice(6)}</p>
+                      ) : (
+                        <p className="ml-5 text-sm">{i.slice(7)}</p>
+                      );
+                    })}
+                </div>
+              ))}
+            </div>
+            <div className="w-full flex items-center  px-2">
+              <p className="font-[800] text-[14px] text-left w-full leading-[20px] tracking-[0.005em] text-[#333333]">
+                Order Total
+              </p>
+              <p className="font-bold text-[14px] text-center w-full leading-[20px] tracking-[0.005em] text-[#333333]">
+                -
+              </p>
+              <p className="font-[800] text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
+                {formatNumberWithCommas(order.totalPrice)}
+              </p>
+            </div>
           </div>
         </div>
         <div className="bg-white rounded-lg p-[24px] w-[90%] mx-auto shadow-lg flex flex-col space-y-2">
@@ -506,3 +574,16 @@ export default function OrderDetailsPage() {
     )
   );
 }
+
+// {order?.flavor?.map((product) => <div  className="flex justify-between items-center px-3">
+//   <div></div>
+//   <div className="w-[75%]">{JSON.parse(product).values.length > 0 && <p className="text-[10px] text-secondary italic">{JSON.parse(product).name} : {JSON.parse(product).values.map(val=>val.name).join(', ')}</p>}
+// </div>
+// </div>)}
+// {order?.sides?.map((product) => <div  className="flex justify-between items-center">
+//   <div className="w-[8%] flex items-center">{status === "Ready for Delivery" && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#507615" class="fa-secondary" d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zm126.1 0L160 222.1c.3 .3 .6 .6 1 1c5.3 5.3 10.7 10.7 16 16c15.7 15.7 31.4 31.4 47 47c37-37 74-74 111-111c5.3-5.3 10.7-10.7 16-16c.3-.3 .6-.6 1-1L385.9 192c-.3 .3-.6 .6-1 1l-16 16L241 337l-17 17-17-17-64-64c-5.3-5.3-10.7-10.7-16-16l-1-1z"/><path fill="#5c9a2c" opacity=".4" class="fa-primary" d="M385 193L241 337l-17 17-17-17-80-80L161 223l63 63L351 159 385 193z"/></svg>}</div>
+//   <div></div>
+//   <div className="w-[75%]"><p className="text-[12px] text-secondary italic">
+//   {JSON.parse(product).name}
+// </p></div>
+// </div>)}
