@@ -196,7 +196,7 @@ console.log(orderList)
           <h1 className="mx-4 text-2xl font-semibold leading-1 tracking-0.5 p-3 text-rs-green">
             Recent Order Activity
           </h1>
-          <span className="bg-white p-1 rounded-lg flex w-[43%] items-center">
+          <span className="bg-white p-1 rounded-lg flex w-[60%] items-center">
             <TabButton
               handleSelect={() => setFilter("Ordered")}
               isSelected={filter === "Ordered"}
@@ -208,6 +208,12 @@ console.log(orderList)
               isSelected={filter === "Out for Delivery"}
             >
               Out for Delivery
+            </TabButton>
+            <TabButton
+              handleSelect={() => setFilter("Ready for Delivery")}
+              isSelected={filter === "Ready for Delivery"}
+            >
+              Ready for Delivery
             </TabButton>
             <TabButton
               handleSelect={() => setFilter("Delivered")}

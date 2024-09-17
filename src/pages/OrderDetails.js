@@ -58,6 +58,8 @@ function formatNumberWithCommas(number) {
 }
 
 export default function OrderDetailsPage() {
+  const [assignedDriver, setAssignedDriver] = useState("");
+  const [flag, setFlag] = useState(false);
   const [message, setMessage] = useState();
   const optionsRef = useRef();
   const [order, setOrder] = useState();
@@ -82,6 +84,7 @@ export default function OrderDetailsPage() {
       // Do something with successful status update
       driverID = driver.data.data.user[0].id;
       assigned = driver.data.data.user[0].assignedOrder;
+      setAssignedDriver(email);
     } catch (err) {
       console.log(err);
       setMessage({
@@ -97,6 +100,7 @@ export default function OrderDetailsPage() {
         `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
         JSON.stringify({
           driver: driverID,
+          orderStatus: "Out for Delivery",
         }),
         {
           headers: {
@@ -106,6 +110,7 @@ export default function OrderDetailsPage() {
         }
       );
       // Do something with successful status update
+      setFlag((prevState) => !prevState);
       setMessage({
         status: "Success",
         text: "Driver assigned successfully!",
@@ -142,9 +147,16 @@ export default function OrderDetailsPage() {
     }
   };
 
+  const updateStatus = async (id, newStatus) => {
+    console.log("id", id);
+    console.log("newStatus", newStatus);
+    const authToken = localStorage.getItem("token");
+    console.log("authToken", authToken);
+  };
+
   useEffect(() => {
     getOrder(orderId).then((data) => setOrder(data));
-  }, []);
+  }, [flag]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -157,6 +169,7 @@ export default function OrderDetailsPage() {
   const handleAssignDriver = () => {
     updateOrder(order.id, optionsRef.current.value);
   };
+
   // console.log(order);
 
   return (
@@ -195,61 +208,6 @@ export default function OrderDetailsPage() {
                 { name: "Order Details", link: "order-details" },
               ]}
             />
-            {/* <button className="flex ml-auto border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]">
-              <svg
-                className="mr-2"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clip-path="url(#clip0_499_3317)">
-                  <path
-                    d="M6.5854 12.0813C7.36621 12.8627 8.63253 12.8631 9.41384 12.0822C9.41415 12.0819 9.41443 12.0817 9.41474 12.0813L11.5554 9.94069C11.8023 9.66759 11.7811 9.246 11.508 8.99906C11.2537 8.76916 10.8666 8.76956 10.6127 9L8.66209 10.9513L8.66674 0.666687C8.66671 0.298469 8.36824 0 8.00006 0C7.63187 0 7.3334 0.298469 7.3334 0.666656L7.3274 10.9387L5.3874 9C5.1269 8.73969 4.70471 8.73984 4.4444 9.00034C4.18409 9.26084 4.18424 9.68303 4.44474 9.94334L6.5854 12.0813Z"
-                    fill="#283618"
-                  />
-                  <path
-                    d="M15.3333 10.6666C14.9652 10.6666 14.6667 10.9651 14.6667 11.3333V14C14.6667 14.3682 14.3682 14.6666 14 14.6666H2C1.63181 14.6666 1.33334 14.3682 1.33334 14V11.3333C1.33334 10.9651 1.03487 10.6667 0.666687 10.6667C0.298469 10.6666 0 10.9651 0 11.3333V14C0 15.1045 0.895437 16 2 16H14C15.1046 16 16 15.1045 16 14V11.3333C16 10.9651 15.7015 10.6666 15.3333 10.6666Z"
-                    fill="#283618"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_499_3317">
-                    <rect width="16" height="16" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-              Export
-            </button> */}
-            {/* <button className="flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clip-path="url(#clip0_785_4288)">
-                  <path
-                    d="M7.33333 2C6.4496 2.00106 5.60237 2.35259 4.97748 2.97748C4.35259 3.60237 4.00106 4.4496 4 5.33333V17.3333C4.00009 17.4546 4.03326 17.5735 4.09592 17.6773C4.15858 17.7811 4.24837 17.8659 4.35563 17.9225C4.46288 17.9791 4.58353 18.0053 4.70459 17.9984C4.82565 17.9915 4.94254 17.9517 5.04267 17.8833L6.44667 16.924L7.85067 17.8833C7.96159 17.9593 8.09289 17.9999 8.22733 17.9999C8.36177 17.9999 8.49307 17.9593 8.604 17.8833L10.004 16.924L11.404 17.8833C11.515 17.9594 11.6464 18.0002 11.781 18.0002C11.9156 18.0002 12.047 17.9594 12.158 17.8833L13.558 16.9247L14.958 17.8827C15.0581 17.9508 15.1748 17.9905 15.2957 17.9973C15.4166 18.0041 15.5371 17.9779 15.6442 17.9214C15.7514 17.865 15.8411 17.7804 15.9038 17.6768C15.9664 17.5732 15.9997 17.4544 16 17.3333V5.33333C15.9989 4.4496 15.6474 3.60237 15.0225 2.97748C14.3976 2.35259 13.5504 2.00106 12.6667 2L7.33333 2ZM11.3333 11.3333H7.33333C7.15652 11.3333 6.98695 11.2631 6.86193 11.1381C6.7369 11.013 6.66667 10.8435 6.66667 10.6667C6.66667 10.4899 6.7369 10.3203 6.86193 10.1953C6.98695 10.0702 7.15652 10 7.33333 10H11.3333C11.5101 10 11.6797 10.0702 11.8047 10.1953C11.9298 10.3203 12 10.4899 12 10.6667C12 10.8435 11.9298 11.013 11.8047 11.1381C11.6797 11.2631 11.5101 11.3333 11.3333 11.3333ZM13.3333 8C13.3333 8.17681 13.2631 8.34638 13.1381 8.4714C13.013 8.59643 12.8435 8.66667 12.6667 8.66667H7.33333C7.15652 8.66667 6.98695 8.59643 6.86193 8.4714C6.7369 8.34638 6.66667 8.17681 6.66667 8C6.66667 7.82319 6.7369 7.65362 6.86193 7.5286C6.98695 7.40357 7.15652 7.33333 7.33333 7.33333H12.6667C12.8435 7.33333 13.013 7.40357 13.1381 7.5286C13.2631 7.65362 13.3333 7.82319 13.3333 8Z"
-                    fill="white"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_785_4288">
-                    <rect
-                      width="16"
-                      height="16"
-                      fill="white"
-                      transform="translate(2 2)"
-                    />
-                  </clipPath>
-                </defs>
-              </svg>
-
-              <p className="ml-2">Invoice</p>
-            </button> */}
           </div>
         </div>
         <div className="flex w-full justify-between mt-4 items-start p-5">
@@ -261,16 +219,16 @@ export default function OrderDetailsPage() {
                 </p>
                 {/* ['Ordered', 'Preparing', 'Out for Delivery', 'Delivered'] */}
                 <div>
-                  {order.orderStatus === "Preparing" && (
+                  {order.orderStatus === "Ordered" && (
                     <OrangeLabel>{order.orderStatus}</OrangeLabel>
                   )}
                   {order.orderStatus === "Delivered" && (
                     <GreenLabel>{order.orderStatus}</GreenLabel>
                   )}
-                  {order.orderStatus === "Canceled" && (
+                  {order.orderStatus === "Cancelled" && (
                     <RedLabel>{order.orderStatus}</RedLabel>
                   )}
-                  {order.orderStatus === "Ready" && (
+                  {order.orderStatus === "Ready for Delivery" && (
                     <YellowLabel>{order.orderStatus}</YellowLabel>
                   )}
                   {order.orderStatus === "Out for Delivery" && (
@@ -459,20 +417,29 @@ export default function OrderDetailsPage() {
             </p>
 
             <select ref={optionsRef} className="rounded-lg">
-              {drivers.map((driver, index) => {
-                return (
-                  <option key={index} value={driver}>
-                    {driver}
-                  </option>
-                );
-              })}
+              {drivers
+                .filter((driver) => driver !== assignedDriver)
+                .map((driver, index) => {
+                  return (
+                    <option key={index} value={driver}>
+                      {driver}
+                    </option>
+                  );
+                })}
             </select>
           </div>
           <button
             onClick={handleAssignDriver}
-            className="mx-auto rounded-lg p-1 w-40 border bg-rs-green text-white font-bold"
+            disabled={
+              order.orderStatus === "Ordered" ||
+              order.orderStatus === "Cancelled" ||
+              order.orderStatus === "Delivered"
+            }
+            className="mx-auto rounded-lg p-1 w-40 border bg-rs-green text-white font-bold disabled:bg-stone-500"
           >
-            Assign Driver
+            {order.orderStatus !== "Out for Delivery"
+              ? "Assign Driver"
+              : "Assign Another Driver"}
           </button>
         </div>
       </>

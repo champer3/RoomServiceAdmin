@@ -7,17 +7,17 @@ import TabButton from "../components/TabButton";
 import OrderStatus from "../components/OrderStatus";
 import TableHead from "../components/dashboard_components/TableHead";
 import { useState, useEffect } from "react";
-// import OrangeLabel from "../components/StatusLabels/OrangeLabel";
+import OrangeLabel from "../components/StatusLabels/OrangeLabel";
 import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton";
 import MiniSearch from "../components/MiniSearch";
 import FilterButton from "../components/FilterButton";
 import SelectDatesButton from "../components/SelectDatesButton";
 import { Link } from "react-router-dom";
-// import GreenLabel from "../components/StatusLabels/GreenLabel";
-// import RedLabel from "../components/StatusLabels/RedLabel";
-
+import GreenLabel from "../components/StatusLabels/GreenLabel";
+import RedLabel from "../components/StatusLabels/RedLabel";
+import YellowLabel from "../components/StatusLabels/YellowLabel";
 import TableProductListing from "../components/dashboard_components/TableProductListing";
-// import BlueLabel from "../components/StatusLabels/BlueLabel";
+import BlueLabel from "../components/StatusLabels/BlueLabel";
 import { PageContext } from "../context/PageContext";
 import { useContext } from "react";
 import { getSocket } from "../socketService";
@@ -35,7 +35,7 @@ function formatNumberWithCommas(number) {
 }
 
 function formatDate(dateObject) {
-    return moment(dateObject).format("D MMM YYYY");
+  return moment(dateObject).format("D MMM YYYY");
 }
 
 // With this function you can access all the orders in the database
@@ -88,7 +88,7 @@ export default function OrdersPage() {
       .then((data) => data)
       .then((data) => setOrderList(data.data.data.orders));
   }, [allTab]);
- console.log(orderList)
+  console.log(orderList);
   useEffect(() => {
     const socket = getSocket();
     socket.on("order", (data) => {
@@ -285,7 +285,7 @@ export default function OrdersPage() {
                   handleSelect={() => handleSelectTabButton("all")}
                   isSelected={activePage === "all"}
                 >
-                  All Products
+                  All Orders
                 </TabButton>
                 <TabButton
                   disabled={true}
@@ -467,21 +467,30 @@ export default function OrdersPage() {
                             {order.id.slice(-8)}
                           </td>
                           <td className="">
-                          <div className="flex  h-[80px] py-[18px] px-[22px] flex-column">
-            <div className="pl-2 w-[106px] items-center ">
-                <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333] text-container whitespace-nowrap truncate">{order?.orderDetails?.map((product) => product.productName).join(", ")}</p>
-            </div>
-            <div className="flex pl-2">
-        {order?.orderDetails?.map((product) => JSON.parse(product.dressing[0]).images[0])?.map((imgSrc, index) => (
-          <img
-            key={index}
-            src={imgSrc}
-            alt={`Dressing ${index}`}
-            className="h-[30px] w-[30px] object-cover rounded-full mr-2"
-          />
-        ))}
-      </div>
-        </div>
+                            <div className="flex  h-[80px] py-[18px] px-[22px] flex-column">
+                              <div className="pl-2 w-[106px] items-center ">
+                                <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333] text-container whitespace-nowrap truncate">
+                                  {order?.orderDetails
+                                    ?.map((product) => product.productName)
+                                    .join(", ")}
+                                </p>
+                              </div>
+                              <div className="flex pl-2">
+                                {order?.orderDetails
+                                  ?.map(
+                                    (product) =>
+                                      JSON.parse(product.dressing[0]).images[0]
+                                  )
+                                  ?.map((imgSrc, index) => (
+                                    <img
+                                      key={index}
+                                      src={imgSrc}
+                                      alt={`Dressing ${index}`}
+                                      className="h-[30px] w-[30px] object-cover rounded-full mr-2"
+                                    />
+                                  ))}
+                              </div>
+                            </div>
                           </td>
                           <td className="pl-8 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]">
                             {formatDate(order.date)}
@@ -495,10 +504,25 @@ export default function OrdersPage() {
                           <td className="pl-12 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
                             {order.paymentMethod}
                           </td>
-                          <OrderStatus
-                            status={order.orderStatus}
-                            id={order.id}
-                          />
+                          <td className="w-80">
+                            <div className="flex justify-start items-center">
+                              {order.orderStatus === "Ordered" && (
+                                <OrangeLabel>{order.orderStatus}</OrangeLabel>
+                              )}
+                              {order.orderStatus === "Ready for Delivery" && (
+                                <YellowLabel>{order.orderStatus}</YellowLabel>
+                              )}
+                              {order.orderStatus === "Out for Delivery" && (
+                                <BlueLabel>{order.orderStatus}</BlueLabel>
+                              )}
+                              {order.orderStatus === "Delivered" && (
+                                <GreenLabel>{order.orderStatus}</GreenLabel>
+                              )}
+                              {order.orderStatus === "Cancelled" && (
+                                <RedLabel>{order.orderStatus}</RedLabel>
+                              )}
+                            </div>
+                          </td>
                           <td className="pl-10">
                             <div className="flex space-x-2">
                               <Link

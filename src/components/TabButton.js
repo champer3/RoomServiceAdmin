@@ -5,7 +5,7 @@ export default function TabButton({
   disabled,
 }) {
   let bg;
-  if (children === "Preparing") bg = "bg-yellow-500";
+  if (children === "Ready for Delivery") bg = "bg-yellow-500";
   else if (children === "Out for Delivery") bg = "bg-blue-500";
   else if (children === "Ordered") bg = "bg-orange-500";
   else if (children === "Delivered") bg = "bg-green-600";

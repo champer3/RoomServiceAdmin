@@ -65,7 +65,7 @@ export default function OrderInfoCard({
           <div className="absolute animate-none border border-stone-200 -top-3 -right-9 w-30 px-1 py-2 shadow-xl bg-stone-100 flex flex-col z-50">
             <button
               onClick={() => {
-                onComplete(id, "Out for Delivery");
+                onComplete(id, "Ready for Delivery");
                 stopTimer();
               }}
               className="p-1 hover:bg-stone-200 text-sm font-bold"
@@ -103,7 +103,7 @@ export default function OrderInfoCard({
       )}
       <div
         onDoubleClick={() => {
-          onComplete(id, "Out for Delivery");
+          onComplete(id, "Ready for Delivery");
           stopTimer();
         }}
         className={`relative bg-yellow-100 rounded-lg p-2 shadow-lg w-[200px] ${
