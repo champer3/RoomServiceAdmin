@@ -5,7 +5,7 @@ import { forwardRef } from "react";
 const OrderModal = forwardRef(function OrderModal({ onConfirm, operation }, ref) {
   return (
     <dialog ref={ref} className="rounded-lg p-5 shadow-xl">
-      <div className="flex flex-col justify-center items-center bg-white p-5 ">
+      <div className="ml-5 flex flex-col justify-center items-center bg-white p-5 ">
         <p className="font-[700] text-xl text-rs-green">
           {`Are you sure you want to ${operation} this order?`}
         </p>
@@ -16,7 +16,7 @@ const OrderModal = forwardRef(function OrderModal({ onConfirm, operation }, ref)
           >
             Yes
           </button>
-          <button className="bg-red-800 w-20 p-3 rounded-lg text-white text-xl font-[700] hover:bg-red-400 shadow-xl">
+          <button className="bg-red-800 w- p-3 rounded-lg text-white text-xl font-[700] hover:bg-red-400 shadow-xl">
             Cancel
           </button>
         </form>

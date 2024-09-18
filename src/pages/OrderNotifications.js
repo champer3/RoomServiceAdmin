@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from "react";
 import axios from "axios";
 import { PageContext } from "../context/PageContext";
 import OrderInfoCard from "../components/order_components/OrderInfoCard";
@@ -84,12 +90,12 @@ const OrderNotifications = () => {
       setIsConnected(true);
     });
   };
-  const [seconds, setSeconds] = useState(0); 
+  const [seconds, setSeconds] = useState(0);
   const intervalRef = useRef();
   useEffect(() => {
-      intervalRef.current = setInterval(() => {
-        setSeconds((prevState) => prevState + 1);
-      }, 1000);
+    intervalRef.current = setInterval(() => {
+      setSeconds((prevState) => prevState + 1);
+    }, 1000);
 
     return () => clearInterval(intervalRef.current);
   }, [seconds]);
@@ -194,10 +200,9 @@ const OrderNotifications = () => {
   }, [printReceipt]);
 
   const handleFinishOrder = (id, newStatus) => {
-    console.log("Inside Handlefinish Order", newStatus)
     updateStatus(id, newStatus);
   };
-console.log(orderList)
+
   return (
     <>
       {orderList.length > 0 && (
@@ -243,26 +248,29 @@ console.log(orderList)
               All
             </TabButton>
           </span>
-          <div className="d-flex flex-column gap-3" style={{height: '100vh', flexWrap: 'wrap', width: 'fit-content'}}>
+          <div
+            className="d-flex flex-column gap-3"
+            style={{ height: "100vh", flexWrap: "wrap", width: "fit-content" }}
+          >
             {orderList
               .filter((order) =>
                 filter === "all" ? true : order.orderStatus === filter
               )
               .map((order, index) => {
                 return (
-                    <OrderInfoCard
-                      key={index}
-                      id={order.id}
-                      index = {orderList.length - index}
-                      customer={order.userName}
-                      time={new Date(order.date)}
-                      count = {seconds}
-                      status={order.orderStatus}
-                      instructions={order.orderInstruction}
-                      orderDetails={order.orderDetails}
-                      total={order.totalPrice.toFixed(2)}
-                      onComplete={handleFinishOrder}
-                    />
+                  <OrderInfoCard
+                    key={index}
+                    id={order.id}
+                    index={orderList.length - index}
+                    customer={order.userName}
+                    time={new Date(order.date)}
+                    count={seconds}
+                    status={order.orderStatus}
+                    instructions={order.orderInstruction}
+                    orderDetails={order.orderDetails}
+                    total={order.totalPrice.toFixed(2)}
+                    onComplete={handleFinishOrder}
+                  />
                 );
               })}
           </div>

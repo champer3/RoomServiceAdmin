@@ -6,13 +6,14 @@ import RedLabel from "../components/StatusLabels/RedLabel";
 import BlueLabel from "../components/StatusLabels/BlueLabel";
 import TableHead from "../components/dashboard_components/TableHead";
 import { ORDER_DETAILS_LIST } from "../assets/data";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { PageContext } from "../context/PageContext";
 import { useNavigate } from "react-router-dom";
 import ImageDropzone from "../components/ImageDropzone";
 import YellowLabel from "../components/StatusLabels/YellowLabel";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import OrderModal from "../components/OrderModal";
 
 function formatDate(dateObject) {
   return moment(dateObject).format("D MMM YYYY");
@@ -51,6 +52,8 @@ function formatNumberWithCommas(number) {
 
 export default function DriverOrdersPage() {
   const navigate = useNavigate();
+  // const [showModal, setShowModal] = useState(false);
+  const modalRef = useRef();
   const { driverEmail } = useContext(PageContext);
   const [files, setFiles] = useState([]);
   const [idFile, setIdFile] = useState([]);
@@ -58,15 +61,12 @@ export default function DriverOrdersPage() {
   const { orderId } = useParams();
 
   const updateStatus = async (id, newStatus) => {
-    console.log("id", id)
-    console.log("newStatus", newStatus)
     const authToken = localStorage.getItem("token");
-    console.log("authToken", authToken)
     try {
       await axios.patch(
         `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/deliver/${id}`,
         JSON.stringify({
-          orderStatus: newStatus
+          orderStatus: newStatus,
         }),
         {
           headers: {
@@ -80,6 +80,7 @@ export default function DriverOrdersPage() {
       console.log(err);
       return;
     }
+    //remove order from driver's assigned orders
     let assigned;
     try {
       const driver = await axios.get(
@@ -167,12 +168,16 @@ export default function DriverOrdersPage() {
   return (
     order && (
       <>
+        <OrderModal
+          ref={modalRef}
+          onConfirm={() => handleFinishOrder(order.id, "Delivered")}
+          operation={"complete"}
+        />
         <div className="items-center">
           <p className="text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]">
             Order Details
           </p>
         </div>
-
         <div className="flex w-full justify-between mt-4 items-start p-5">
           <div className="lg:w-[60%] w-[50%] space-y-4 bg-white p-[24px] rounded-lg shadow-lg">
             <div className="flex">
@@ -385,7 +390,9 @@ export default function DriverOrdersPage() {
           </div>
           <button
             onClick={() => {
-              handleFinishOrder(order.id, "Delivered");
+              modalRef.current.showModal();
+              // setShowModal(true);
+              // handleFinishOrder(order.id, "Delivered");
             }}
             className="mx-auto rounded-lg p-1 w-40 border bg-rs-green text-white font-bold"
           >

@@ -26,7 +26,7 @@ function formatDate(dateObject) {
   return moment(dateObject).format("D MMM YYYY");
 }
 
-const getOrder = async (id) => {
+export const getOrder = async (id) => {
   const authToken = localStorage.getItem("token");
   try {
     const order = await axios.get(
@@ -89,7 +89,7 @@ export default function OrderDetailsPage() {
     if (true) {
       // get old driver
       let oldDriver;
-      // to find old driver's email from order 
+      // to find old driver's email from order
       try {
         const order = await axios.get(
           `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
@@ -146,7 +146,7 @@ export default function OrderDetailsPage() {
             },
           }
         );
-      //   // Do something with successful status update
+        //   // Do something with successful status update
       } catch (err) {
         console.log(err);
         return;
@@ -252,9 +252,6 @@ export default function OrderDetailsPage() {
     updateOrder(order.id, optionsRef.current.value);
   };
 
-  // if (order) {
-  //   console.log(order);
-  // }
 
   return (
     order && (
@@ -301,7 +298,6 @@ export default function OrderDetailsPage() {
                 <p className="text-[#333333] font-semibold text-[18px] leading-[28px] tracking-[0.01em]">
                   Order {order.id.slice(-5)}
                 </p>
-                {/* ['Ordered', 'Preparing', 'Out for Delivery', 'Delivered'] */}
                 <div>
                   {order.orderStatus === "Ordered" && (
                     <OrangeLabel>{order.orderStatus}</OrangeLabel>
@@ -421,7 +417,7 @@ export default function OrderDetailsPage() {
               <p className="ml-2 font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">
                 Shipping Address
               </p>
-              <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333] lg:w-full text-right">
+              <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333] w-60 text-right truncate">
                 {order.shippingAddress}
               </p>
             </div>
@@ -468,69 +464,53 @@ export default function OrderDetailsPage() {
                 Order List
               </p>
             </div>
-            <div className="w-full flex items-center px-2">
-              <p className="font-[800] text-[14px] text-left w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                Item
-              </p>
-              <p className="font-[800] text-[14px] text-center w-full  leading-[20px] tracking-[0.005em] text-[#333333]">
-                Quantity
-              </p>
-              <p className="font-[800] text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                Price($)
-              </p>
-            </div>
             <div className="w-full items-center  px-2">
-              {arrayToObject(
-                order?.orderDetails?.map((product) =>
-                  product.flavor.reduce(
-                    (total, item) => {
-                      return total.concat(
-                        Object.entries(JSON.parse(item)).map(
-                          ([key, values]) => {
-                            // Check if values is an array
-                            if (Array.isArray(values)) {
-                              // Join the names from the array if it's valid
-                              return `${key}: ${values
-                                .map((value) => value.name)
-                                .join(", ")}`;
-                            } else {
-                              // If not an array, simply return the key-value pair
-                              return `${key}: ${values}`;
-                            }
-                          }
-                        )
-                      );
-                    },
-                    [product.productName]
-                  )
-                )
-              ).map((item, index) => (
-                <div key={index} className="flex flex-col">
-                  <p className="text-sm font-[600]">
-                    {order.orderDetails[index].productName}
-                  </p>
-                  {item[order.orderDetails[index].productName]
-                    .filter(
-                      (inst) =>
-                        inst.slice(0, 4) === "name" ||
-                        inst.slice(0, 5) === "value"
-                    )
-                    .map((i, ind) => {
-                      return i.slice(0, 4) === "name" ? (
-                        <p className="ml-5 text-sm font-bold">{i.slice(6)}</p>
-                      ) : (
-                        <p className="ml-5 text-sm">{i.slice(7)}</p>
-                      );
-                    })}
+              {order.orderDetails.map((order, index) => (
+                <div key={index} class="card-body m-0 p-[3px]">
+                  <div className="flex justify-between items-center">
+                    <div className="w-[8%] flex items-center"></div>
+                    <div>
+                      <p className="text-sm ">{order?.dressing?.length}</p>
+                    </div>
+                    <div className="w-[75%]">
+                      <p className="text-sm font-bold ">
+                        {order.productName}{" "}
+                        {order.component ? "(" + order.component + ")" : ""}
+                      </p>
+                    </div>
+                  </div>
+                  {order?.flavor?.map((product) => (
+                    <div className="flex justify-between items-center px-3">
+                      <div></div>
+                      <div className="w-[75%]">
+                        {JSON.parse(product).values.length > 0 && (
+                          <p className="text-[10px] text-secondary italic">
+                            {JSON.parse(product).name} :{" "}
+                            {JSON.parse(product)
+                              .values.map((val) => val.name)
+                              .join(", ")}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {order?.sides?.map((product) => (
+                    <div className="flex justify-between items-center">
+                      <div className="w-[8%] flex items-center"></div>
+                      <div></div>
+                      <div className="w-[75%]">
+                        <p className="text-[12px] text-secondary italic">
+                          {JSON.parse(product).name}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
             <div className="w-full flex items-center  px-2">
               <p className="font-[800] text-[14px] text-left w-full leading-[20px] tracking-[0.005em] text-[#333333]">
                 Order Total
-              </p>
-              <p className="font-bold text-[14px] text-center w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                -
               </p>
               <p className="font-[800] text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
                 {formatNumberWithCommas(order.totalPrice)}

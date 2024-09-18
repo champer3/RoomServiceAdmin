@@ -3,8 +3,9 @@ import DriverOrderCard from "../components/DriverOrderCard";
 import axios from "axios";
 import { PageContext } from "../context/PageContext";
 import { Link } from "react-router-dom";
+import { getOrder } from "./OrderDetails";
 const DriversDashboard = () => {
-  const { driverEmail } = useContext(PageContext);
+  const driverEmail = sessionStorage.getItem("email");
   const [assignedOrders, setAssignedOrders] = useState();
 
   const getAssignedOrders = async () => {
@@ -30,7 +31,6 @@ const DriversDashboard = () => {
     getAssignedOrders();
   }, []);
 
-  // console.log(assignedOrders);
   return (
     assignedOrders && (
       <>

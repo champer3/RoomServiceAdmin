@@ -63,6 +63,7 @@ const LoginPage = () => {
       }
       if (authRole === "driver") {
         setDriverEmail(email);
+        sessionStorage.setItem("email", email);
         navigate("/drivers/drivers-dashboard");
       }
     } catch (err) {
@@ -80,6 +81,7 @@ const LoginPage = () => {
   useEffect(() => {
     localStorage.setItem("token", "");
     localStorage.setItem("role", "");
+    sessionStorage.setItem("email", "");
   }, []);
   return (
     <div className="bg-gradient-to-b from-green-500 to-green-700 min-h-screen flex flex-col justify-center items-center">
