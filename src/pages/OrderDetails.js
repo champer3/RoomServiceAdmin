@@ -81,58 +81,59 @@ export default function OrderDetailsPage() {
 
   const updateOrder = async (id, email) => {
     let driverID;
-    let assigned;
+
     const authToken = localStorage.getItem("token");
     // console.log(oldEmail ? oldEmail : "No old driver");
     // https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/
     //find old driver; in case of new assignment
-    if (true) {
-      // get old driver
-      let oldDriver;
-      // to find old driver's email from order
-      try {
-        const order = await axios.get(
-          `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-        oldDriver = order.data.data.order.driver;
-        console.log(oldDriver);
-      } catch (err) {
-        console.log(err);
-      }
 
-      // get old driver's current assigned order
-      let assigned;
-      try {
-        const driver = await axios.get(
-          `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-        // Do something with successful status update
-        assigned = driver.data.data.user[0].assignedOrder;
-      } catch (err) {
-        console.log(err);
-        return;
-      }
+    // get old driver
+    let oldDriver;
+    // to find old driver's email from order
+    try {
+      const order = await axios.get(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      oldDriver = order.data.data.order.driver;
+      console.log(oldDriver);
+    } catch (err) {
+      console.log(err);
+    }
 
-      // remove order from old driver's assigned orders
-      const newAssigned = assigned.filter((order) => order !== id);
-      // console.log(newAssigned);
-      // // console.log(newAssigned);
-      // // console.log(assigned);
-      // console.log(oldDriver);
+    // get old driver's current assigned order
+    let assigned;
+    try {
+      const driver = await axios.get(
+        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      // Do something with successful status update
+      assigned = driver.data.data.user[0].assignedOrder;
+    } catch (err) {
+      console.log(err);
+      return;
+    }
 
-      // patch old Driver to not include order anymore
+    // remove order from old driver's assigned orders
+    const newAssigned = assigned.filter((order) => order !== id);
+    // console.log(newAssigned);
+    // // console.log(newAssigned);
+    // // console.log(assigned);
+    // console.log(oldDriver);
+
+    // patch old Driver to not include order anymore
+    if (oldDriver) {
       try {
         const user = await axios.patch(
           `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${oldDriver}`,
@@ -152,6 +153,7 @@ export default function OrderDetailsPage() {
         return;
       }
     }
+
     //find new driver
     try {
       const driver = await axios.get(
@@ -251,7 +253,6 @@ export default function OrderDetailsPage() {
   const handleAssignDriver = () => {
     updateOrder(order.id, optionsRef.current.value);
   };
-
 
   return (
     order && (
