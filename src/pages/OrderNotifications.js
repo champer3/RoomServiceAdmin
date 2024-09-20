@@ -41,20 +41,20 @@ const getAllOrders = async () => {
     const targetMidnight = new Date();
     targetMidnight.setHours(0, 0, 0, 0);
 
-    const todaysOrders = orders.data.data.orders.filter((order) => {
-      const orderDate = new Date(order.date);
-      orderDate.setHours(orderDate.getHours());
-      orderDate.setHours(0, 0, 0, 0);
-      return orderDate.getTime() === targetMidnight.getTime();
-    });
     // const todaysOrders = orders.data.data.orders.filter((order) => {
     //   const orderDate = new Date(order.date);
-    //   return (
-    //     orderDate >= startOfDay &&
-    //     orderDate < new Date(startOfDay.getTime())
-    //     // orderDate < new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
-    //   );
+    //   orderDate.setHours(orderDate.getHours() + 6);
+    //   orderDate.setHours(0, 0, 0, 0);
+    //   return orderDate.getTime() === targetMidnight.getTime();
     // });
+    const todaysOrders = orders.data.data.orders.filter((order) => {
+      const orderDate = new Date(order.date);
+      return (
+        orderDate >= startOfDay &&
+        // orderDate < new Date(startOfDay.getTime())
+        orderDate < new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
+      );
+    });
     return todaysOrders.reverse();
   } catch (err) {
     console.log(err);
@@ -202,6 +202,7 @@ const OrderNotifications = () => {
   const handleFinishOrder = (id, newStatus) => {
     updateStatus(id, newStatus);
   };
+  console.log(orderList)
 
   return (
     <>
@@ -261,7 +262,7 @@ const OrderNotifications = () => {
                   <OrderInfoCard
                     key={index}
                     id={order.id}
-                    index={orderList.length - index}
+                    index={index+1}
                     customer={order.userName}
                     time={new Date(order.date)}
                     count={seconds}

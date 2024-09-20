@@ -241,7 +241,7 @@ export default function OrderDetailsPage() {
   useEffect(() => {
     getOrder(orderId).then((data) => setOrder(data));
   }, [flag, orderId]);
-
+  console.log(order)
   useEffect(() => {
     setTimeout(() => {
       setMessage();
