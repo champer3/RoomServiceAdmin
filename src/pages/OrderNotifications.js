@@ -43,7 +43,7 @@ const getAllOrders = async () => {
 
     const todaysOrders = orders.data.data.orders.filter((order) => {
       const orderDate = new Date(order.date);
-      orderDate.setHours(orderDate.getHours() + 6);
+      orderDate.setHours(orderDate.getHours());
       orderDate.setHours(0, 0, 0, 0);
       return orderDate.getTime() === targetMidnight.getTime();
     });
