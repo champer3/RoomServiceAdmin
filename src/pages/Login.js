@@ -58,13 +58,17 @@ const LoginPage = () => {
       localStorage.setItem("token", authToken);
       localStorage.setItem("role", authRole);
       initializeSocket(authToken);
-      if (authRole === "admin") {
+      if (authRole === "admin" || authRole === "owner") {
+        console.log(authRole);
         navigate("/dashboard/");
       }
       if (authRole === "driver") {
         setDriverEmail(email);
         sessionStorage.setItem("email", email);
         navigate("/drivers/drivers-dashboard");
+      } else {
+        setIsLoggingIn(false);
+        setLoginFail(true);
       }
     } catch (err) {
       setIsLoggingIn(false);
