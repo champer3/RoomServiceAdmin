@@ -61,7 +61,7 @@ export default function ProductsPage() {
     getAllProducts()
       .then((data) => data)
       .then((data) => {
-        setProductList(data.data.data.products);
+        setProductList(data.data.data.products.reverse());
       });
   }, [allTab]);
 
