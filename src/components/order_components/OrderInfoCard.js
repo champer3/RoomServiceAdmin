@@ -148,9 +148,7 @@ export default function OrderInfoCard({
               {status === "Ordered" && (
                 <div className="flex justify-between gap-1">
                   <p className="text-sm">
-                    {Math.floor(seconds / 3600) < 10
-                      ? `0${Math.floor(seconds / 3600)}`
-                      : Math.floor(seconds / 3600)}
+                    {Math.floor(seconds / 3600) < 10 ? `0${Math.floor(seconds / 3600)}`: Math.floor(seconds / 3600)}
                     :{""}
                     {Math.floor((seconds % 3600) / 60) < 10
                       ? `0${Math.floor((seconds % 3600) / 60)}`

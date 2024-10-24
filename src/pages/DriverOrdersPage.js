@@ -49,7 +49,13 @@ function formatNumberWithCommas(number) {
 
   return formattedNumber;
 }
-
+function getTodaysDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return today.toString();
+}
 export default function DriverOrdersPage() {
   const navigate = useNavigate();
   // const [showModal, setShowModal] = useState(false);
@@ -63,10 +69,12 @@ export default function DriverOrdersPage() {
   const updateStatus = async (id, newStatus) => {
     const authToken = localStorage.getItem("token");
     try {
+      let date = getTodaysDate();
       await axios.patch(
         `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/deliver/${id}`,
         JSON.stringify({
           orderStatus: newStatus,
+          date: date,
         }),
         {
           headers: {

@@ -7,6 +7,7 @@ import { getOrder } from "./OrderDetails";
 const DriversDashboard = () => {
   const driverEmail = sessionStorage.getItem("email");
   const [assignedOrders, setAssignedOrders] = useState();
+  const [orderDetails, setOrderDetails] = useState([]);
 
   const getAssignedOrders = async () => {
     const authToken = localStorage.getItem("token");
@@ -21,7 +22,17 @@ const DriversDashboard = () => {
         }
       );
       // Do something with successful status update
-      setAssignedOrders(driver.data.data.user[0].assignedOrder);
+      const orders = driver.data.data.user[0].assignedOrder;
+      setAssignedOrders(orders);
+      const res = [];
+      for (const item in orders) {
+        let currOrder = await getOrder(orders[item]);
+        const check = orderDetails.find((order) => order.id === currOrder[0].id);
+        if (!check) {
+          res.push(currOrder[0]);
+        }
+      }
+      setOrderDetails(res);
     } catch (err) {
       console.log(err);
     }
@@ -34,15 +45,25 @@ const DriversDashboard = () => {
   return (
     assignedOrders && (
       <>
-        <div className="mt-7 p-3">
-          <p className="text-rs-green text-4xl font-[700] mb-3">
-            Assigned Orders
-          </p>
+        <p className="mt-7 text-rs-green text-4xl font-[700] mb-3">
+          Assigned Orders
+        </p>
+        <div className="p-3 grid grid-cols-2 gap-1">
           {assignedOrders.length === 0 && <p>No orders yet...</p>}
           {assignedOrders.map((order, index) => {
             return (
               <Link key={index} to={`/drivers/drivers-order/${order}`}>
-                <DriverOrderCard id={`#${order.slice(-5)}`} />
+                {orderDetails.length > 0 && (
+                  <DriverOrderCard
+                    id={`#${order.slice(-5)}`}
+                    customer={orderDetails[index].userName}
+                    totalPrice={orderDetails[index].totalPrice}
+                    products={orderDetails[index].orderDetails.map(
+                      (order) => order.productName
+                    )}
+                  />
+                )}
+                <p></p>
               </Link>
             );
           })}

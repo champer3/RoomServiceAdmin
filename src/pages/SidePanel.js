@@ -50,11 +50,11 @@ const icon = (
 export default function SidePanel() {
   const { page, changePage } = useContext(PageContext);
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role")
+  const role = localStorage.getItem("role");
 
   return (
     <>
-      {role !== "admin" && <Navigate to={"/"}></Navigate>}
+      {(role !== "admin" && role !== "owner") && <Navigate to={"/"}></Navigate>}
       {token.length > 0 && (
         <div className="flex h-full min-w-fit min-h-screen bg-stone-200">
           <div className="bg-white w-[264px]">
