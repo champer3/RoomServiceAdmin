@@ -23,7 +23,7 @@ const getAllOrders = async () => {
   const authToken = localStorage.getItem("token");
   try {
     const orders = await axios.get(
-      `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders`,
+      `http://localhost:3000/api/v1/orders`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -137,7 +137,7 @@ const OrderNotifications = () => {
     };
     try {
       await axios.patch(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/deliver/${id}`,
+        `http://localhost:3000/api/v1/orders/deliver/${id}`,
         JSON.stringify(postData),
         {
           headers: {
@@ -155,7 +155,7 @@ const OrderNotifications = () => {
   //   const authToken = localStorage.getItem("token");
   //   try {
   //     const order = await axios.patch(
-  //       `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+  //       `http://localhost:3000/api/v1/orders/${id}`,
   //       JSON.stringify({
   //         orderStatus: newStatus,
   //       }),

@@ -22,6 +22,15 @@ import { PageContext } from "../context/PageContext";
 import { useContext } from "react";
 import { getSocket } from "../socketService";
 
+function safeJsonParse(value, fallback = null) {
+  if (value == null || typeof value !== "string") return fallback;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
 function formatNumberWithCommas(number) {
   const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString(
     "en-US",
@@ -37,6 +46,108 @@ function formatNumberWithCommas(number) {
 function formatDate(dateObject) {
   return moment(dateObject).format("D MMM YYYY");
 }
+const printToFile = async (order) => {
+  function formatDate(isoString) {
+    const options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+    return new Date(isoString).toLocaleString('en-US', options).replace(',', '');
+}
+let cnst = order.orderDetails?.map(({ component, dressing, flavor, productName, sides }, idx) => `
+<tr><td>${Array.isArray(dressing) ? dressing.length : 0}x</td><td>${productName}</td></tr>
+${component ? `<tr><td>*</td><td><i>${component}<i></td></tr>` : ''}
+${flavor?.map((product) => {
+    const parsedProduct = safeJsonParse(product);
+    if (!parsedProduct?.values?.length) return "";
+    return `<tr><td>${parsedProduct.name}: </td><td>${parsedProduct.values.map((val) => val.name).join(", ")}</td></tr>`;
+}).join("")}
+${sides?.map((product) => {
+    const parsedProduct = safeJsonParse(product);
+    if (!parsedProduct) return "";
+    return parsedProduct?.name ? `<tr><td>${parsedProduct.name}</td><td>+</td></tr>` : "";
+}).join("")}`)
+const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt</title>
+    <style>
+    body {
+        font-family: monospace;
+        text-align: center;
+        padding: 20px;
+    }
+    .receipt {
+      // width: 320px;
+      // min-height: 400px; /* Ensures it has a reasonable height */
+      // max-height: 100vh; /* Prevents excessive space */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between; /* Even spacing */
+      margin: auto;
+      padding: 15px;
+      // border: 1px solid #000;
+      // box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  }
+    .header, .footer {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .items {
+        text-align: left;
+        margin-top: 10px;
+    }
+    .items table {
+        width: 100%;
+    }
+    .items td {
+        padding: 5px 0;
+    }
+    .total {
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    button {
+        margin-top: 15px;
+        padding: 10px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+<div class="receipt">
+        <div class="header">
+            <p>${order.userName}</p>
+            <p>RoomService</p>
+        </div>
+        <hr>
+        <div class="items">
+            <table>
+${cnst}
+</table>
+</div>
+        <hr>
+        <div class="total">
+            <p><strong>Sub Total: $${order.totalPrice}</strong></p>
+        </div>
+        <hr>
+        <div class="footer">
+            <p>Paid</p>
+            <p>Delivery Address: ${order.shippingAddress}</p>
+            <p>Delivery Driver: ${order.driver?.length > 0 ? order.driver : ''}</p>
+            <p>Placed At: ${formatDate(order.date)}</p>
+        </div>
+    </div>
+</body>
+</html>
+`;
+let printContent = html;
+document.body.innerHTML = printContent;
+window.print();
+};
+
 
 // With this function you can access all the orders in the database
 // Todo: We need to implement something in the backend that only sends out 20 orders at a time, for buffer reasons
@@ -44,7 +155,7 @@ const getAllOrders = async () => {
   const authToken = localStorage.getItem("token");
   try {
     const orders = await axios.get(
-      `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders`,
+      `http://localhost:3000/api/v1/orders`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -477,10 +588,12 @@ export default function OrdersPage() {
                               </div>
                               <div className="flex pl-2">
                                 {order?.orderDetails
-                                  ?.map(
-                                    (product) =>
-                                      JSON.parse(product.dressing[0]).images[0]
-                                  )
+                                  ?.map((product) => {
+                                    const dressing = product.dressing?.[0];
+                                    const parsed = safeJsonParse(dressing);
+                                    return parsed?.images?.[0];
+                                  })
+                                  ?.filter(Boolean)
                                   ?.map((imgSrc, index) => (
                                     <img
                                       key={index}
@@ -527,7 +640,7 @@ export default function OrdersPage() {
                             <div className="flex space-x-2">
                               <Link
                                 to={`/order-details/${order.id}`}
-                                onClick={() => {
+                                onClick={() => {                 
                                   viewOrder(order);
                                 }}
                               >

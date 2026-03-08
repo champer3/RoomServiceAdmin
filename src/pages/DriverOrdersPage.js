@@ -23,7 +23,7 @@ const getOrder = async (id) => {
   const authToken = localStorage.getItem("token");
   try {
     const order = await axios.get(
-      `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+      `http://localhost:3000/api/v1/orders/${id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export default function DriverOrdersPage() {
     try {
       let date = getTodaysDate();
       await axios.patch(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/deliver/${id}`,
+        `http://localhost:3000/api/v1/orders/deliver/${id}`,
         JSON.stringify({
           orderStatus: newStatus,
           date: date,
@@ -92,7 +92,7 @@ export default function DriverOrdersPage() {
     let assigned;
     try {
       const driver = await axios.get(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${driverEmail}`,
+        `http://localhost:3000/api/v1/users/${driverEmail}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -113,7 +113,7 @@ export default function DriverOrdersPage() {
     // console.log(assigned);
     try {
       const user = await axios.patch(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${driverEmail}`,
+        `http://localhost:3000/api/v1/users/${driverEmail}`,
         JSON.stringify({
           assignedOrder: [...newAssigned],
         }),

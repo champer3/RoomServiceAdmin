@@ -18,6 +18,7 @@ export default function AddProjectsPage() {
         "availability": false,
         "category": "",
         "components": [],
+        "subCategory": [],
         "description" : "",
         "extra": false,
         "images": [],
@@ -32,10 +33,22 @@ export default function AddProjectsPage() {
     })
     const { productId } = useParams();
     const [message, setMessage] = useState() 
+    const [value, setValue] = useState({
+                        name: '',
+                        price: 0,
+                        iamge: String,
+                        });
+
+    const [option, setOption] = useState({
+    name: '',
+    quantity: null,
+    required: false,
+    values: []
+    });
     const getProduct = async () => {
         try {
           const product = await axios.get(
-            `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products/${productId}`,
+            `http://localhost:3000/api/v1/products/${productId}`,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -56,6 +69,7 @@ export default function AddProjectsPage() {
     const { changePage } = useContext(PageContext)
     const [files, setFiles] = useState([]);
     const [variation, setVariation] = useState('');
+    const [subCategory, setSubCategory] = useState('');
     const [optionName, setOptionName] = useState('');
     const [valueInput, setValueInput] = useState('');
 
@@ -90,10 +104,27 @@ export default function AddProjectsPage() {
 
     const handleAddVariation = () => {
         if (variation) {
+            const variationsArray = variation.split(',').map(v => v.trim());
+
+            // Add each variation from the split to the components array
             setProduct({
                 ...product,
-                components: [...product.components, variation]
+                components: [...product.components, ...variationsArray]
             });
+    
+            setVariation('');
+        }
+    };
+    const handleAddSubCategory = () => {
+        if (subCategory) {
+            const subCatArray = subCategory.split(',').map(v => v.trim());
+
+            // Add each variation from the split to the components array
+            setProduct({
+                ...product,
+                subCategory: [...product.subCategory, ...subCatArray]
+            });
+    
             setVariation('');
         }
     };
@@ -103,10 +134,13 @@ const [nutrientInput, setNutrientInput] = useState("");
 
 // Function to add a related keyword
 const handleAddRelated = () => {
+
     if (relatedInput.trim()) {
+        const relatedArray = relatedInput.split(',').map(v => v.trim());
+
         setProduct((prevProduct) => ({
             ...prevProduct,
-            related: [...prevProduct.related, relatedInput.trim()],
+            related: [...prevProduct.related, ...relatedArray],
         }));
         setRelatedInput(""); // Clear the input field
     }
@@ -123,9 +157,10 @@ const handleRemoveRelated = (keyword) => {
 // Function to add a nutrient
 const handleAddNutrient = () => {
     if (nutrientInput.trim()) {
+        const nutrientArray = nutrientInput.split(',').map(v => v.trim());
         setProduct((prevProduct) => ({
             ...prevProduct,
-            nutrients: [...prevProduct.nutrients, nutrientInput.trim()],
+            nutrients: [...prevProduct.nutrients, ...nutrientArray],
         }));
         setNutrientInput(""); // Clear the input field
     }
@@ -140,6 +175,12 @@ const handleRemoveNutrient = (nutrient) => {
 };
 
     const handleRemoveVariation = (v) => {
+        setProduct({
+            ...product,
+            components: product.components.filter(variation => variation !== v)
+        });
+    };
+    const handleRemoveSubCategory = (v) => {
         setProduct({
             ...product,
             components: product.components.filter(variation => variation !== v)
@@ -217,7 +258,7 @@ const handleRemoveNutrient = (nutrient) => {
     
             const updatedProduct = { ...product, images: uploadedImageUrls };
     
-            const response = await axios.patch(`https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products/${productId}`, JSON.stringify(updatedProduct),
+            const response = await axios.patch(`http://localhost:3000/api/v1/products/${productId}`, JSON.stringify(updatedProduct),
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -468,9 +509,42 @@ const handleRemoveNutrient = (nutrient) => {
                         value={product.category}
                         onChange={handleInputChange('category')}
                     />
-
-                        <div className=" rounded-xl bg-white p-4">
-                            <p className="mb-3  text-[15px] leading-[28px] tracking-[0.01em] text-[#333333]">Product Variations</p>
+                            <div className=" rounded-xl bg-white py-2">
+                            <p className="mb-2  text-[15px] leading-[28px] tracking-[0.01em] text-[#333333]">Sub Category</p>
+                            <div className="flex items-center">
+                        <input
+                            type="text"
+                            placeholder="Enter subcategory"
+                            value={subCategory}
+                            onChange={(e) => setSubCategory(e.target.value)}
+                            className="w-full rounded-lg border border-[#F0F1F3] py-2 px-3 text-[#333333] leading-[28px]"
+                        />
+                        <button
+                            onClick={handleAddSubCategory}
+                            className="ml-2 bg-[#283618] text-white rounded-lg px-4 py-2"
+                        >
+                            Add
+                        </button>
+                    </div>
+                    <div className="mt-2 flex flex-wrap">
+                        {product.subCategory.map((v, idx) => (
+                            <div
+                                key={idx}
+                                className="flex items-center bg-[#F0F1F3] rounded-full px-3 py-1 mr-2 mb-2"
+                            >
+                                <span className="text-[#333333]">{v}</span>
+                                <button
+                                    onClick={() => handleRemoveSubCategory(v)}
+                                    className="ml-2 text-[#333333]"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ))}
+                            </div>
+                        </div>
+                        <div className=" rounded-xl bg-white py-2">
+                            <p className="mb-2  text-[15px] leading-[28px] tracking-[0.01em] text-[#333333]">Product Variations</p>
                             <div className="flex items-center">
                         <input
                             type="text"
@@ -486,7 +560,7 @@ const handleRemoveNutrient = (nutrient) => {
                             Add
                         </button>
                     </div>
-                    <div className="mt-3 flex flex-wrap">
+                    <div className="mt-2 flex flex-wrap">
                         {product.components.map((v, idx) => (
                             <div
                                 key={idx}
@@ -503,8 +577,19 @@ const handleRemoveNutrient = (nutrient) => {
                         ))}
                             </div>
                         </div>
-
                     </div>
+                    {/* const valueSchema = new mongoose.Schema({
+                        name: String,
+                        price: Number,
+                        iamge: String,
+                        });
+
+                        const optionSchema = new mongoose.Schema({
+                        name: String,
+                        quantity: Number,
+                        required: Boolean,
+                        values: [valueSchema]
+                        }); */}
                     <div className="mt-8 rounded-xl bg-white p-4">
                         <p className="mb-3 font-bold text-[18px] leading-[28px] tracking-[0.01em] text-[#333333]">Options</p>
                         <input
@@ -514,6 +599,27 @@ const handleRemoveNutrient = (nutrient) => {
                             onChange={(e) => setOptionName(e.target.value)}
                             className="w-full rounded-lg border border-[#F0F1F3] py-2 px-3 text-[#333333] leading-[28px] mb-3"
                         />
+                        <div className="d-flex items-center">
+                        <input
+                            type="text"
+                            placeholder="Enter quantity"
+                            value={optionName}
+                            onChange={(e) => setOptionName(e.target.value)}
+                            className="w-full rounded-lg border border-[#F0F1F3] px-3 text-[#333333] leading-[28px] "
+                        />
+                                               <button onClick={() => setProduct({ ...product, extra: !product.extra })}>
+                            {product.extra ? (
+                                <svg width="50" height="50" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="18" height="18" rx="6" fill="#283618" />
+                                    <path fillRule="evenodd" clipRule="evenodd" d="M15.9471 4.77386C16.3021 5.06675 16.3525 5.59197 16.0596 5.94699L8.91046 14.6126C8.76057 14.7943 8.49 14.8157 8.31338 14.6598L4.44874 11.2499C4.10364 10.9454 4.07072 10.4188 4.37523 10.0737C4.67973 9.72855 5.20634 9.69563 5.55144 10.0001L8.44716 12.5552L14.7739 4.88635C15.0668 4.53134 15.5921 4.48097 15.9471 4.77386Z" fill="white" />
+                                </svg>
+                            ) : (
+                                <svg width="50" height="50" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#858D9D" strokeWidth="2" />
+                                </svg>
+                            )}
+                        </button>
+                            <p className="ml-1 text-[14px] font-semibold text-[#283618] ">Required</p></div>
                         <div>
                         <input
                             type="text"

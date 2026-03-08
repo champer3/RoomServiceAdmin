@@ -40,7 +40,7 @@ function formatDate(dateObject) {
 const getAllProducts = async () => {
   try {
     const products = await axios.get(
-      `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products`,
+      `http://localhost:3000/api/v1/products`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -122,7 +122,7 @@ export default function ProductsPage() {
   }
   async function deleteProduct(id){
     try {
-      const response = await axios.delete(`https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products/${id}`,
+      const response = await axios.delete(`http://localhost:3000/api/v1/products/${id}`,
           {
               headers: {
                   "Content-Type": "application/json",

@@ -17,6 +17,15 @@ function formatNumberWithCommas(number) {
   return formattedNumber;
 }
 
+function safeJsonParse(value, fallback = null) {
+  if (value == null || typeof value !== "string") return fallback;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
 export default function OrderInfoCard({
   id,
   customer,
@@ -230,51 +239,55 @@ export default function OrderInfoCard({
                   </p>
                 </div>
               </div>
-              {order?.flavor?.map((product) => (
-                <div className="flex justify-between items-center px-3">
-                  <div></div>
-                  <div className="w-[75%]">
-                    {JSON.parse(product).values.length > 0 && (
+              {order?.flavor?.map((product, i) => {
+                const parsed = safeJsonParse(product);
+                if (!parsed?.values?.length) return null;
+                return (
+                  <div key={i} className="flex justify-between items-center px-3">
+                    <div></div>
+                    <div className="w-[75%]">
                       <p className="text-[10px] text-secondary italic">
-                        {JSON.parse(product).name} :{" "}
-                        {JSON.parse(product)
-                          .values.map((val) => val.name)
-                          .join(", ")}
+                        {parsed.name} :{" "}
+                        {parsed.values.map((val) => val.name).join(", ")}
                       </p>
-                    )}
+                    </div>
                   </div>
-                </div>
-              ))}
-              {order?.sides?.map((product) => (
-                <div className="flex justify-between items-center">
-                  <div className="w-[8%] flex items-center">
-                    {status === "Ready for Delivery" && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 512 512"
-                      >
-                        <path
-                          fill="#507615"
-                          class="fa-secondary"
-                          d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zm126.1 0L160 222.1c.3 .3 .6 .6 1 1c5.3 5.3 10.7 10.7 16 16c15.7 15.7 31.4 31.4 47 47c37-37 74-74 111-111c5.3-5.3 10.7-10.7 16-16c.3-.3 .6-.6 1-1L385.9 192c-.3 .3-.6 .6-1 1l-16 16L241 337l-17 17-17-17-64-64c-5.3-5.3-10.7-10.7-16-16l-1-1z"
-                        />
-                        <path
-                          fill="#5c9a2c"
-                          opacity=".4"
-                          class="fa-primary"
-                          d="M385 193L241 337l-17 17-17-17-80-80L161 223l63 63L351 159 385 193z"
-                        />
-                      </svg>
-                    )}
+                );
+              })}
+              {order?.sides?.map((product, i) => {
+                const parsed = safeJsonParse(product);
+                if (!parsed?.name) return null;
+                return (
+                  <div key={i} className="flex justify-between items-center">
+                    <div className="w-[8%] flex items-center">
+                      {status === "Ready for Delivery" && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                        >
+                          <path
+                            fill="#507615"
+                            class="fa-secondary"
+                            d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zm126.1 0L160 222.1c.3 .3 .6 .6 1 1c5.3 5.3 10.7 10.7 16 16c15.7 15.7 31.4 31.4 47 47c37-37 74-74 111-111c5.3-5.3 10.7-10.7 16-16c.3-.3 .6-.6 1-1L385.9 192c-.3 .3-.6 .6-1 1l-16 16L241 337l-17 17-17-17-64-64c-5.3-5.3-10.7-10.7-16-16l-1-1z"
+                          />
+                          <path
+                            fill="#5c9a2c"
+                            opacity=".4"
+                            class="fa-primary"
+                            d="M385 193L241 337l-17 17-17-17-80-80L161 223l63 63L351 159 385 193z"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <div></div>
+                    <div className="w-[75%]">
+                      <p className="text-[12px] text-secondary italic">
+                        {parsed.name}
+                      </p>
+                    </div>
                   </div>
-                  <div></div>
-                  <div className="w-[75%]">
-                    <p className="text-[12px] text-secondary italic">
-                      {JSON.parse(product).name}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ))}
         </div>

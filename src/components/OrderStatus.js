@@ -38,7 +38,7 @@ const OrderStatus = ({ status, id }) => {
     };
     try {
       await axios.patch(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/deliver/${id}`,
+        `http://localhost:3000/api/v1/orders/deliver/${id}`,
         JSON.stringify(postData),
         {
           headers: {

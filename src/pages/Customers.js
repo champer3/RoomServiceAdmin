@@ -15,7 +15,7 @@ const getAllUsers = async () => {
   const authToken = localStorage.getItem("token");
   try {
     const users = await axios.get(
-      `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users`,
+      `http://localhost:3000/api/v1/users`,
       {
         headers: {
           "Content-Type": "application/json",

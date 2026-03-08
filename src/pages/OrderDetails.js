@@ -26,13 +26,22 @@ function formatDate(dateObject) {
   return moment(dateObject).format("D MMM YYYY");
 }
 
+function safeJsonParse(value, fallback = null) {
+  if (value == null || typeof value !== "string") return fallback;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
 export const getOrder = async (id) => {
   let driver;
   let res;
   const authToken = localStorage.getItem("token");
   try {
     const order = await axios.get(
-      `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+      `http://localhost:3000/api/v1/orders/${id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +59,7 @@ export const getOrder = async (id) => {
   if (driver)
     try {
       const user = await axios.get(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${driver}`,
+        `http://localhost:3000/api/v1/users/${driver}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -110,7 +119,7 @@ export default function OrderDetailsPage() {
 
     const authToken = localStorage.getItem("token");
     // console.log(oldEmail ? oldEmail : "No old driver");
-    // https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/
+    // http://localhost:3000/api/v1/users/
     //find old driver; in case of new assignment
 
     // get old driver
@@ -118,7 +127,7 @@ export default function OrderDetailsPage() {
     // to find old driver's email from order
     try {
       const order = await axios.get(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+        `http://localhost:3000/api/v1/orders/${id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -136,7 +145,7 @@ export default function OrderDetailsPage() {
     let assigned;
     try {
       const driver = await axios.get(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
+        `http://localhost:3000/api/v1/users/${email}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -162,7 +171,7 @@ export default function OrderDetailsPage() {
     if (oldDriver) {
       try {
         const user = await axios.patch(
-          `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${oldDriver}`,
+          `http://localhost:3000/api/v1/users/${oldDriver}`,
           JSON.stringify({
             assignedOrder: [...newAssigned],
           }),
@@ -183,7 +192,7 @@ export default function OrderDetailsPage() {
     //find new driver
     try {
       const driver = await axios.get(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
+        `http://localhost:3000/api/v1/users/${email}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -207,7 +216,7 @@ export default function OrderDetailsPage() {
     // patch order
     try {
       const order = await axios.patch(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/orders/${id}`,
+        `http://localhost:3000/api/v1/orders/${id}`,
         JSON.stringify({
           driver: email,
           orderStatus: "Out for Delivery",
@@ -238,7 +247,7 @@ export default function OrderDetailsPage() {
     // patch driver
     try {
       const user = await axios.patch(
-        `https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/users/${email}`,
+        `http://localhost:3000/api/v1/users/${email}`,
         JSON.stringify({
           assignedOrder: [...assigned, id],
         }),
@@ -509,32 +518,36 @@ export default function OrderDetailsPage() {
                       </p>
                     </div>
                   </div>
-                  {order?.flavor?.map((product) => (
-                    <div className="flex justify-between items-center px-3">
-                      <div></div>
-                      <div className="w-[75%]">
-                        {JSON.parse(product).values.length > 0 && (
+                  {order?.flavor?.map((product, i) => {
+                    const parsed = safeJsonParse(product);
+                    if (!parsed?.values?.length) return null;
+                    return (
+                      <div key={i} className="flex justify-between items-center px-3">
+                        <div></div>
+                        <div className="w-[75%]">
                           <p className="text-[10px] text-secondary italic">
-                            {JSON.parse(product).name} :{" "}
-                            {JSON.parse(product)
-                              .values.map((val) => val.name)
-                              .join(", ")}
+                            {parsed.name} :{" "}
+                            {parsed.values.map((val) => val.name).join(", ")}
                           </p>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                  {order?.sides?.map((product) => (
-                    <div className="flex justify-between items-center">
-                      <div className="w-[8%] flex items-center"></div>
-                      <div></div>
-                      <div className="w-[75%]">
-                        <p className="text-[12px] text-secondary italic">
-                          {JSON.parse(product).name}
-                        </p>
+                    );
+                  })}
+                  {order?.sides?.map((product, i) => {
+                    const parsed = safeJsonParse(product);
+                    if (!parsed?.name) return null;
+                    return (
+                      <div key={i} className="flex justify-between items-center">
+                        <div className="w-[8%] flex items-center"></div>
+                        <div></div>
+                        <div className="w-[75%]">
+                          <p className="text-[12px] text-secondary italic">
+                            {parsed.name}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ))}
             </div>

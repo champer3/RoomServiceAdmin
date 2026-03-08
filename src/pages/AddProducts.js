@@ -188,7 +188,7 @@ export default function AddProjectsPage() {
 
       // Post the updated product object
       const response = await axios.post(
-        "https://afternoon-waters-32871-fdb986d57f83.herokuapp.com/api/v1/products",
+        "http://localhost:3000/api/v1/products",
         JSON.stringify(updatedProduct),
         {
           headers: {
