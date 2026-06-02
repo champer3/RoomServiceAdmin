@@ -4,6 +4,8 @@ import axios from "axios";
 import { PageContext } from "../context/PageContext";
 import { Link } from "react-router-dom";
 import { getOrder } from "./OrderDetails";
+import { API_URL } from '../config';
+
 const DriversDashboard = () => {
   const driverEmail = sessionStorage.getItem("email");
   const [assignedOrders, setAssignedOrders] = useState();
@@ -13,7 +15,7 @@ const DriversDashboard = () => {
     const authToken = localStorage.getItem("token");
     try {
       const driver = await axios.get(
-        `http://localhost:3000/api/v1/users/${driverEmail}`,
+        `${API_URL}/api/v1/users/${driverEmail}`,
         {
           headers: {
             "Content-Type": "application/json",

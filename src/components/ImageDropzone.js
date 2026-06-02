@@ -30,7 +30,7 @@ export default function ImageDropzone({
     <>
       <div {...getRootProps({ className: styling })}>
         <input {...getInputProps()} />
-        <div className={`text-center ${!files.length ? "" : "mb-5"}`}>
+        <div className={`text-center ${!files?.length ? "" : "mb-5"}`}>
           <svg
             className="mx-auto"
             width="44"
@@ -68,7 +68,7 @@ export default function ImageDropzone({
 
           <p>{isDragActive ? "Drop the images here ..." : description}</p>
         </div>
-        {files.length > 0 && (
+        {files?.length > 0 && (
           <>
             <div className="grid grid-cols-3 gap-4">
               {files.map((file, index) => (

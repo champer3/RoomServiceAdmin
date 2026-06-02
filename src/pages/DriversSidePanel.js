@@ -2,7 +2,6 @@ import { Navigate, Outlet } from "react-router-dom";
 import Dashboard from "../components/Sidepanel/Dashboard";
 import Products from "../components/Sidepanel/Products";
 import Categories from "../components/Sidepanel/Categories";
-import Coupons from "../components/Sidepanel/Coupons";
 import Orders from "../components/Sidepanel/Orders";
 import Customers from "../components/Sidepanel/Customers";
 import TopBar from "../components/TopBar";

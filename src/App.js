@@ -1,4 +1,4 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Navigate, RouterProvider, createBrowserRouter } from "react-router-dom";
 import HomePage from "./pages/Home";
 import AddProjectsPage from "./pages/AddProducts";
 import ProductsPage from "./pages/Products";
@@ -11,10 +11,10 @@ import OrderDetailsPage from "./pages/OrderDetails";
 import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import Settings from "./pages/Settings";
-import CouponsPage from "./pages/Coupons";
+import PromotionsPage from "./pages/Promotions";
+import PromotionEditor from "./pages/PromotionEditor";
 import EditProductPage from "./pages/EditProduct";
 import Messages from "./pages/Messages";
-import AddCouponsPage from "./pages/AddCoupons";
 import PageContextProvider from "./context/PageContext";
 import ViewMessage from "./pages/ViewMessage";
 import LoginPage from "./pages/Login";
@@ -55,8 +55,11 @@ const router = createBrowserRouter([
       { path: "/customers", element: <CustomersPage /> },
       { path: "/customer-details", element: <CustomerDetailsPage /> },
       { path: "/settings", element: <Settings /> },
-      { path: "/coupons", element: <CouponsPage /> },
-      { path: "/add-coupons", element: <AddCouponsPage /> },
+      { path: "/coupons", element: <Navigate to="/promotions" replace /> },
+      { path: "/add-coupons", element: <Navigate to="/promotions/new" replace /> },
+      { path: "/promotions", element: <PromotionsPage /> },
+      { path: "/promotions/new", element: <PromotionEditor /> },
+      { path: "/promotions/:id/edit", element: <PromotionEditor /> },
       { path: "/messages", element: <Messages /> },
       { path: "/viewmessage", element: <ViewMessage /> },
     ],

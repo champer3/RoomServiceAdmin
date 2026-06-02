@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { API_URL } from '../config';
 
 const OrderStatus = ({ status, id }) => {
   const [selectedChoice, setSelectedChoice] = useState();
@@ -17,28 +18,23 @@ const OrderStatus = ({ status, id }) => {
   // ];
 
   const statusOptions = [
-    { label: "Processing", value: "Processing", color: "bg-orange-400" },
-    { label: "Preparing", value: "Preparing", color: "bg-orange-400" },
-    { label: "Ordered", value: "Ordered", color: "bg-yellow-400" },
-    {
-      label: "Out for Delivery",
-      value: "Out for Delivery",
-      color: "bg-blue-400",
-    },
-    { label: "Delivered", value: "Delivered", color: "bg-green-200" },
-    { label: "Ready", value: "Ready", color: "bg-yellow-200" },
-    { label: "Canceled", value: "Canceled", color: "bg-red-200" },
-    { label: "Shipped", value: "Shipped", color: "bg-blue-200" },
+    { label: "Placed", value: "placed", color: "bg-yellow-400" },
+    { label: "Preparing", value: "preparing", color: "bg-orange-400" },
+    { label: "Ready", value: "ready", color: "bg-yellow-200" },
+    { label: "Assigned", value: "assigned", color: "bg-blue-400" },
+    { label: "Picked up", value: "picked_up", color: "bg-blue-200" },
+    { label: "Delivered", value: "delivered", color: "bg-green-200" },
+    { label: "Cancelled", value: "cancelled", color: "bg-red-200" },
   ];
 
-  const updateOrder = async (orderStatus) => {
+  const updateOrder = async (nextStatus) => {
     const authToken = localStorage.getItem("token");
     const postData = {
-      orderStatus,
+      status: nextStatus,
     };
     try {
       await axios.patch(
-        `http://localhost:3000/api/v1/orders/deliver/${id}`,
+        `${API_URL}/api/v1/orders/deliver/${id}`,
         JSON.stringify(postData),
         {
           headers: {

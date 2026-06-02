@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
+import { API_URL } from './config';
 
-// const SERVER_URL = 'http://10.0.0.173:3000';
-const SERVER_URL = 'http://localhost:3000';
+const SERVER_URL = API_URL;
 
 let socket;
 

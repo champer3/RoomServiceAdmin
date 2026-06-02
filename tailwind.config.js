@@ -6,6 +6,13 @@ module.exports = {
     extend: {
       colors: {
         'rs-green': '#283618',
+        'panel-bg': '#FCFCFD',
+        'surface': '#F5F5F7',
+        'panel-border': '#E5E7EB',
+        'nav-active-bg': '#E8F4E9',
+        'nav-active': '#34A853',
+        'nav-inactive': '#808080',
+        'user-name': '#333333',
         customWhite: 'rgba(255, 255, 255, 0.75)',
         transparent: 'rgba(255, 255, 255, 0.15)',
         customGrey: 'rgba(51, 51, 51, 0.6)',

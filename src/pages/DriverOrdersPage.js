@@ -14,6 +14,7 @@ import YellowLabel from "../components/StatusLabels/YellowLabel";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import OrderModal from "../components/OrderModal";
+import { API_URL } from '../config';
 
 function formatDate(dateObject) {
   return moment(dateObject).format("D MMM YYYY");
@@ -23,7 +24,7 @@ const getOrder = async (id) => {
   const authToken = localStorage.getItem("token");
   try {
     const order = await axios.get(
-      `http://localhost:3000/api/v1/orders/${id}`,
+      `${API_URL}/api/v1/orders/${id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -69,12 +70,10 @@ export default function DriverOrdersPage() {
   const updateStatus = async (id, newStatus) => {
     const authToken = localStorage.getItem("token");
     try {
-      let date = getTodaysDate();
       await axios.patch(
-        `http://localhost:3000/api/v1/orders/deliver/${id}`,
+        `${API_URL}/api/v1/orders/deliver/${id}`,
         JSON.stringify({
-          orderStatus: newStatus,
-          date: date,
+          status: newStatus,
         }),
         {
           headers: {
@@ -92,7 +91,7 @@ export default function DriverOrdersPage() {
     let assigned;
     try {
       const driver = await axios.get(
-        `http://localhost:3000/api/v1/users/${driverEmail}`,
+        `${API_URL}/api/v1/users/${driverEmail}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -113,7 +112,7 @@ export default function DriverOrdersPage() {
     // console.log(assigned);
     try {
       const user = await axios.patch(
-        `http://localhost:3000/api/v1/users/${driverEmail}`,
+        `${API_URL}/api/v1/users/${driverEmail}`,
         JSON.stringify({
           assignedOrder: [...newAssigned],
         }),
@@ -178,7 +177,7 @@ export default function DriverOrdersPage() {
       <>
         <OrderModal
           ref={modalRef}
-          onConfirm={() => handleFinishOrder(order.id, "Delivered")}
+          onConfirm={() => handleFinishOrder(order.id, "delivered")}
           operation={"complete"}
         />
         <div className="items-center">
@@ -362,7 +361,9 @@ export default function DriverOrdersPage() {
                   -
                 </p>
                 <p className="font-bold text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                  {formatNumberWithCommas(order.totalPrice)}
+                  {formatNumberWithCommas(
+                  order.totalAmount ?? order.totalPrice ?? 0
+                )}
                 </p>
               </div>
             </div>

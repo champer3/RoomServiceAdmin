@@ -1,755 +1,965 @@
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import axios from "axios";
-
-import { ORDER_LIST } from "../assets/data";
-import Path from "../components/Path";
-import TabButton from "../components/TabButton";
-import OrderStatus from "../components/OrderStatus";
-import TableHead from "../components/dashboard_components/TableHead";
-import { useState, useEffect } from "react";
-import OrangeLabel from "../components/StatusLabels/OrangeLabel";
-import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton";
-import MiniSearch from "../components/MiniSearch";
-import FilterButton from "../components/FilterButton";
-import SelectDatesButton from "../components/SelectDatesButton";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import TableEmptyState from "../components/TableEmptyState";
+import {
+  faBox,
+  faCalendarDay,
+  faCircleCheck,
+  faClock,
+  faMoneyBillWave,
+  faStore,
+  faTruck,
+  faXmarkCircle,
+} from "@fortawesome/free-solid-svg-icons";
+import { API_URL } from "../config";
+import { PageContext } from "../context/PageContext";
+import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton";
+import OrangeLabel from "../components/StatusLabels/OrangeLabel";
 import GreenLabel from "../components/StatusLabels/GreenLabel";
 import RedLabel from "../components/StatusLabels/RedLabel";
 import YellowLabel from "../components/StatusLabels/YellowLabel";
-import TableProductListing from "../components/dashboard_components/TableProductListing";
 import BlueLabel from "../components/StatusLabels/BlueLabel";
-import { PageContext } from "../context/PageContext";
-import { useContext } from "react";
-import { getSocket } from "../socketService";
+import FilterButton from "../components/FilterButton";
+import OrderDetailPanel from "../components/order_components/OrderDetailPanel";
+import TableHead from "../components/dashboard_components/TableHead";
+import {
+  CollapsibleSection,
+  CustomRadioOption,
+  PriceRangeSlider,
+} from "../components/ProductsFilterDrawer";
+import statIconDelivering from "../assets/image 14.png";
+import statIconReady from "../assets/image 15.png";
+import statIconPreparing from "../assets/image 16.png";
+import statIconPending from "../assets/image 17.png";
 
-function safeJsonParse(value, fallback = null) {
-  if (value == null || typeof value !== "string") return fallback;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return fallback;
-  }
+const ITEMS_PER_PAGE_OPTIONS = [10, 20, 50, 100];
+
+const STATUS_OPTIONS = [
+  { value: "placed", label: "Placed" },
+  { value: "preparing", label: "Preparing" },
+  { value: "ready", label: "Ready" },
+  { value: "out_for_delivery", label: "Out for Delivery" },
+  { value: "completed", label: "Completed" },
+  { value: "cancelled", label: "Cancelled" },
+];
+
+const PAYMENT_STATUS_OPTIONS = [
+  { value: "paid", label: "Paid" },
+  { value: "pending", label: "Pending" },
+  { value: "failed", label: "Failed" },
+  { value: "refunded", label: "Refunded" },
+];
+
+function formatMoney(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "0.00";
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
-function formatNumberWithCommas(number) {
-  const formattedNumber = parseFloat(number.toFixed(2)).toLocaleString(
-    "en-US",
-    {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }
+function formatDate(d) {
+  if (!d) return "—";
+  return moment(d).format("D MMM YYYY");
+}
+
+function normalizeStatus(rawStatus) {
+  const value = String(rawStatus ?? "").trim().toLowerCase();
+  const map = {
+    ordered: "placed",
+    placed: "placed",
+    preparing: "preparing",
+    ready: "ready",
+    ready_for_delivery: "ready",
+    "ready for delivery": "ready",
+    ready_for_pickup: "ready",
+    "ready for pickup": "ready",
+    "ready for pick up": "ready",
+    assigned: "out_for_delivery",
+    picked_up: "completed",
+    out_for_delivery: "out_for_delivery",
+    "out for delivery": "out_for_delivery",
+    delivered: "completed",
+    completed: "completed",
+    cancelled: "cancelled",
+    canceled: "cancelled",
+  };
+  return map[value] || value || "placed";
+}
+
+function statusLabel(status) {
+  const labels = {
+    placed: "Placed",
+    preparing: "Preparing",
+    ready: "Ready",
+    out_for_delivery: "Out for Delivery",
+    completed: "Completed",
+    cancelled: "Cancelled",
+  };
+  return labels[status] || "Placed";
+}
+
+function normalizePaymentStatus(raw, paymentMethod) {
+  const val = String(raw ?? "").trim().toLowerCase();
+  if (val === "true") return "paid";
+  if (val === "false") return "pending";
+  if (["paid", "pending", "failed", "refunded"].includes(val)) return val;
+  if (paymentMethod && String(paymentMethod).toLowerCase().includes("cash")) return "pending";
+  return "pending";
+}
+
+function normalizeOrderType(rawType) {
+  return String(rawType || "delivery").toLowerCase() === "pickup" ? "Pickup" : "Delivery";
+}
+
+function extractItems(order) {
+  if (Array.isArray(order?.items) && order.items.length > 0) {
+    return order.items.map((line) => ({
+      name: String(line?.name || line?.productName || "Item"),
+      qty: Number(line?.quantity) > 0 ? Number(line.quantity) : 1,
+    }));
+  }
+  const details = Array.isArray(order?.orderDetails) ? order.orderDetails : [];
+  return details.map((line) => ({
+    name: String(line?.productName || line?.name || "Item"),
+    qty: Array.isArray(line?.dressing) && line.dressing.length > 0 ? line.dressing.length : 1,
+  }));
+}
+
+function displayOrderCode(order) {
+  const number = String(order?.orderNumber || "").trim();
+  if (number) return number.startsWith("RS-") ? number : `RS-${number}`;
+  const id = String(order?.orderId || "");
+  return `RS-${id.slice(-4).toUpperCase()}`;
+}
+
+function normalizeOrder(order) {
+  const orderId = String(order?._id ?? order?.id ?? "");
+  const status = normalizeStatus(order?.status ?? order?.orderStatus);
+  const paymentMethod = String(order?.paymentMethod ?? order?.payment?.method ?? "N/A");
+  const items = extractItems(order);
+  const itemCount = items.reduce((sum, i) => sum + i.qty, 0);
+  const date = order?.placedAt ?? order?.createdAt ?? order?.date ?? null;
+  const customer =
+    String(order?.guestName || "").trim() ||
+    String(order?.userName || "").trim() ||
+    String(order?.customerName || "").trim() ||
+    "Unknown";
+
+  return {
+    ...order,
+    orderId,
+    orderNumber: order?.orderNumber ?? null,
+    status,
+    statusLabel: statusLabel(status),
+    date,
+    customer,
+    paymentMethod,
+    paymentStatus: normalizePaymentStatus(order?.paymentStatus, paymentMethod),
+    orderType: normalizeOrderType(order?.orderType),
+    total: Number(order?.totalAmount ?? order?.totalPrice ?? order?.total ?? 0) || 0,
+    driver: String(order?.driver || "").trim(),
+    items,
+    itemCount,
+    productText: items.map((i) => i.name).join(", "),
+  };
+}
+
+function dateRangeMatch(orderDate, datePreset, customStart, customEnd) {
+  if (!orderDate) return false;
+  const d = moment(orderDate);
+  if (!d.isValid()) return false;
+  if (datePreset === "all") return true;
+  if (datePreset === "today") return d.isSame(moment(), "day");
+  if (datePreset === "yesterday") return d.isSame(moment().subtract(1, "day"), "day");
+  if (datePreset === "last7") return d.isSameOrAfter(moment().subtract(6, "day").startOf("day"));
+  if (datePreset === "custom") {
+    const start = customStart ? moment(customStart).startOf("day") : null;
+    const end = customEnd ? moment(customEnd).endOf("day") : null;
+    if (start && d.isBefore(start)) return false;
+    if (end && d.isAfter(end)) return false;
+    return true;
+  }
+  return true;
+}
+
+function exportOrdersCsv(orders) {
+  const headers = ["Order Code", "Order ID", "Date", "Customer", "Type", "Items", "Total", "Payment Method", "Payment Status", "Status"];
+  const rows = orders.map((o) => [
+    displayOrderCode(o),
+    o.orderId,
+    formatDate(o.date),
+    o.customer,
+    o.orderType,
+    o.productText,
+    o.total,
+    o.paymentMethod,
+    o.paymentStatus,
+    o.statusLabel,
+  ]);
+  const csv = [headers, ...rows]
+    .map((row) => row.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `orders-${moment().format("YYYY-MM-DD-HH-mm")}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function OrdersFiltersDrawer({
+  open,
+  onClose,
+  statusFilters,
+  setStatusFilters,
+  orderTypeFilter,
+  setOrderTypeFilter,
+  datePreset,
+  setDatePreset,
+  customStartDate,
+  setCustomStartDate,
+  customEndDate,
+  setCustomEndDate,
+  paymentStatusFilters,
+  setPaymentStatusFilters,
+  amountMin,
+  setAmountMin,
+  amountMax,
+  setAmountMax,
+  sortBy,
+  setSortBy,
+  onReset,
+}) {
+  const [openSections, setOpenSections] = useState({
+    status: true,
+    type: false,
+    date: false,
+    payment: false,
+    amount: true,
+    sort: false,
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    const onEsc = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onEsc);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onEsc);
+      document.body.style.overflow = "";
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const bounds = { min: 0, max: 2000, step: 10 };
+  const priceRange = { min: amountMin, max: amountMax };
+  const setPriceRange = (updater) => {
+    const next = typeof updater === "function" ? updater(priceRange) : updater;
+    setAmountMin(String(next?.min ?? ""));
+    setAmountMax(String(next?.max ?? ""));
+  };
+
+  const setMin = (raw) => setAmountMin(String(raw ?? "").replace(/[^\d]/g, ""));
+  const setMax = (raw) => setAmountMax(String(raw ?? "").replace(/[^\d]/g, ""));
+
+  const toggleListFilter = (value, setFn) => {
+    setFn((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  };
+
+  const handleToggle = (k) => setOpenSections((s) => ({ ...s, [k]: !s[k] }));
+
+  return (
+    <>
+      <button type="button" className="fixed inset-0 z-40 bg-black/40 border-0 p-0" onClick={onClose} aria-label="Close filters" />
+      <div className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white shadow-xl flex flex-col">
+        <div className="flex items-center justify-between border-b border-[#E5E7EB] px-4 py-3">
+          <h2 className="text-lg font-semibold text-[#111827]">Filters</h2>
+          <button type="button" onClick={onClose} className="p-2 rounded-lg text-[#6B7280] hover:bg-[#F3F4F6]">✕</button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+          <CollapsibleSection title="STATUS" open={openSections.status} onToggle={() => handleToggle("status")}>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {STATUS_OPTIONS.map((o) => (
+                <CustomRadioOption
+                  key={o.value}
+                  checked={statusFilters.includes(o.value)}
+                  label={o.label}
+                  onChange={() => toggleListFilter(o.value, setStatusFilters)}
+                />
+              ))}
+            </div>
+          </CollapsibleSection>
+
+          <CollapsibleSection title="ORDER TYPE" open={openSections.type} onToggle={() => handleToggle("type")}>
+            <div className="space-y-2">
+              {["all", "Delivery", "Pickup"].map((v) => (
+                <CustomRadioOption
+                  key={v}
+                  checked={orderTypeFilter === v}
+                  label={v === "all" ? "All" : v}
+                  onChange={() => setOrderTypeFilter(v)}
+                />
+              ))}
+            </div>
+          </CollapsibleSection>
+
+          <CollapsibleSection title="DATE RANGE" open={openSections.date} onToggle={() => handleToggle("date")}>
+            <select
+              value={datePreset}
+              onChange={(e) => setDatePreset(e.target.value)}
+              className="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm"
+            >
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="last7">Last 7 days</option>
+              <option value="custom">Custom</option>
+            </select>
+            {datePreset === "custom" && (
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <input type="date" value={customStartDate} onChange={(e) => setCustomStartDate(e.target.value)} className="rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm" />
+                <input type="date" value={customEndDate} onChange={(e) => setCustomEndDate(e.target.value)} className="rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm" />
+              </div>
+            )}
+          </CollapsibleSection>
+
+          <CollapsibleSection title="PAYMENT STATUS" open={openSections.payment} onToggle={() => handleToggle("payment")}>
+            <div className="space-y-2">
+              {PAYMENT_STATUS_OPTIONS.map((o) => (
+                <CustomRadioOption
+                  key={o.value}
+                  checked={paymentStatusFilters.includes(o.value)}
+                  label={o.label}
+                  onChange={() => toggleListFilter(o.value, setPaymentStatusFilters)}
+                />
+              ))}
+            </div>
+          </CollapsibleSection>
+
+          <CollapsibleSection title="AMOUNT" open={openSections.amount} onToggle={() => handleToggle("amount")}>
+            <PriceRangeSlider
+              bounds={bounds}
+              priceRange={priceRange}
+              setPriceRange={setPriceRange}
+              setMin={setMin}
+              setMax={setMax}
+            />
+          </CollapsibleSection>
+
+          <CollapsibleSection title="SORT" open={openSections.sort} onToggle={() => handleToggle("sort")}>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="total_high">Total high to low</option>
+              <option value="total_low">Total low to high</option>
+            </select>
+          </CollapsibleSection>
+        </div>
+        <div className="border-t border-[#E5E7EB] px-4 py-3 flex gap-2">
+          <button type="button" onClick={onReset} className="flex-1 rounded-lg border border-[#E5E7EB] px-4 py-2.5 text-sm font-semibold text-[#4B5563] hover:bg-[#F9FAFB]">
+            Reset
+          </button>
+          <button type="button" onClick={onClose} className="flex-1 rounded-lg bg-[#283618] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1F2714]">
+            Done
+          </button>
+        </div>
+      </div>
+    </>
   );
-
-  return formattedNumber;
 }
-
-function formatDate(dateObject) {
-  return moment(dateObject).format("D MMM YYYY");
-}
-const printToFile = async (order) => {
-  function formatDate(isoString) {
-    const options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-    return new Date(isoString).toLocaleString('en-US', options).replace(',', '');
-}
-let cnst = order.orderDetails?.map(({ component, dressing, flavor, productName, sides }, idx) => `
-<tr><td>${Array.isArray(dressing) ? dressing.length : 0}x</td><td>${productName}</td></tr>
-${component ? `<tr><td>*</td><td><i>${component}<i></td></tr>` : ''}
-${flavor?.map((product) => {
-    const parsedProduct = safeJsonParse(product);
-    if (!parsedProduct?.values?.length) return "";
-    return `<tr><td>${parsedProduct.name}: </td><td>${parsedProduct.values.map((val) => val.name).join(", ")}</td></tr>`;
-}).join("")}
-${sides?.map((product) => {
-    const parsedProduct = safeJsonParse(product);
-    if (!parsedProduct) return "";
-    return parsedProduct?.name ? `<tr><td>${parsedProduct.name}</td><td>+</td></tr>` : "";
-}).join("")}`)
-const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipt</title>
-    <style>
-    body {
-        font-family: monospace;
-        text-align: center;
-        padding: 20px;
-    }
-    .receipt {
-      // width: 320px;
-      // min-height: 400px; /* Ensures it has a reasonable height */
-      // max-height: 100vh; /* Prevents excessive space */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between; /* Even spacing */
-      margin: auto;
-      padding: 15px;
-      // border: 1px solid #000;
-      // box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-  }
-    .header, .footer {
-        text-align: center;
-        font-size: 14px;
-        font-weight: bold;
-    }
-    .items {
-        text-align: left;
-        margin-top: 10px;
-    }
-    .items table {
-        width: 100%;
-    }
-    .items td {
-        padding: 5px 0;
-    }
-    .total {
-        margin-top: 10px;
-        font-weight: bold;
-    }
-    button {
-        margin-top: 15px;
-        padding: 10px;
-        cursor: pointer;
-    }
-</style>
-</head>
-<body>
-<div class="receipt">
-        <div class="header">
-            <p>${order.userName}</p>
-            <p>RoomService</p>
-        </div>
-        <hr>
-        <div class="items">
-            <table>
-${cnst}
-</table>
-</div>
-        <hr>
-        <div class="total">
-            <p><strong>Sub Total: $${order.totalPrice}</strong></p>
-        </div>
-        <hr>
-        <div class="footer">
-            <p>Paid</p>
-            <p>Delivery Address: ${order.shippingAddress}</p>
-            <p>Delivery Driver: ${order.driver?.length > 0 ? order.driver : ''}</p>
-            <p>Placed At: ${formatDate(order.date)}</p>
-        </div>
-    </div>
-</body>
-</html>
-`;
-let printContent = html;
-document.body.innerHTML = printContent;
-window.print();
-};
-
-
-// With this function you can access all the orders in the database
-// Todo: We need to implement something in the backend that only sends out 20 orders at a time, for buffer reasons
-const getAllOrders = async () => {
-  const authToken = localStorage.getItem("token");
-  try {
-    const orders = await axios.get(
-      `http://localhost:3000/api/v1/orders`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
-    );
-    // console.log(orders);
-    return orders;
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-// console.log(getAllOrders())
-// async function updateDeliveryBackend(){
-//     try {
-//         const response = await axios.patch(
-//           `http://10.0.0.173:3000//api/v1/orders/deliver/:order`,
-//           JSON.stringify(postData),
-//           {
-//             headers: {
-//               "Content-Type": "application/json",
-//             },
-//           }
-//         );
-//         const authToken = response.data.token;
-//         console.log(authToken);
-//         await saveTokenToAsyncStorage(authToken);
-//         return response.data.data.user;
-//       } catch (err) {
-//         console.log(err.error);
-//       }
-// }
 
 export default function OrdersPage() {
-  const [allTab, setAllTab] = useState(true);
-  const [orderList, setOrderList] = useState();
-  useEffect(() => {
-    getAllOrders()
-      .then((data) => data)
-      .then((data) => setOrderList(data.data.data.orders));
-  }, [allTab]);
-  // console.log(orderList);
-  useEffect(() => {
-    const socket = getSocket();
-    socket.on("order", (data) => {
-      console.log("Received message:", data);
-      getAllOrders()
-        .then((data) => data)
-        .then((data) => setOrderList(data.data.data.orders));
-    });
+  const { changePage } = useContext(PageContext);
+  const [orderList, setOrderList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilters, setStatusFilters] = useState([]);
+  const [orderTypeFilter, setOrderTypeFilter] = useState("all");
+  const [datePreset, setDatePreset] = useState("all");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
+  const [paymentStatusFilters, setPaymentStatusFilters] = useState([]);
+  const [amountMin, setAmountMin] = useState("");
+  const [amountMax, setAmountMax] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [savingOrderAction, setSavingOrderAction] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
 
-    return () => {
-      socket.off("order"); // Correct the event name
-    };
+  const getAllOrders = async () => {
+    const authToken = localStorage.getItem("token");
+    const orders = await axios.get(`${API_URL}/api/v1/orders`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+    return orders?.data?.data?.orders ?? [];
+  };
+
+  const refreshOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const orders = await getAllOrders();
+      setOrderList(orders);
+    } catch {
+      setOrderList([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const itemsPerPage = 10;
-  const [activePage, setActivePage] = useState("all");
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [activeColumn, setActiveColumn] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  // const [shownItems, setShownItems] = useState(
+  useEffect(() => {
+    refreshOrders();
+  }, [refreshOrders]);
 
-  // );
-  // console.log(
-  //     orderList &&
-  //     orderList.slice(
-  //         (currentPage - 1) * itemsPerPage,
-  //         currentPage * itemsPerPage
-  //     )
-  // );
-  const lastPage = orderList
-    ? orderList.length % itemsPerPage === 0
-      ? orderList.length / itemsPerPage
-      : Math.floor(orderList.length / itemsPerPage) + 1
-    : null;
+  const normalizedOrders = useMemo(() => (orderList || []).map(normalizeOrder), [orderList]);
 
-  const arr = [];
-  for (let i = 1; i <= lastPage; i++) {
-    arr.push(i);
-  }
-
-  function handlePageClick(pageNum) {
-    setCurrentPage(pageNum);
-    // setShownItems(
-    //   orderList.slice((pageNum - 1) * itemsPerPage, pageNum * itemsPerPage)
-    // );
-  }
-
-  const { viewOrder, changePage } = useContext(PageContext);
-  // const itemsPerPage = 20
-
-  // const shownItems = numbers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-  function handleSelectTabButton(page) {
-    setActivePage(page);
-    if (page === "all") {
-      setAllTab((prevState) => !prevState);
-      setOrderList(() => orderList);
-      // setShownItems(ORDER_LIST.slice(0, 10));
-      setCurrentPage(1);
-      return;
-    }
-    setOrderList(() => {
-      const result = ORDER_LIST.filter((item) => {
-        return item.status.toLowerCase() === page;
+  const filteredOrders = useMemo(() => {
+    let list = [...normalizedOrders];
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter((o) => {
+        const searchBlob = [
+          o.orderId,
+          o.orderNumber,
+          displayOrderCode(o),
+          o.customer,
+          o.productText,
+          o.driver,
+          o.items.map((i) => i.name).join(" "),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return searchBlob.includes(q);
       });
-      // setShownItems(result.slice(0, 10));
-      return result;
-    });
+    }
+
+    if (statusFilters.length > 0) list = list.filter((o) => statusFilters.includes(o.status));
+    if (orderTypeFilter !== "all") list = list.filter((o) => o.orderType === orderTypeFilter);
+    if (paymentStatusFilters.length > 0) list = list.filter((o) => paymentStatusFilters.includes(o.paymentStatus));
+
+    const min = amountMin === "" ? null : Number(amountMin);
+    const max = amountMax === "" ? null : Number(amountMax);
+    if (min != null && Number.isFinite(min)) list = list.filter((o) => o.total >= min);
+    if (max != null && Number.isFinite(max)) list = list.filter((o) => o.total <= max);
+
+    list = list.filter((o) => dateRangeMatch(o.date, datePreset, customStartDate, customEndDate));
+
+    if (sortBy === "newest") list.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+    if (sortBy === "oldest") list.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+    if (sortBy === "total_high") list.sort((a, b) => b.total - a.total);
+    if (sortBy === "total_low") list.sort((a, b) => a.total - b.total);
+    return list;
+  }, [
+    normalizedOrders,
+    searchQuery,
+    statusFilters,
+    orderTypeFilter,
+    paymentStatusFilters,
+    amountMin,
+    amountMax,
+    datePreset,
+    customStartDate,
+    customEndDate,
+    sortBy,
+  ]);
+
+  useEffect(() => {
     setCurrentPage(1);
-  }
+  }, [
+    searchQuery,
+    statusFilters,
+    orderTypeFilter,
+    paymentStatusFilters,
+    amountMin,
+    amountMax,
+    datePreset,
+    customStartDate,
+    customEndDate,
+    sortBy,
+    itemsPerPage,
+  ]);
 
-  function handleAscendingSort(criteria) {
-    setActiveColumn(criteria);
-    if (criteria === "status" || criteria === "name") {
-      // setShownItems((prevList) => {
-      //   prevList.sort((a, b) => a[criteria].localeCompare(b[criteria]));
-      //   return [...prevList];
-      // });
-    } else {
-      // setShownItems((prevList) => {
-      //   prevList.sort((a, b) => a[criteria] - b[criteria]);
-      //   return [...prevList];
-      // });
-    }
-  }
+  useEffect(() => {
+    setSelectedRows([]);
+  }, [currentPage, itemsPerPage, filteredOrders.length]);
 
-  function handleDescendingSort(criteria) {
-    setActiveColumn(criteria);
-    if (criteria === "status" || criteria === "name") {
-      // setShownItems((prevList) => {
-      //   prevList.sort((a, b) => b[criteria].localeCompare(a[criteria]));
-      //   return [...prevList];
-      // });
-    } else {
-      // setShownItems((prevList) => {
-      //   prevList.sort((a, b) => b[criteria] - a[criteria]);
-      //   return [...prevList];
-      // });
+  const paidRevenue = useMemo(
+    () =>
+      filteredOrders.reduce(
+        (sum, o) => sum + (o.paymentStatus === "paid" ? o.total : 0),
+        0
+      ),
+    [filteredOrders]
+  );
+  const completedCount = useMemo(
+    () => filteredOrders.filter((o) => o.status === "completed").length,
+    [filteredOrders]
+  );
+  const cancelledCount = useMemo(
+    () => filteredOrders.filter((o) => o.status === "cancelled").length,
+    [filteredOrders]
+  );
+  const avgOrderValue = useMemo(
+    () => (filteredOrders.length ? paidRevenue / filteredOrders.length : 0),
+    [paidRevenue, filteredOrders.length]
+  );
+  const dateRangeDays = useMemo(() => {
+    if (!filteredOrders.length) return 1;
+    if (datePreset === "today" || datePreset === "yesterday") return 1;
+    if (datePreset === "last7") return 7;
+    if (datePreset === "custom" && customStartDate && customEndDate) {
+      const start = moment(customStartDate).startOf("day");
+      const end = moment(customEndDate).endOf("day");
+      const d = Math.max(1, end.diff(start, "days") + 1);
+      return d;
     }
-  }
+    const dates = filteredOrders
+      .map((o) => moment(o.date))
+      .filter((d) => d.isValid())
+      .sort((a, b) => a.valueOf() - b.valueOf());
+    if (!dates.length) return 1;
+    return Math.max(1, dates[dates.length - 1].diff(dates[0], "days") + 1);
+  }, [filteredOrders, datePreset, customStartDate, customEndDate]);
+  const perPeriodValue = useMemo(() => {
+    if (dateRangeDays >= 14) {
+      return (filteredOrders.length / (dateRangeDays / 7)).toFixed(1);
+    }
+    return (filteredOrders.length / dateRangeDays).toFixed(1);
+  }, [filteredOrders.length, dateRangeDays]);
+  const perPeriodLabel = dateRangeDays >= 14 ? "Orders / Week" : "Orders / Day";
+
+  const lastPage = Math.max(1, Math.ceil(filteredOrders.length / itemsPerPage));
+  const currentSlice = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const pageNumbers = Array.from({ length: lastPage }, (_, i) => i + 1);
+  const appliedFilterCount =
+    statusFilters.length +
+    paymentStatusFilters.length +
+    (orderTypeFilter !== "all" ? 1 : 0) +
+    (datePreset !== "all" ? 1 : 0) +
+    (amountMin !== "" || amountMax !== "" ? 1 : 0) +
+    (sortBy !== "newest" ? 1 : 0);
+
+  const completedPct = filteredOrders.length
+    ? ((completedCount / filteredOrders.length) * 100).toFixed(1)
+    : "0.0";
+  const cancelledPct = filteredOrders.length
+    ? ((cancelledCount / filteredOrders.length) * 100).toFixed(1)
+    : "0.0";
+
+  const statsCards = [
+    {
+      key: "total",
+      label: "Total Orders",
+      value: filteredOrders.length,
+      icon: statIconPending,
+      onClick: null,
+    },
+    {
+      key: "revenue",
+      label: "Revenue (Paid)",
+      value: `$${formatMoney(paidRevenue)}`,
+      icon: statIconPreparing,
+      onClick: null,
+    },
+    {
+      key: "per_period",
+      label: perPeriodLabel,
+      value: perPeriodValue,
+      icon: statIconDelivering,
+      onClick: null,
+    },
+    {
+      key: "avg",
+      label: "Average Order",
+      value: `$${formatMoney(avgOrderValue)}`,
+      icon: statIconReady,
+      onClick: null,
+    },
+    {
+      key: "completed",
+      label: "Completed",
+      value: completedCount,
+      pct: Number(completedPct),
+      icon: statIconReady,
+      onClick: () => {
+        setStatusFilters(["completed"]);
+      },
+    },
+    {
+      key: "cancelled",
+      label: "Cancelled",
+      value: cancelledCount,
+      pct: Number(cancelledPct),
+      icon: statIconPending,
+      onClick: () => {
+        setStatusFilters(["cancelled"]);
+      },
+    },
+  ];
 
   function handleIsSelected(row) {
-    setSelectedRows((prevState) => {
-      return [...prevState, row];
-    });
+    setSelectedRows((prevState) => [...prevState, row]);
   }
 
   function handleIsRemoved(row) {
-    setSelectedRows((prevState) => {
-      return prevState.filter((item) => item !== row);
-    });
+    setSelectedRows((prevState) => prevState.filter((item) => item !== row));
   }
-  // orderList && orderList.map((order) => console.log(order.orderStatus));
-  // console.log(orderList)
-  return (
-    <>
-      {!orderList && <p>Loading</p>}
-      {orderList && (
-        <>
-          {changePage("orders")}
-          <div className="ml-4">
-            <div className="flex items-center">
-              <div>
-                <p className="text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]">
-                  Orders
-                </p>
-                <Path
-                  pages={[
-                    { name: "Dashboard", link: "dashboard" },
-                    { name: "Order List", link: "orders" },
-                  ]}
-                />
-              </div>
-              <div className="flex ml-auto">
-                <button className="flex border border-[#283618] rounded-xl mr-2 px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em]">
-                  <svg
-                    className="mr-2"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <g clip-path="url(#clip0_499_3317)">
-                      <path
-                        d="M6.5854 12.0813C7.36621 12.8627 8.63253 12.8631 9.41384 12.0822C9.41415 12.0819 9.41443 12.0817 9.41474 12.0813L11.5554 9.94069C11.8023 9.66759 11.7811 9.246 11.508 8.99906C11.2537 8.76916 10.8666 8.76956 10.6127 9L8.66209 10.9513L8.66674 0.666687C8.66671 0.298469 8.36824 0 8.00006 0C7.63187 0 7.3334 0.298469 7.3334 0.666656L7.3274 10.9387L5.3874 9C5.1269 8.73969 4.70471 8.73984 4.4444 9.00034C4.18409 9.26084 4.18424 9.68303 4.44474 9.94334L6.5854 12.0813Z"
-                        fill="#283618"
-                      />
-                      <path
-                        d="M15.3333 10.6666C14.9652 10.6666 14.6667 10.9651 14.6667 11.3333V14C14.6667 14.3682 14.3682 14.6666 14 14.6666H2C1.63181 14.6666 1.33334 14.3682 1.33334 14V11.3333C1.33334 10.9651 1.03487 10.6667 0.666687 10.6667C0.298469 10.6666 0 10.9651 0 11.3333V14C0 15.1045 0.895437 16 2 16H14C15.1046 16 16 15.1045 16 14V11.3333C16 10.9651 15.7015 10.6666 15.3333 10.6666Z"
-                        fill="#283618"
-                      />
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_499_3317">
-                        <rect width="16" height="16" fill="white" />
-                      </clipPath>
-                    </defs>
-                  </svg>
-                  Export
-                </button>
-                <button className="flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em]">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <g clip-path="url(#clip0_499_3320)">
-                      <path
-                        d="M17.3333 9.33333H10.6667V2.66667C10.6667 2.48986 10.5964 2.32029 10.4714 2.19526C10.3464 2.07024 10.1768 2 10 2V2C9.82319 2 9.65362 2.07024 9.5286 2.19526C9.40357 2.32029 9.33333 2.48986 9.33333 2.66667V9.33333H2.66667C2.48986 9.33333 2.32029 9.40357 2.19526 9.5286C2.07024 9.65362 2 9.82319 2 10V10C2 10.1768 2.07024 10.3464 2.19526 10.4714C2.32029 10.5964 2.48986 10.6667 2.66667 10.6667H9.33333V17.3333C9.33333 17.5101 9.40357 17.6797 9.5286 17.8047C9.65362 17.9298 9.82319 18 10 18C10.1768 18 10.3464 17.9298 10.4714 17.8047C10.5964 17.6797 10.6667 17.5101 10.6667 17.3333V10.6667H17.3333C17.5101 10.6667 17.6797 10.5964 17.8047 10.4714C17.9298 10.3464 18 10.1768 18 10C18 9.82319 17.9298 9.65362 17.8047 9.5286C17.6797 9.40357 17.5101 9.33333 17.3333 9.33333Z"
-                        fill="white"
-                      />
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_499_3320">
-                        <rect
-                          width="16"
-                          height="16"
-                          fill="white"
-                          transform="translate(2 2)"
-                        />
-                      </clipPath>
-                    </defs>
-                  </svg>
-                  <p className="ml-2">Add Order</p>
-                </button>
-              </div>
-            </div>
-            <div className="flex h-[60px] items-center">
-              <div className="mt-8 flex border border-[#E0E2E7] bg-white rounded-lg p-[2px] ">
-                <TabButton
-                  disabled={true}
-                  handleSelect={() => handleSelectTabButton("all")}
-                  isSelected={activePage === "all"}
-                >
-                  All Orders
-                </TabButton>
-                <TabButton
-                  disabled={true}
-                  handleSelect={() => handleSelectTabButton("processing")}
-                  isSelected={activePage === "processing"}
-                >
-                  Processing
-                </TabButton>
-                <TabButton
-                  disabled={true}
-                  handleSelect={() => handleSelectTabButton("shipped")}
-                  isSelected={activePage === "shipped"}
-                >
-                  Shipped
-                </TabButton>
-                <TabButton
-                  disabled={true}
-                  handleSelect={() => handleSelectTabButton("delivered")}
-                  isSelected={activePage === "delivered"}
-                >
-                  Delivered
-                </TabButton>
-                <TabButton
-                  disabled={true}
-                  handleSelect={() => handleSelectTabButton("canceled")}
-                  isSelected={activePage === "canceled"}
-                >
-                  Canceled
-                </TabButton>
-              </div>
-              <div className="flex space-x-4 mt-8 ml-auto">
-                <MiniSearch />
-                <SelectDatesButton />
-                <FilterButton />
-              </div>
-            </div>
 
-            <div className="mt-5">
-              <table className="w-full bg-white rounded-xl">
-                <tr className="border-b">
-                  <th className="pt-3 w-[30px]">
-                    <button className="ml-4">
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
+  function paymentStatusUi(status) {
+    const s = String(status || "").toLowerCase();
+    if (s === "paid") {
+      return {
+        icon: faCircleCheck,
+        cls: "text-emerald-700 bg-emerald-50",
+        label: "Paid",
+      };
+    }
+    if (s === "failed") {
+      return {
+        icon: faXmarkCircle,
+        cls: "text-rose-700 bg-rose-50",
+        label: "Failed",
+      };
+    }
+    if (s === "refunded") {
+      return {
+        icon: faMoneyBillWave,
+        cls: "text-indigo-700 bg-indigo-50",
+        label: "Refunded",
+      };
+    }
+    return {
+      icon: faClock,
+      cls: "text-amber-700 bg-amber-50",
+      label: "Pending",
+    };
+  }
+
+  const updateOrderPatch = async (id, body) => {
+    const authToken = localStorage.getItem("token");
+    await axios.patch(`${API_URL}/api/v1/orders/${id}`, JSON.stringify(body), {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+  };
+
+  const handleCancelOrder = async () => {
+    if (!selectedOrder?.orderId) return;
+    setSavingOrderAction(true);
+    try {
+      await updateOrderPatch(selectedOrder.orderId, { status: "cancelled" });
+      await refreshOrders();
+      setSelectedOrder((prev) => (prev ? { ...prev, status: "cancelled", statusLabel: "Cancelled" } : prev));
+    } finally {
+      setSavingOrderAction(false);
+    }
+  };
+
+  const handleCompleteOrder = async () => {
+    if (!selectedOrder?.orderId) return;
+    if (selectedOrder.status === "completed") return;
+    setSavingOrderAction(true);
+    try {
+      await updateOrderPatch(selectedOrder.orderId, { status: "completed" });
+      await refreshOrders();
+      setSelectedOrder((prev) => (prev ? { ...prev, status: "completed", statusLabel: "Completed" } : prev));
+    } finally {
+      setSavingOrderAction(false);
+    }
+  };
+
+  const resetFilters = () => {
+    setStatusFilters([]);
+    setOrderTypeFilter("all");
+    setDatePreset("all");
+    setCustomStartDate("");
+    setCustomEndDate("");
+    setPaymentStatusFilters([]);
+    setAmountMin("");
+    setAmountMax("");
+    setSortBy("newest");
+  };
+
+  const renderStatusChip = (order) => {
+    if (order.status === "placed" || order.status === "preparing") return <OrangeLabel>{order.statusLabel}</OrangeLabel>;
+    if (order.status === "ready") return <YellowLabel>{order.statusLabel}</YellowLabel>;
+    if (order.status === "out_for_delivery") return <BlueLabel>{order.statusLabel}</BlueLabel>;
+    if (order.status === "completed") return <GreenLabel>{order.statusLabel}</GreenLabel>;
+    if (order.status === "cancelled") return <RedLabel>{order.statusLabel}</RedLabel>;
+    return <OrangeLabel>Placed</OrangeLabel>;
+  };
+
+  return (
+    <div className="flex h-full min-h-0 w-[calc(100vw-330px)] max-w-full overflow-hidden">
+      <OrdersFiltersDrawer
+        open={filterDrawerOpen}
+        onClose={() => setFilterDrawerOpen(false)}
+        statusFilters={statusFilters}
+        setStatusFilters={setStatusFilters}
+        orderTypeFilter={orderTypeFilter}
+        setOrderTypeFilter={setOrderTypeFilter}
+        datePreset={datePreset}
+        setDatePreset={setDatePreset}
+        customStartDate={customStartDate}
+        setCustomStartDate={setCustomStartDate}
+        customEndDate={customEndDate}
+        setCustomEndDate={setCustomEndDate}
+        paymentStatusFilters={paymentStatusFilters}
+        setPaymentStatusFilters={setPaymentStatusFilters}
+        amountMin={amountMin}
+        setAmountMin={setAmountMin}
+        amountMax={amountMax}
+        setAmountMax={setAmountMax}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        onReset={resetFilters}
+      />
+
+      <div className={selectedOrder ? "flex-1 min-w-0 overflow-hidden flex flex-col pr-3" : "flex-1 min-w-0 overflow-hidden flex flex-col"}>
+        {changePage("orders")}
+        <div className="flex items-center shrink-0">
+          <div>
+            <p className="text-[#333333] font-bold text-[28px] leading-[42px] tracking-[0.01em]">Orders</p>
+            <p className="mt-1 text-[15px] text-[#6B7280] font-normal">Manage all orders across time</p>
+          </div>
+          <div className="flex ml-auto gap-2">
+            <button
+              type="button"
+              onClick={() => exportOrdersCsv(filteredOrders)}
+              className="flex items-center border border-[#283618] rounded-xl px-[14px] py-[10px] text-[#283618] font-semibold text-[14px] leading-[20px] tracking-[0.005em] bg-white hover:bg-[#F4F9EE]"
+            >
+              Export
+            </button>
+            <Link to="/order-notifications" className="flex items-center rounded-xl px-[14px] py-[10px] bg-[#283618] text-white font-semibold text-[14px] leading-[20px] tracking-[0.005em] hover:bg-[#1F2714]">
+              View Operations →
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 mt-4 mb-4 shrink-0">
+          {statsCards.map((card) => (
+            <button
+              key={card.key}
+              type="button"
+              onClick={card.onClick || undefined}
+              className={[
+                "rounded-xl border px-3 py-3 text-left transition-all",
+                "bg-gradient-to-b from-white to-[#F8FAFC] border-[#E5EAF0] shadow-sm",
+                card.onClick ? "hover:shadow-md hover:border-[#D6DEE8] cursor-pointer" : "cursor-default",
+              ].join(" ")}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-[22px] leading-none font-semibold text-[#111827] truncate">{card.value}</p>
+                    {typeof card.pct === "number" && (
+                      <span
+                        className={[
+                          "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                          card.key === "completed"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-rose-50 text-rose-700",
+                        ].join(" ")}
                       >
+                        {card.pct.toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-[#6B7280] leading-snug">{card.label}</p>
+                </div>
+                <span className="h-12 w-12 shrink-0 rounded-full bg-[#EEF2F7] flex items-center justify-center overflow-hidden ring-1 ring-[#E5EAF0]">
+                  <img src={card.icon} alt="" className="h-9 w-9 object-contain opacity-90" />
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-2 flex items-center justify-end gap-2 shrink-0">
+          <div className="w-[320px]">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by order #, items, driver, customer"
+              className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#283618]"
+            />
+          </div>
+          <FilterButton onClick={() => setFilterDrawerOpen(true)} active={appliedFilterCount > 0} appliedCount={appliedFilterCount} />
+        </div>
+
+        <div className="mt-4 rounded-2xl bg-white border border-[#E5E7EB] shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col min-h-[220px] max-h-[calc(100vh-260px)]">
+          <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto min-h-[220px]">
+            <table className="min-w-full w-max text-sm">
+              <thead className="sticky top-0 z-10 bg-[#F9FAFB] border-b border-[#E5E7EB] shadow-[0_1px_0_0_#E5E7EB]">
+                <tr>
+                  <th className="w-10 px-4 py-1 text-left">
+                    <button>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="20" height="20" rx="6" fill="#BC6C25" />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M3.75 10C3.75 9.53978 4.1231 9.16669 4.58333 9.16669H15.4167C15.8769 9.16669 16.25 9.53978 16.25 10C16.25 10.4603 15.8769 10.8334 15.4167 10.8334H4.58333C4.1231 10.8334 3.75 10.4603 3.75 10Z"
-                          fill="white"
-                        />
+                        <path fillRule="evenodd" clipRule="evenodd" d="M3.75 10C3.75 9.53978 4.1231 9.16669 4.58333 9.16669H15.4167C15.8769 9.16669 16.25 9.53978 16.25 10C16.25 10.4603 15.8769 10.8334 15.4167 10.8334H4.58333C4.1231 10.8334 3.75 10.4603 3.75 10Z" fill="white" />
                       </svg>
                     </button>
                   </th>
-                  <th className="pl-6 w-[150px]">
-                    <TableHead heading={"Order ID"} />
-                  </th>
-                  <th className="pl-6 w-[250px]">
-                    <TableHead
-                      heading={"Product"}
-                      active={activeColumn === "name"}
-                      canOrder={true}
-                      ascend={() => handleAscendingSort("name")}
-                      descend={() => handleDescendingSort("name")}
-                    />
-                  </th>
-                  <th className="pl-8 w-[200px]">
-                    <TableHead
-                      heading={"Date"}
-                      active={activeColumn === "date"}
-                      canOrder={true}
-                      ascend={() => handleAscendingSort("date")}
-                      descend={() => handleDescendingSort("date")}
-                    />
-                  </th>
-                  <th className="pl-8 w-[250px] ">
-                    <TableHead heading={"Customer"} />
-                  </th>
-                  <th className="w-[200px]">
-                    <TableHead
-                      heading={"Total"}
-                      active={activeColumn === "total"}
-                      canOrder={true}
-                      ascend={() => handleAscendingSort("total")}
-                      descend={() => handleDescendingSort("total")}
-                    />
-                  </th>
-                  <th className="pl-12 w-[200px]">
-                    <TableHead heading={"Payment"} />
-                  </th>
-                  <th className="w-[100px]">
-                    <TableHead
-                      heading={"Status"}
-                      active={activeColumn === "status"}
-                      canOrder={true}
-                      ascend={() => handleAscendingSort("status")}
-                      descend={() => handleDescendingSort("status")}
-                    />
-                  </th>
-                  <th className="pl-6 w-[100px] pr-2">
-                    <TableHead heading={"Action"} />
-                  </th>
+                  <th className="px-4 py-1 text-left"><TableHead heading={"Order ID"} /></th>
+                  <th className="w-[150px] px-4 py-1 text-left"><TableHead heading={"Product"} /></th>
+                  <th className="px-4 py-1 text-left"><TableHead heading={"Date"} /></th>
+                  <th className="px-4 py-1 text-left"><TableHead heading={"Customer"} /></th>
+                  <th className="px-4 py-1 text-left"><TableHead heading={"Type"} /></th>
+                  <th className="px-4 py-1 text-left"><TableHead heading={"Total"} /></th>
+                  <th className="px-4 py-1 text-left"><TableHead heading={"Payment"} /></th>
+                  <th className="px-4 py-1 text-left"><TableHead heading={"Status"} /></th>
+                  <th className="px-4 py-1 text-left pr-6"><TableHead heading={"Actions"} /></th>
                 </tr>
-                <tbody>
-                  {orderList
-                    .slice(
-                      (currentPage - 1) * itemsPerPage,
-                      currentPage * itemsPerPage
-                    )
-                    .map((order, index) => {
-                      return (
-                        <tr
-                          key={index}
-                          className={`${
-                            selectedRows.indexOf(order.id) !== -1
-                              ? "bg-stone-100"
-                              : ""
-                          } border-b`}
-                        >
-                          <td className="w-[30px] pt-3">
-                            {selectedRows.indexOf(order.id) === -1 ? (
-                              <button
-                                onClick={() => handleIsSelected(order.id)}
-                                className="ml-4"
-                              >
-                                <svg
-                                  width="20"
-                                  height="20"
-                                  viewBox="0 0 20 20"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <rect
-                                    x="1"
-                                    y="1"
-                                    width="18"
-                                    height="18"
-                                    rx="5"
-                                    fill="white"
-                                    stroke="#858D9D"
-                                    stroke-width="2"
-                                  />
-                                </svg>
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleIsRemoved(order.id)}
-                                className="ml-4"
-                              >
-                                <svg
-                                  width="20"
-                                  height="20"
-                                  viewBox="0 0 20 20"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <rect
-                                    width="20"
-                                    height="20"
-                                    rx="6"
-                                    fill="#BC6C25"
-                                  />
-                                  <path
-                                    fill-rule="evenodd"
-                                    clip-rule="evenodd"
-                                    d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z"
-                                    fill="white"
-                                  />
-                                </svg>
-                              </button>
-                            )}
-                          </td>
-                          <td className="pl-6 text-[14px] text-[#BC6C25] font-semibold leading-[20px] tracking-[0.005em]">
-                            {order.id.slice(-8)}
-                          </td>
-                          <td className="">
-                            <div className="flex  h-[80px] py-[18px] px-[22px] flex-column">
-                              <div className="pl-2 w-[106px] items-center ">
-                                <p className="text-[14px] font-bold leading-[20px] tracking-[0.005em] text-[#333333] text-container whitespace-nowrap truncate">
-                                  {order?.orderDetails
-                                    ?.map((product) => product.productName)
-                                    .join(", ")}
-                                </p>
-                              </div>
-                              <div className="flex pl-2">
-                                {order?.orderDetails
-                                  ?.map((product) => {
-                                    const dressing = product.dressing?.[0];
-                                    const parsed = safeJsonParse(dressing);
-                                    return parsed?.images?.[0];
-                                  })
-                                  ?.filter(Boolean)
-                                  ?.map((imgSrc, index) => (
-                                    <img
-                                      key={index}
-                                      src={imgSrc}
-                                      alt={`Dressing ${index}`}
-                                      className="h-[30px] w-[30px] object-cover rounded-full mr-2"
-                                    />
-                                  ))}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="pl-8 font-semibold text-[14px] text-customGrey leading-[20px] tracking[0.005em]">
-                            {formatDate(order.date)}
-                          </td>
-                          <td className="pl-8 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
-                            {order.userName}
-                          </td>
-                          <td className="text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
-                            ${formatNumberWithCommas(order.totalPrice)}
-                          </td>
-                          <td className="pl-12 text-customGrey font-bold text-[14px] leading-[20px] tracking-[0.005em]">
-                            {order.paymentMethod}
-                          </td>
-                          <td className="w-[15%]">
-                            <div className="flex justify-start items-center">
-                              {order.orderStatus === "Ordered" && (
-                                <OrangeLabel>{order.orderStatus}</OrangeLabel>
-                              )}
-                              {order.orderStatus === "Ready for Delivery" && (
-                                <YellowLabel>{order.orderStatus}</YellowLabel>
-                              )}
-                              {order.orderStatus === "Out for Delivery" && (
-                                <BlueLabel>{order.orderStatus}</BlueLabel>
-                              )}
-                              {order.orderStatus === "Delivered" && (
-                                <GreenLabel>{order.orderStatus}</GreenLabel>
-                              )}
-                              {order.orderStatus === "Cancelled" && (
-                                <RedLabel>{order.orderStatus}</RedLabel>
-                              )}
-                            </div>
-                          </td>
-                          <td className="pl-10">
-                            <div className="flex space-x-2">
-                              <Link
-                                to={`/order-details/${order.id}`}
-                                onClick={() => {                 
-                                  viewOrder(order);
-                                }}
-                              >
-                                <button>
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 16 16"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <path
-                                      d="M7.99989 10.6658C9.4721 10.6658 10.6656 9.47234 10.6656 8.00014C10.6656 6.52793 9.4721 5.33447 7.99989 5.33447C6.52769 5.33447 5.33423 6.52793 5.33423 8.00014C5.33423 9.47234 6.52769 10.6658 7.99989 10.6658Z"
-                                      fill="#A3A9B6"
-                                    />
-                                    <path
-                                      d="M15.5112 6.28013C14.4776 4.59676 12.1265 1.77246 7.99998 1.77246C3.87352 1.77246 1.52239 4.59676 0.488772 6.28013C-0.162924 7.33421 -0.162924 8.66609 0.488772 9.7202C1.52239 11.4036 3.87352 14.2279 7.99998 14.2279C12.1265 14.2279 14.4776 11.4036 15.5112 9.7202C16.1629 8.66609 16.1629 7.33421 15.5112 6.28013ZM7.99998 11.9987C5.79168 11.9987 4.00147 10.2085 4.00147 8.00015C4.00147 5.79184 5.79168 4.00163 7.99998 4.00163C10.2083 4.00163 11.9985 5.79184 11.9985 8.00015C11.9963 10.2075 10.2074 11.9964 7.99998 11.9987Z"
-                                      fill="#A3A9B6"
-                                    />
-                                  </svg>
-                                </button>
-                              </Link>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  <tr>
-                    <th colSpan={9}>
-                      <div className="rounded-b-xl w-full p-4 items-center flex">
-                        <p className="font-semibold text-sm text-customGrey leading-[20px] tracking-[0.005em]">
-                          {(currentPage - 1) * itemsPerPage + 1}-
-                          {(currentPage - 1) * itemsPerPage + itemsPerPage >
-                          orderList.length
-                            ? orderList.length
-                            : (currentPage - 1) * itemsPerPage + itemsPerPage}
-                          {/* of {" "}
-                                                    {orderList.length} */}
-                        </p>
-                        <div className="ml-auto flex space-x-2">
-                          <button
-                            onClick={() =>
-                              handlePageClick(Math.max(1, currentPage - 1))
-                            }
-                          >
-                            <StyledDashboardButton
-                              isDisabled={currentPage === 1}
-                            >
-                              <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M10.86 14.3933L7.14003 10.6667C7.01586 10.5418 6.94617 10.3728 6.94617 10.1967C6.94617 10.0205 7.01586 9.85158 7.14003 9.72667L10.86 6.00001C10.9533 5.90599 11.0724 5.84187 11.2022 5.81582C11.3321 5.78977 11.4667 5.80298 11.589 5.85376C11.7113 5.90454 11.8157 5.99058 11.8889 6.10093C11.9621 6.21128 12.0008 6.34092 12 6.47334V13.92C12.0008 14.0524 11.9621 14.1821 11.8889 14.2924C11.8157 14.4028 11.7113 14.4888 11.589 14.5396C11.4667 14.5904 11.3321 14.6036 11.2022 14.5775C11.0724 14.5515 10.9533 14.4874 10.86 14.3933Z"
-                                  fill="currentColor"
-                                />
-                              </svg>
-                            </StyledDashboardButton>
-                          </button>
-                          {arr.map((pageNum) => {
-                            return (
-                              <StyledDashboardButton
-                                handleClick={() => handlePageClick(pageNum)}
-                                isActive={currentPage === pageNum}
-                              >
-                                {pageNum}
-                              </StyledDashboardButton>
-                            );
-                          })}
-                          <StyledDashboardButton
-                            handleClick={() =>
-                              handlePageClick(
-                                Math.min(
-                                  orderList.slice(
-                                    (currentPage - 1) * itemsPerPage,
-                                    currentPage * itemsPerPage
-                                  ).length,
-                                  currentPage + 1
-                                )
-                              )
-                            }
-                            isDisabled={currentPage === lastPage}
-                          >
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M6 11.9193V4.47133C6.00003 4.3395 6.03914 4.21064 6.1124 4.10103C6.18565 3.99142 6.28976 3.906 6.41156 3.85555C6.53336 3.8051 6.66738 3.7919 6.79669 3.81761C6.92599 3.84332 7.04476 3.90679 7.138 4L10.862 7.724C10.987 7.84902 11.0572 8.01856 11.0572 8.19533C11.0572 8.37211 10.987 8.54165 10.862 8.66667L7.138 12.3907C7.04476 12.4839 6.92599 12.5473 6.79669 12.5731C6.66738 12.5988 6.53336 12.5856 6.41156 12.5351C6.28976 12.4847 6.18565 12.3992 6.1124 12.2896C6.03914 12.18 6.00003 12.0512 6 11.9193Z"
-                                fill="currentColor"
-                              />
+              </thead>
+              <tbody>
+                {!loading &&
+                  currentSlice.map((order) => (
+                    <tr key={order.orderId} className={`${selectedRows.includes(order.orderId) ? "bg-[#F9FAFB]" : "bg-white"} border-b border-[#F3F4F6] hover:bg-[#F9FAFB] transition-colors`}>
+                      <td className="px-4 py-3 align-middle">
+                        {selectedRows.includes(order.orderId) ? (
+                          <button type="button" onClick={() => handleIsRemoved(order.orderId)}>
+                            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <rect width="20" height="20" rx="6" fill="#BC6C25" />
+                              <path fillRule="evenodd" clipRule="evenodd" d="M15.947 4.77386C16.302 5.06675 16.3523 5.59197 16.0594 5.94699L8.91034 14.6126C8.76045 14.7943 8.48987 14.8157 8.31326 14.6598L4.44862 11.2499C4.10351 10.9454 4.0706 10.4188 4.3751 10.0737C4.67961 9.72855 5.20622 9.69563 5.55132 10.0001L8.44704 12.5552L14.7738 4.88635C15.0667 4.53134 15.5919 4.48097 15.947 4.77386Z" fill="white" />
                             </svg>
-                          </StyledDashboardButton>
-                        </div>
-                      </div>
-                    </th>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                          </button>
+                        ) : (
+                          <button type="button" onClick={() => handleIsSelected(order.orderId)}>
+                            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <rect x="1" y="1" width="18" height="18" rx="5" fill="white" stroke="#CBD5E1" strokeWidth="2" />
+                            </svg>
+                          </button>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 align-middle">
+                        <button type="button" onClick={() => setSelectedOrder(order)} className="text-left">
+                          <p className="text-[14px] text-[#BC6C25] font-semibold">{displayOrderCode(order)}</p>
+                        </button>
+                      </td>
+                      <td className="w-[150px] px-4 py-3 align-middle max-w-[150px]">
+                        <p className="truncate text-[13px] text-[#374151]" title={order.productText || "—"}>{order.productText || "—"}</p>
+                        <p className="mt-0.5 text-[12px] text-[#6B7280]">{order.itemCount} items</p>
+                      </td>
+                      <td className="px-4 py-3 align-middle text-[13px] text-[#4B5563]">
+                        <span className="inline-flex items-center gap-1.5">
+                          <FontAwesomeIcon icon={faCalendarDay} className="text-[#9CA3AF] h-3 w-3" />
+                          {formatDate(order.date)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 align-middle text-[13px] text-[#111827] font-semibold">{order.customer}</td>
+                      <td className="px-4 py-3 align-middle">
+                        <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold bg-[#F3F4F6] text-[#374151]">
+                          <FontAwesomeIcon icon={order.orderType === "Pickup" ? faStore : faTruck} />
+                          {order.orderType}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 align-middle text-[13px] font-semibold text-[#111827]">${formatMoney(order.total)}</td>
+                      <td className="px-4 py-3 align-middle text-[13px] text-[#4B5563]">
+                        <p>{order.paymentMethod}</p>
+                        <span
+                          className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${paymentStatusUi(order.paymentStatus).cls}`}
+                        >
+                          <FontAwesomeIcon icon={paymentStatusUi(order.paymentStatus).icon} />
+                          {paymentStatusUi(order.paymentStatus).label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 align-middle">{renderStatusChip(order)}</td>
+                      <td className="px-4 py-3 align-middle text-right pr-6">
+                        <button type="button" onClick={() => setSelectedOrder(order)} className="inline-flex items-center gap-1 text-[#6B7280] hover:text-[#111827]">
+                          <FontAwesomeIcon icon={faBox} className="h-3 w-3" />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+            {!loading && filteredOrders.length === 0 && (
+              <TableEmptyState title="No orders found" description="Try adjusting your search or filters." />
+            )}
+            {loading && <p className="px-6 py-6 text-[#6B7280] font-medium">Loading orders...</p>}
           </div>
-        </>
+
+          {filteredOrders.length > 0 && (
+            <div className="shrink-0 bg-white w-full p-4 flex items-center border-t border-[#F0F1F3]">
+              <p className="font-semibold text-[14px] text-customGrey">
+                Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filteredOrders.length)} of {filteredOrders.length} orders
+              </p>
+              <div className="ml-4 flex items-center gap-2">
+                <label htmlFor="orders-items-per-page" className="text-[13px] text-[#6B7280] font-medium">Items per page</label>
+                <select
+                  id="orders-items-per-page"
+                  value={itemsPerPage}
+                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                  className="h-9 rounded-lg border border-[#D1D5DB] bg-white px-2.5 text-[13px] text-[#374151]"
+                >
+                  {ITEMS_PER_PAGE_OPTIONS.map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="ml-auto flex space-x-2">
+                <StyledDashboardButton handleClick={() => setCurrentPage(Math.max(1, currentPage - 1))} isDisabled={currentPage === 1}>
+                  {"<"}
+                </StyledDashboardButton>
+                {pageNumbers.map((pageNum) => (
+                  <StyledDashboardButton key={pageNum} handleClick={() => setCurrentPage(pageNum)} isActive={currentPage === pageNum}>
+                    {pageNum}
+                  </StyledDashboardButton>
+                ))}
+                <StyledDashboardButton handleClick={() => setCurrentPage(Math.min(lastPage, currentPage + 1))} isDisabled={currentPage === lastPage}>
+                  {">"}
+                </StyledDashboardButton>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {selectedOrder && (
+        <div className="w-[420px] shrink-0 h-full bg-white border-l border-[#E5E7EB] shadow-xl flex flex-col overflow-hidden">
+          <OrderDetailPanel order={selectedOrder} onClose={() => setSelectedOrder(null)} variant="sidebar" />
+          {selectedOrder.status !== "cancelled" && (
+            <div className="border-t border-[#E5E7EB] p-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                disabled={savingOrderAction}
+                onClick={handleCancelOrder}
+                className="rounded-lg border border-[#DC2626] text-[#DC2626] px-3 py-2 text-sm font-semibold hover:bg-[#FEF2F2] disabled:opacity-40"
+              >
+                Cancel Order
+              </button>
+              {selectedOrder.status !== "completed" ? (
+                <button
+                  type="button"
+                  disabled={savingOrderAction}
+                  onClick={handleCompleteOrder}
+                  className="rounded-lg bg-[#283618] text-white px-3 py-2 text-sm font-semibold hover:bg-[#1F2714] disabled:opacity-40"
+                >
+                  Mark Completed
+                </button>
+              ) : (
+                <div />
+              )}
+            </div>
+          )}
+        </div>
       )}
-    </>
+    </div>
   );
 }

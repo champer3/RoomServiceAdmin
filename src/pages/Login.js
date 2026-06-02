@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { initializeSocket } from "../socketService";
 import { PageContext } from "../context/PageContext";
+import { API_URL } from '../config';
 
 const validate = (data) => {
   return String(data)
@@ -44,7 +45,7 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/v1/users/login`,
+        `${API_URL}/api/v1/users/login`,
         JSON.stringify(postData),
         {
           headers: {
@@ -58,7 +59,7 @@ const LoginPage = () => {
       localStorage.setItem("token", authToken);
       localStorage.setItem("role", authRole);
       initializeSocket(authToken);
-      if (authRole === "admin" || authRole === "owner") {
+      if (authRole === "admin" || authRole === "owner" ) {
         console.log(authRole);
         navigate("/dashboard/");
       }

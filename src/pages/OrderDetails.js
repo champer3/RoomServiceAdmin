@@ -13,6 +13,7 @@ import Logo from "../assets/Logo.png";
 import YellowLabel from "../components/StatusLabels/YellowLabel";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { API_URL } from '../config';
 
 const drivers = [
   "testuser1@rs.com",
@@ -41,7 +42,7 @@ export const getOrder = async (id) => {
   const authToken = localStorage.getItem("token");
   try {
     const order = await axios.get(
-      `http://localhost:3000/api/v1/orders/${id}`,
+      `${API_URL}/api/v1/orders/${id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +60,7 @@ export const getOrder = async (id) => {
   if (driver)
     try {
       const user = await axios.get(
-        `http://localhost:3000/api/v1/users/${driver}`,
+        `${API_URL}/api/v1/users/${driver}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -76,6 +77,56 @@ export const getOrder = async (id) => {
     }
   return [res, driver];
 };
+
+function normalizeStatus(rawStatus) {
+  const value = String(rawStatus ?? "").trim();
+  const map = {
+    Ordered: "placed",
+    Preparing: "preparing",
+    "Ready for Delivery": "ready_delivery",
+    ready: "ready_delivery",
+    "Ready for Pickup": "ready_pickup",
+    "Ready for Pick Up": "ready_pickup",
+    "Out for Delivery": "out_for_delivery",
+    assigned: "out_for_delivery",
+    picked_up: "out_for_delivery",
+    Delivered: "completed",
+    delivered: "completed",
+    Cancelled: "cancelled",
+    canceled: "cancelled",
+    Completed: "completed",
+  };
+  return map[value] || map[value.toLowerCase()] || value.toLowerCase();
+}
+
+function getStatusLabel(status) {
+  const labels = {
+    placed: "Placed",
+    preparing: "Preparing",
+    ready_delivery: "Ready for Delivery",
+    ready_pickup: "Ready for Pick Up",
+    out_for_delivery: "Out for Delivery",
+    completed: "Completed",
+    cancelled: "Cancelled",
+  };
+  return labels[status] || "Placed";
+}
+
+function normalizeOrder(order) {
+  if (!order) return null;
+  return {
+    ...order,
+    orderId: String(order?._id ?? order?.id ?? ""),
+    customer: order?.userName ?? order?.user?.name ?? "Unknown",
+    date: order?.placedAt ?? order?.createdAt ?? order?.date,
+    shippingAddress: order?.shippingAddress ?? order?.deliveryAddress ?? "N/A",
+    paymentMethod: order?.paymentMethod ?? order?.payment?.method ?? "N/A",
+    total: Number(order?.totalAmount ?? order?.totalPrice ?? order?.total ?? 0) || 0,
+    status: normalizeStatus(order?.status ?? order?.orderStatus),
+    statusLabel: getStatusLabel(normalizeStatus(order?.status ?? order?.orderStatus)),
+    orderDetails: Array.isArray(order?.orderDetails) ? order.orderDetails : [],
+  };
+}
 
 function arrayToObject(arrays) {
   let result = [];
@@ -110,6 +161,7 @@ export default function OrderDetailsPage() {
   const [message, setMessage] = useState();
   const optionsRef = useRef();
   const [order, setOrder] = useState();
+  const [loading, setLoading] = useState(true);
   //driver is variable just for display to know the name of the driver if there was originally one assigned
   const [driver, setDriver] = useState();
   const { orderId } = useParams();
@@ -127,7 +179,7 @@ export default function OrderDetailsPage() {
     // to find old driver's email from order
     try {
       const order = await axios.get(
-        `http://localhost:3000/api/v1/orders/${id}`,
+        `${API_URL}/api/v1/orders/${id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -145,7 +197,7 @@ export default function OrderDetailsPage() {
     let assigned;
     try {
       const driver = await axios.get(
-        `http://localhost:3000/api/v1/users/${email}`,
+        `${API_URL}/api/v1/users/${email}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -171,7 +223,7 @@ export default function OrderDetailsPage() {
     if (oldDriver) {
       try {
         const user = await axios.patch(
-          `http://localhost:3000/api/v1/users/${oldDriver}`,
+          `${API_URL}/api/v1/users/${oldDriver}`,
           JSON.stringify({
             assignedOrder: [...newAssigned],
           }),
@@ -192,7 +244,7 @@ export default function OrderDetailsPage() {
     //find new driver
     try {
       const driver = await axios.get(
-        `http://localhost:3000/api/v1/users/${email}`,
+        `${API_URL}/api/v1/users/${email}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -216,10 +268,10 @@ export default function OrderDetailsPage() {
     // patch order
     try {
       const order = await axios.patch(
-        `http://localhost:3000/api/v1/orders/${id}`,
+        `${API_URL}/api/v1/orders/${id}`,
         JSON.stringify({
           driver: email,
-          orderStatus: "Out for Delivery",
+          status: "assigned",
         }),
         {
           headers: {
@@ -247,7 +299,7 @@ export default function OrderDetailsPage() {
     // patch driver
     try {
       const user = await axios.patch(
-        `http://localhost:3000/api/v1/users/${email}`,
+        `${API_URL}/api/v1/users/${email}`,
         JSON.stringify({
           assignedOrder: [...assigned, id],
         }),
@@ -274,10 +326,11 @@ export default function OrderDetailsPage() {
   };
 
   useEffect(() => {
+    setLoading(true);
     getOrder(orderId).then((data) => {
-      setOrder(data[0]);
-      setDriver(data[1]);
-    });
+      setOrder(normalizeOrder(data?.[0]));
+      setDriver(data?.[1]);
+    }).finally(() => setLoading(false));
   }, [flag, orderId]);
   // console.log(order);
   useEffect(() => {
@@ -289,11 +342,15 @@ export default function OrderDetailsPage() {
   const { changePage } = useContext(PageContext);
 
   const handleAssignDriver = () => {
-    updateOrder(order.id, optionsRef.current.value);
+    updateOrder(order.orderId, optionsRef.current.value);
   };
 
+  const orderStatusDisplay = order ? order.status : "";
+
   return (
-    order && (
+    <>
+      {loading && <p className="text-[#6B7280] font-medium">Loading order details…</p>}
+      {!loading && order && (
       <>
         {message && (
           <div
@@ -331,28 +388,19 @@ export default function OrderDetailsPage() {
           </div>
         </div>
         <div className="w-full flex flex-col items-center space-y-3 lg:space-y-0 lg:flex-row lg:items-start lg:justify-between space-x-4 mt-4 p-5">
-          <div className="lg:w-[50%] w-[100%] bg-white rounded-lg shadow-md p-3">
+          <div className="lg:w-[50%] w-[100%] bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4">
             <div className="flex">
               <div className="w-full flex space-x-3 justify-between">
                 <p className="text-[#333333] font-semibold text-[18px] leading-[28px] tracking-[0.01em]">
-                  Order {order.id.slice(-5)}
+                  Order {order.orderId.slice(-6)}
                 </p>
                 <div>
-                  {order.orderStatus === "Ordered" && (
-                    <OrangeLabel>{order.orderStatus}</OrangeLabel>
-                  )}
-                  {order.orderStatus === "Delivered" && (
-                    <GreenLabel>{order.orderStatus}</GreenLabel>
-                  )}
-                  {order.orderStatus === "Cancelled" && (
-                    <RedLabel>{order.orderStatus}</RedLabel>
-                  )}
-                  {order.orderStatus === "Ready for Delivery" && (
-                    <YellowLabel>{order.orderStatus}</YellowLabel>
-                  )}
-                  {order.orderStatus === "Out for Delivery" && (
-                    <BlueLabel>{order.orderStatus}</BlueLabel>
-                  )}
+                  {orderStatusDisplay === "placed" && <OrangeLabel>{order.statusLabel}</OrangeLabel>}
+                  {orderStatusDisplay === "preparing" && <OrangeLabel>{order.statusLabel}</OrangeLabel>}
+                  {(orderStatusDisplay === "ready_delivery" || orderStatusDisplay === "ready_pickup") && <YellowLabel>{order.statusLabel}</YellowLabel>}
+                  {orderStatusDisplay === "out_for_delivery" && <BlueLabel>{order.statusLabel}</BlueLabel>}
+                  {orderStatusDisplay === "completed" && <GreenLabel>{order.statusLabel}</GreenLabel>}
+                  {orderStatusDisplay === "cancelled" && <RedLabel>{order.statusLabel}</RedLabel>}
                 </div>
               </div>
               <div className=""></div>
@@ -493,11 +541,11 @@ export default function OrderDetailsPage() {
                 Ordered by
               </p>
               <p className="ml-auto font-bold text-[14px] leading-[20px] tracking-[0.005em] text-[#333333]">
-                {order.userName}
+                {order.customer}
               </p>
             </div>
           </div>
-          <div className="lg:w-[50%] w-[100%] bg-white w-full rounded-lg shadow-md p-3">
+          <div className="lg:w-[50%] w-[100%] bg-white w-full rounded-2xl border border-[#E5E7EB] shadow-sm p-4">
             <div className="rounded-lg w-full bg-white px-2 py-2 items-center flex">
               <p className="mr-2 font-semibold text-[20px] leading-[30px] tracking-[0.01em]">
                 Order List
@@ -556,12 +604,14 @@ export default function OrderDetailsPage() {
                 Order Total
               </p>
               <p className="font-[800] text-[14px] text-right w-full leading-[20px] tracking-[0.005em] text-[#333333]">
-                {formatNumberWithCommas(order.totalPrice)}
+                {formatNumberWithCommas(
+                  order.total
+                )}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg p-[24px] w-[90%] mx-auto shadow-lg flex flex-col space-y-2">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-[24px] w-[90%] mx-auto shadow-sm flex flex-col space-y-2">
           <div className="flex justify-between items-center">
             <p className="mr-2 font-semibold text-[20px] leading-[30px] tracking-[0.01em]">
               Assign Driver
@@ -583,18 +633,19 @@ export default function OrderDetailsPage() {
           <button
             onClick={handleAssignDriver}
             disabled={
-              order.orderStatus === "Ordered" ||
-              order.orderStatus === "Cancelled" ||
-              order.orderStatus === "Delivered"
+              orderStatusDisplay === "placed" ||
+              orderStatusDisplay === "cancelled" ||
+              orderStatusDisplay === "completed"
             }
             className="mx-auto rounded-lg p-1 w-40 border bg-rs-green text-white font-bold disabled:bg-stone-500"
           >
-            {order.orderStatus !== "Out for Delivery"
+            {orderStatusDisplay !== "out_for_delivery"
               ? "Assign Driver"
               : "Assign Another Driver"}
           </button>
         </div>
       </>
-    )
+      )}
+    </>
   );
 }

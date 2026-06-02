@@ -1,22 +1,22 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import Dashboard from "../components/Sidepanel/Dashboard";
 import Products from "../components/Sidepanel/Products";
 import Categories from "../components/Sidepanel/Categories";
-import Coupons from "../components/Sidepanel/Coupons";
+import PromotionsNav from "../components/Sidepanel/Promotions";
 import Orders from "../components/Sidepanel/Orders";
 import Customers from "../components/Sidepanel/Customers";
 import TopBar from "../components/TopBar";
 import Logo from "../assets/Logo.png";
 import { PageContext } from "../context/PageContext";
 
-import { Link } from "react-router-dom";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import PanelBar from "../components/Sidepanel/PanelBar";
+import { getSocket } from "../socketService";
 
 const icon = (
   <svg
-    width="24"
-    height="24"
+    width="16"
+    height="16"
     fill="currentColor"
     version="1.1"
     id="Capa_1"
@@ -47,86 +47,170 @@ const icon = (
   </svg>
 );
 
+const settingsIcon = (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="currentColor" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" fill="currentColor" />
+  </svg>
+);
+
 export default function SidePanel() {
   const { page, changePage } = useContext(PageContext);
+  const location = useLocation();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
+  const [liveOrdersBadgeCount, setLiveOrdersBadgeCount] = useState(0);
+  const isLiveOrdersRef = useRef(false);
+
+  const userName = localStorage.getItem("userName") || "Admin";
+  const displayRole = role === "owner" ? "Owner" : "Admin";
+
+  const routeIs = (basePath) =>
+    location.pathname === basePath || location.pathname.startsWith(`${basePath}/`);
+  const isDashboard = routeIs("/dashboard") || page === "dashboard";
+  const isProducts = routeIs("/products") || page === "products";
+  const isCategories = routeIs("/categories") || page === "categories";
+  const isPromotions = routeIs("/promotions") || routeIs("/coupons") || page === "promotions" || page === "coupons";
+  const isOrders = routeIs("/orders") || page === "orders";
+  const isLiveOrders = routeIs("/order-notifications") || page === "notifications";
+  const isCustomers = routeIs("/customers") || page === "customers";
+  const isSettings = routeIs("/settings") || page === "settings";
+
+  useEffect(() => {
+    isLiveOrdersRef.current = isLiveOrders;
+    if (isLiveOrders) {
+      setLiveOrdersBadgeCount(0);
+    }
+  }, [isLiveOrders]);
+
+  useEffect(() => {
+    let socket = null;
+    let pollId = null;
+
+    const onNewOrder = () => {
+      if (isLiveOrdersRef.current) return;
+      setLiveOrdersBadgeCount((prev) => prev + 1);
+    };
+
+    const attach = () => {
+      socket = getSocket();
+      if (!socket) return false;
+      socket.off("order", onNewOrder);
+      socket.on("order", onNewOrder);
+      return true;
+    };
+
+    if (!attach()) {
+      pollId = window.setInterval(() => {
+        if (attach() && pollId) {
+          clearInterval(pollId);
+          pollId = null;
+        }
+      }, 2000);
+    }
+
+    return () => {
+      if (pollId) clearInterval(pollId);
+      if (socket) socket.off("order", onNewOrder);
+    };
+  }, []);
 
   return (
     <>
-      {(role !== "admin" && role !== "owner") && <Navigate to={"/"}></Navigate>}
-      {token.length > 0 && (
-        <div className="flex h-full min-w-fit min-h-screen bg-stone-200">
-          <div className="bg-white w-[264px]">
-            <div className="flex space-x-2 px-[24px] py-[20px] items-center ">
-              {/* <img src={Logo} alt="RS Logo" className="w-[60px] h-[45px]"></img>
-              <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="34" height="34" rx="10" fill="#283618" />
-                    </svg> */}
+      {(role !== "admin" && role !== "owner") && <Navigate to={"/"} />}
+      {token && token.length > 0 && (
+        <div className="flex h-screen min-w-fit bg-panel-bg overflow-hidden">
+          {/* Sidebar: rigid, fixed height */}
+          <aside className="flex flex-col w-[264px] h-full shrink-0 bg-panel-bg border-r border-panel-border overflow-hidden">
+            {/* Brand: logo + app name — same height as top bar (h-16) so bottom border aligns */}
+            <div className="flex items-center gap-2 h-20 px-6 shrink-0 border-b border-panel-border">
+              <img src={Logo} alt="Room Service" className="h-9 w-auto object-contain" />
+              <div className="flex flex-col justify-center min-w-0">
+                <span className="font-semibold text-lg text-base leading-tight tracking-tight">
+                  RoomService
+                </span>
+                <span className="text-nav-inactive text-xs font-medium">Admin</span>
+              </div>
             </div>
-            <Link to={"/dashboard"} onClick={() => changePage("dashboard")}>
-              <Dashboard active={page === "dashboard"} />
-            </Link>
-            <Link to={"/products"} onClick={() => changePage("products")}>
-              <Products active={page === "products"} />
-            </Link>
-            <Link to={"/categories"} onClick={() => changePage("categories")}>
-              <Categories active={page === "categories"} />
-            </Link>
-            <Link to={"/coupons"} onClick={() => changePage("coupons")}>
-              <Coupons active={page === "coupons"} />
-            </Link>
-            <Link to={"/orders"} onClick={() => changePage("orders")}>
-              <Orders active={page === "orders"} />
-            </Link>
-            <Link
-              to={"/order-notifications"}
-              onClick={() => changePage("notifications")}
-            >
-              <PanelBar
-                active={page === "notifications"}
-                title={"Notifications"}
-                icon={icon}
-              />
-            </Link>
-            <Link to={"/customers"} onClick={() => changePage("customers")}>
-              <Customers active={page === "customers"} />
-            </Link>
-            <Link
-              to={"/"}
-              className="hover:bg-red-800 text-red-500 flex items-center space-x-2 justify-left hover:text-stone-100 w-[264px] h-[48] px-[24px] py-[12px] leading-[20px] font-semibold text-14px tracking-[0.005em]"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
+            {/* Nav — scrollable if needed */}
+            <nav className="flex flex-col gap-0.5 pt-2 pr-5 flex-1 min-h-0 overflow-y-auto">
+              <Link to="/dashboard" onClick={() => changePage("dashboard")}>
+                <Dashboard active={isDashboard} />
+              </Link>
+              <Link to="/products" onClick={() => changePage("products")}>
+                <Products active={isProducts} />
+              </Link>
+              <Link to="/categories" onClick={() => changePage("categories")}>
+                <Categories active={isCategories} />
+              </Link>
+              <Link to="/promotions" onClick={() => changePage("promotions")}>
+                <PromotionsNav active={isPromotions} />
+              </Link>
+              <Link to="/orders" onClick={() => changePage("orders")}>
+                <Orders active={isOrders} />
+              </Link>
+              <Link
+                to="/order-notifications"
+                onClick={() => {
+                  setLiveOrdersBadgeCount(0);
+                  changePage("notifications");
+                }}
               >
-                <rect
-                  width="24"
-                  height="24"
-                  stroke="none"
-                  fill="currentColor"
-                  opacity="0"
+                <PanelBar
+                  active={isLiveOrders}
+                  title="Live Orders"
+                  icon={icon}
+                  badgeCount={liveOrdersBadgeCount}
                 />
-
-                <g transform="matrix(0.4 0 0 0.4 12 12)">
-                  <path
-                    transform=" translate(-26, -25)"
-                    d="M 6 1 L 6 50 L 13 50 L 24 30.9 L 18.5 23.4 L 14.5 27.4 C 14 27.8 13.5 28 13 28 L 8 28 L 8 24 L 12.2 24 L 18.2 18.1 C 19.5 16.8 21.3 16 23.1 16 L 33.1 16 C 33.9 16 34.6 16.4 34.9 17.1 L 39.5 26.1 C 40 27.1 39.6 28.3 38.6 28.8 C 38.3 28.9 38 29 37.7 29 C 37 29 36.300000000000004 28.6 35.900000000000006 27.9 L 31.900000000000006 20 L 27.600000000000005 20 L 31.700000000000003 29 C 32 29.6 32.2 30.2 32.2 30.7 C 32.2 30.7 32.2 30.7 32.2 30.7 C 32.2 31.2 32.1 31.599999999999998 31.900000000000002 32.1 C 31.900000000000002 32.1 31.900000000000002 32.1 31.900000000000002 32.2 C 31.700000000000003 32.6 31.400000000000002 33 31.1 33.400000000000006 L 25.1 40.50000000000001 C 25.1 40.50000000000001 25.1 40.50000000000001 25.1 40.50000000000001 L 16.8 50 L 44 50 L 44 43 L 46 43 C 46 43 46 43 46 41 C 46 38.4 45.1 36.9 44 36.1 L 44 1 C 44 0.4 43.6 0 43 0 L 7 0 C 6.4 0 6 0.4 6 1 z M 41 37 C 42.2 37 43.3 37.7 43.7 38.7 C 43.7 38.800000000000004 43.800000000000004 38.900000000000006 43.800000000000004 39 C 43.800000000000004 39 43.800000000000004 39 43.800000000000004 39 C 43.900000000000006 39.2 43.900000000000006 39.4 43.900000000000006 39.5 C 43.900000000000006 39.6 43.900000000000006 39.8 43.900000000000006 39.9 L 43.900000000000006 40.9 L 39.900000000000006 40.9 L 30.500000000000007 40.9 C 29.700000000000006 40.9 29.10000000000001 40.4 28.700000000000006 39.5 L 28.500000000000007 39.1 L 32.300000000000004 34.7 L 33 37 L 41 37 z M 13 10 C 13 7.2 15.2 5 18 5 C 20.8 5 23 7.2 23 10 C 23 12.8 20.8 15 18 15 C 15.2 15 13 12.8 13 10 z"
-                    stroke-linecap="round"
-                    fill="currentColor"
-                  />
-                </g>
+              </Link>
+              <Link to="/customers" onClick={() => changePage("customers")}>
+                <Customers active={isCustomers} />
+              </Link>
+              <Link to="/settings" onClick={() => changePage("settings")}>
+                <PanelBar active={isSettings} title="Settings" icon={settingsIcon} />
+              </Link>
+            </nav>
+            {/* User profile — at bottom of sidebar */}
+            <div className="px-4 py-4 border-t border-panel-border/40 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-nav-inactive/20 flex items-center justify-center shrink-0">
+                  <span className="text-user-name font-semibold text-sm">
+                    {userName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-user-name font-medium text-sm truncate">{userName}</p>
+                  <p className="text-nav-inactive text-xs">{displayRole}</p>
+                </div>
+              </div>
+            </div>
+            {/* Logout */}
+            <Link
+              to="/"
+              onClick={() => {
+                localStorage.setItem("token", "");
+                localStorage.setItem("role", "");
+                localStorage.removeItem("userName");
+              }}
+              className="flex items-center space-x-3 w-full h-12 px-6 py-3 text-sm font-medium text-nav-inactive hover:bg-red-50 hover:text-red-600 rounded-r-lg transition-colors mb-2"
+            >
+              <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
-              <p>Logout</p>
+              <span>Logout</span>
             </Link>
-          </div>
-          <div className="px-8 pb-8 w-full ">
+          </aside>
+          {/* Main: top bar + content — same bg and border */}
+          <main className="flex-1 flex flex-col min-h-0 min-w-0 bg-panel-bg border-l border-panel-border overflow-hidden">
             <TopBar messages={11} notifications={11} />
-            <Outlet />
-          </div>
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col px-8 pt-4 pb-4 bg-panel-bg">
+              <div className="flex-1 min-h-0 flex flex-col">
+                <Outlet />
+              </div>
+            </div>
+          </main>
         </div>
       )}
     </>

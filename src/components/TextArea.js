@@ -4,10 +4,10 @@ import { forwardRef } from "react"
 // const Input = forwardRef(function Input({label, placeholder, text}, ref) {
 const TextArea = forwardRef(function TextArea({label, placeholder, text, onInputChange}, ref) {
     return (
-        <>
-            <label className="text-[#777980] font-bold text-[14px] leading-[20px] tracking-[0.005em]">{label}</label>
-            <textarea ref={ref} defaultValue={text ? text : ''} placeholder={`${placeholder? placeholder + '. . .': ''}`} onChange={onInputChange} className="w-full h-full px-[12px] bg-[#F9F9FC] rounded-lg border-[1px] border-[#E0E2E7] outline-none  focus:border-[#F9F9FC] focus:ring-stone-200 w-full h-full font-extrabold text-[14px] leading-[20px] tracking-[0.005em] text-[#858D9D] "/>
-        </>
+        <div className="w-full">
+            <label className="block text-[14px] font-semibold text-[#374151] tracking-[0.005em] mb-1.5">{label}</label>
+            <textarea ref={ref} defaultValue={text ? text : ''} placeholder={placeholder ? `${placeholder}...` : ''} onChange={onInputChange} className="w-full min-h-[88px] px-3 py-2.5 bg-[#F9F9FC] rounded-lg border border-[#E5E7EB] text-[14px] leading-[20px] text-[#374151] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#283618]/20 focus:border-[#283618] resize-y" />
+        </div>
     )
 
 }

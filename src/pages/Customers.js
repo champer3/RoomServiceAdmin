@@ -8,6 +8,7 @@ import CustomerInfoCard from "../components/customer_components/CustomerInfoCard
 import StyledDashboardButton from "../components/dashboard_components/StyledDashboardButton";
 import { PageContext } from "../context/PageContext";
 import axios from "axios";
+import { API_URL } from '../config';
 
 // With this function you can access all the Users in the database
 // Todo: We need to implement something in the backend that only sends out 20 Users at a time, for buffer reasons
@@ -15,7 +16,7 @@ const getAllUsers = async () => {
   const authToken = localStorage.getItem("token");
   try {
     const users = await axios.get(
-      `http://localhost:3000/api/v1/users`,
+      `${API_URL}/api/v1/users`,
       {
         headers: {
           "Content-Type": "application/json",
