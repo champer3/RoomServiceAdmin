@@ -18,12 +18,13 @@ import Messages from "./pages/Messages";
 import PageContextProvider from "./context/PageContext";
 import ViewMessage from "./pages/ViewMessage";
 import LoginPage from "./pages/Login";
-import { getSocket, initializeSocket } from "./socketService";
-import { useEffect, useState } from "react";
+import { initializeSocket } from "./socketService";
+import { useEffect } from "react";
 import OrderNotifications from "./pages/OrderNotifications";
 import DriverOrdersPage from "./pages/DriverOrdersPage";
 import DriversSidePanel from "./pages/DriversSidePanel";
 import DriversDashboard from "./pages/DriversDashboard";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -41,7 +42,6 @@ const router = createBrowserRouter([
     path: "/",
     element: <SidePanel />,
     children: [
-      // { path: "/home", element: <HomePage /> },
       { path: "/dashboard", element: <HomePage /> },
       { path: "/products", element: <ProductsPage /> },
       { path: "/add-products", element: <AddProjectsPage /> },
@@ -65,36 +65,15 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+
 function App() {
-  const token = localStorage.getItem("token");
-  if (token) {
-    initializeSocket(token);
-  }
-  // const [socket] = useState(() => getSocket())
-  const [socket, setSocket] = useState(null);
-  console.log("App component always mounted");
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      initializeSocket(token).then(() => {
-        const socketInstance = getSocket();
-        setSocket(socketInstance);
-      });
+      initializeSocket(token);
     }
-    // }
   }, []);
-  useEffect(() => {
-    if (socket) {
-      socket.on("order", (data) => {
-        console.log("Received message:", data);
-        // Handle global state update or perform actions
-      });
 
-      return () => {
-        socket.off("order"); // Correct the event name
-      };
-    }
-  }, [socket]);
   return (
     <PageContextProvider>
       <RouterProvider router={router} />

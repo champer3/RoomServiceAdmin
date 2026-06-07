@@ -92,11 +92,18 @@ export default function SidePanel() {
       setLiveOrdersBadgeCount((prev) => prev + 1);
     };
 
+    const onStatusUpdate = () => {
+      if (isLiveOrdersRef.current) return;
+      setLiveOrdersBadgeCount((prev) => prev + 1);
+    };
+
     const attach = () => {
       socket = getSocket();
       if (!socket) return false;
       socket.off("order", onNewOrder);
+      socket.off("orderStatusUpdate", onStatusUpdate);
       socket.on("order", onNewOrder);
+      socket.on("orderStatusUpdate", onStatusUpdate);
       return true;
     };
 
@@ -111,7 +118,10 @@ export default function SidePanel() {
 
     return () => {
       if (pollId) clearInterval(pollId);
-      if (socket) socket.off("order", onNewOrder);
+      if (socket) {
+        socket.off("order", onNewOrder);
+        socket.off("orderStatusUpdate", onStatusUpdate);
+      }
     };
   }, []);
 

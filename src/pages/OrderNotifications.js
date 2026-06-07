@@ -318,16 +318,46 @@ const OrderNotifications = () => {
   }, [flag]);
 
   useEffect(() => {
-    const socket = getSocket();
-    socket.on("order", async () => {
-      const orders = await getAllOrders();
-      setOrderList(orders);
-    });
+    let refetchTimer = null;
+    let pollId = null;
+    let socket = null;
+
+    const debouncedRefetch = () => {
+      if (refetchTimer) clearTimeout(refetchTimer);
+      refetchTimer = setTimeout(async () => {
+        const orders = await getAllOrders();
+        setOrderList(orders);
+      }, 300);
+    };
+
+    const attach = () => {
+      socket = getSocket();
+      if (!socket) return false;
+      socket.off("order", debouncedRefetch);
+      socket.off("orderStatusUpdate", debouncedRefetch);
+      socket.on("order", debouncedRefetch);
+      socket.on("orderStatusUpdate", debouncedRefetch);
+      return true;
+    };
+
+    if (!attach()) {
+      pollId = window.setInterval(() => {
+        if (attach() && pollId) {
+          clearInterval(pollId);
+          pollId = null;
+        }
+      }, 1000);
+    }
 
     return () => {
-      socket.off("order");
+      if (refetchTimer) clearTimeout(refetchTimer);
+      if (pollId) clearInterval(pollId);
+      if (socket) {
+        socket.off("order", debouncedRefetch);
+        socket.off("orderStatusUpdate", debouncedRefetch);
+      }
     };
-  }, [printReceipt]);
+  }, []);
 
   const stopAutoScroll = useCallback(() => {
     autoScrollStateRef.current = {
